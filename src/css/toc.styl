@@ -1,0 +1,81 @@
+item_offset = 1.5rem
+
+// .none
+//     display none
+
+white_rgba(alpha)
+    rgba(255, 255, 255, alpha)
+
+black_rgba(alpha)
+    rgba(0, 0, 0, alpha)
+
+.tocView > .tocItem
+    margin-left item_offset * 1.5
+
+.tocItemToggler
+    float left
+    position relative
+    height 0
+    width 0
+    color white_rgba(.5)
+    // color rgba(255, 255, 255, .5)
+.theme_white .tocItemToggler
+    color black_rgba(.5)
+
+.tocItemToggler::before
+    display inline-block
+    height 1.5rem
+    width 1.5rem
+    padding 0.2rem
+    content url(../img/treeitem-expanded.png)
+    position absolute
+    right 4px
+
+.tocItemToggler.none::before
+    content url(../img/treeitem-collapsed.png)
+
+.tocItemToggler.none ~ .tocItems
+    display none
+
+.tocItem > .tocItems
+    margin-left item_offset
+
+.tocItem > a
+    padding 2px 0 5px 4px
+    text-decoration none
+    display inline-block
+    min-width 95%
+    min-width calc(100% - 4px)
+    height auto
+    margin-bottom 1px
+    border-radius 2px
+    // color rgba(255, 255, 255, .8)
+    color white_rgba(.8)
+    font-size 1.5rem
+    line-height 1.8rem
+    white-space normal
+
+.theme_white .tocItem > a
+    color black_rgba(.8)
+
+.tocItemToggler:hover ~ .tocItems, .tocItem > a:hover, .tocItemToggler:hover + a
+    // background-color rgba(255, 255, 255,  .02)
+    background-color white_rgba(.02)
+    // background-image linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0))
+    // background-image linear-gradient(rgba(255, 255, 255, .05), rgba(255, 255, 255, 0))
+    background-image linear-gradient(white_rgba(.05), white_rgba(0))
+    background-clip padding-box
+    box-shadow 0 1px 0 white_rgba(.05) inset, 0 0 1px white_rgba(.2) inset, 0 0 1px black_rgba(.2)
+    color white_rgba(.9)
+
+.theme_white .tocItemToggler:hover ~ .tocItems, .theme_white .tocItem > a:hover, .theme_white .tocItemToggler:hover + a
+    background-color black_rgba(.02)
+    background-image linear-gradient(black_rgba(.05), black_rgba(0))
+    box-shadow 0 1px 0 black_rgba(.05) inset, 0 0 1px black_rgba(.2) inset, 0 0 1px white_rgba(.2)
+    color black_rgba(.9)
+
+.tocView
+    background-color black_rgba(.1)
+
+.theme_white.tocView
+    background-color white_rgba(.1)

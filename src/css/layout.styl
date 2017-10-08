@@ -1,0 +1,46 @@
+
+.toc_layout
+    position absolute
+    top 2.4rem
+    bottom 0
+    left 0
+    width 360px
+    transition all .3s
+    box-shadow 2px 2px 8px rgba(0,0,0,.2)
+    z-index 2
+html, body, .content
+    height 100%
+    width 100%
+.content
+    background-color #404040
+@media screen and (max-width: 379px)
+    .toc_layout
+        width 95%
+
+
+.toc_content
+    height 100%
+    overflow-y: auto;
+
+.theme_white.book_layout
+    background-color #FFF
+.title_text
+    float left
+    line-height 2rem
+    color #fff
+
+.close_book_toc
+    float right
+    fill currentcolor
+    float right
+    width 20px !important
+    height 20px !important
+    color #fff !important
+    margin-top 4px
+    cursor pointer
+    display inline-block
+
+.book_toc_title
+    height 2rem
+    border-bottom 1px solid #cbcbcb
+    padding 0 1rem
