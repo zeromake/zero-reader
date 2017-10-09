@@ -7,7 +7,6 @@ __pycache__/
 /dist/
 /library/
 node_modules/
-/bin/*
-!/bin/*.zip
-!/bin/pdf2htmlEX.exe
-!/bin/data/manifest
+/bin/lib/*
+/bin/pdf2htmlEX.sh
+/bin/pdf2htmlEX
