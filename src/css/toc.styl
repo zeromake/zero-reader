@@ -1,4 +1,4 @@
-item_offset = 1.5rem
+item_offset = 20px
 
 // .none
 //     display none
@@ -10,7 +10,7 @@ black_rgba(alpha)
     rgba(0, 0, 0, alpha)
 
 .tocView > .tocItem
-    margin-left item_offset * 1.5
+    margin-left item_offset
 
 .tocItemToggler
     float left
@@ -24,9 +24,6 @@ black_rgba(alpha)
 
 .tocItemToggler::before
     display inline-block
-    height 1.5rem
-    width 1.5rem
-    padding 0.2rem
     content url(../img/treeitem-expanded.png)
     position absolute
     right 4px
@@ -51,18 +48,15 @@ black_rgba(alpha)
     border-radius 2px
     // color rgba(255, 255, 255, .8)
     color white_rgba(.8)
-    font-size 1.5rem
-    line-height 1.8rem
+    font-size 13px
+    line-height 15px
     white-space normal
 
 .theme_white .tocItem > a
     color black_rgba(.8)
 
 .tocItemToggler:hover ~ .tocItems, .tocItem > a:hover, .tocItemToggler:hover + a
-    // background-color rgba(255, 255, 255,  .02)
     background-color white_rgba(.02)
-    // background-image linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0))
-    // background-image linear-gradient(rgba(255, 255, 255, .05), rgba(255, 255, 255, 0))
     background-image linear-gradient(white_rgba(.05), white_rgba(0))
     background-clip padding-box
     box-shadow 0 1px 0 white_rgba(.05) inset, 0 0 1px white_rgba(.2) inset, 0 0 1px black_rgba(.2)

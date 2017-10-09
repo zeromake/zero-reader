@@ -1,5 +1,6 @@
 import Router from "preact-router";
 import BookLayout from "./book-layout";
+import Library from "./components/library";
 import { render, h } from "zreact";
 
 const Home = (props: any) => (
@@ -13,8 +14,8 @@ const Home = (props: any) => (
 
 const MainRouter = () => (
     <Router>
-        <Home  path="/"/>
-        {h(BookLayout, {path : "/library/:sha"})}
+        <Library  path="/"/>
+        {h(BookLayout, {path : "/library/:sha/"})}
     </Router>
 );
 export default MainRouter;

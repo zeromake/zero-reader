@@ -1,5 +1,6 @@
 import { h, Component } from "zreact";
 import styl from "@/css/book-tools-bar.styl";
+import { Link } from "preact-router";
 
 export default class BookToolsBar extends Component<any, any> {
     public render(props: any) {
@@ -8,6 +9,7 @@ export default class BookToolsBar extends Component<any, any> {
             <div class={styl.toolbarLeft}>
                 <button class={styl.toolbarButton} title="目录" onClick={options.showToc}>
                 </button>
+                <Link href="/">主页</Link>
             </div>
             <div class={styl.toolbarRight}>
 

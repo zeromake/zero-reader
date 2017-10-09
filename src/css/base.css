@@ -1,15 +1,12 @@
-/* Part 2: Page Elements: Modify with caution
- * The followings are base classes, some of which are meant to be override by PDF specific classes
- * So do not increase the specificity (e.g. ".classname" -> "#page-container .classname")
- */
-.pf { /* page */
+
+.pf {
   position:relative;
   background-color:white;
   overflow: hidden;
   margin:0; 
-  border:0; /* required by pdf2htmlEX.js for page visibility test */
+  border:0;
 }
-.pc { /* content of a page */
+.pc {
   position:absolute;
   border:0;
   padding:0;
@@ -20,15 +17,14 @@
   height:100%;
   overflow:hidden;
   display:block;
-  /* set transform-origin for scaling */
   transform-origin:0% 0%;
   -ms-transform-origin:0% 0%;
   -webkit-transform-origin:0% 0%;
 }
-.pc.opened { /* used by pdf2htmlEX.js, to show/hide pages */
+.pc.opened {
   display:block;
 }
-.bf { /* images that occupies the whole page */
+.bf {
   position:absolute;
   border:0;
   margin:0;
@@ -41,7 +37,7 @@
   -webkit-user-select:none;
   user-select:none;
 }
-.bi { /* images that cover only a part of the page */
+.bi {
   position:absolute;
   border:0;
   margin:0;
@@ -58,7 +54,6 @@
     page-break-inside:avoid;
   }
   @-moz-document url-prefix() {
-    /* fix page truncation for FireFox */
     .pf {
       overflow:visible;
       border:1px solid #FFFFFF;
@@ -66,7 +61,7 @@
     .pc {overflow:visible;}
   }
 }
-.c { /* clip box */
+.c {
   position:absolute;
   border:0;
   padding:0;
@@ -74,54 +69,49 @@
   overflow:hidden;
   display:block;
 }
-.t { /* text line */
+.t {
   position:absolute;
   white-space:pre;
   font-size:1px;
   transform-origin:0% 100%;
   -ms-transform-origin:0% 100%;
   -webkit-transform-origin:0% 100%;
-  unicode-bidi:bidi-override;/* For rtl languages, e.g. Hebrew, we don't want the default Unicode behaviour */
-  -moz-font-feature-settings:"liga" 0;/* We don't want Firefox to recognize ligatures */
+  unicode-bidi:bidi-override;
+  -moz-font-feature-settings:"liga" 0;
 }
-.t:after { /* webkit #35443 */
+.t:after {
   content: '';
 }
-.t:before { /* Workaround Blink(up to 41)/Webkit bug of word-spacing with leading spaces (chromium #404444 and pdf2htmlEX #412) */
+.t:before {
   content: '';
   display: inline-block;
 }
-.t span { /* text blocks within a line */
-  /* Blink(up to 41)/Webkit have bug with negative word-spacing and inline-block (pdf2htmlEX #416), so keep normal span inline. */
+.t span {
   position:relative;
-  unicode-bidi:bidi-override; /* For rtl languages, e.g. Hebrew, we don't want the default Unicode behaviour */
+  unicode-bidi:bidi-override;
 }
-._ { /* text shift */
-  /* Blink(up to 41)/Webkit have bug with inline element, continuous spaces and word-spacing. Workaround by inline-block. */
+._ {
   display: inline-block;
   color: transparent;
   z-index: -1;
 }
-/* selection background should not be opaque, for fallback mode */
 ::selection{
   background: rgba(127,255,255,0.4);
 }
 ::-moz-selection{
   background: rgba(127,255,255,0.4);
 }
-.pi { /* info for Javascript */
+.pi {
   display:none;
 }
-.l { /* annotation links */
+.l {
 }
-/* transparent color - WebKit */
-.d { /* css drawing */
+.d {
   position:absolute;
   transform-origin:0% 100%;
   -ms-transform-origin:0% 100%;
   -webkit-transform-origin:0% 100%;
 }
-/* for the forms */
 .it {
   border: none;
   background-color: rgba(255, 255, 255, 0.0);
@@ -130,5 +120,3 @@
 .ir:hover {
   cursor: pointer;
 }
-
-/* Base CSS END */

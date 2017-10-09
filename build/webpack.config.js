@@ -19,7 +19,8 @@ module.exports = {
     },
     resolve: {
         alias: {
-            'preact': resolve('../node_modules/zreact/dist/zreact.esm.js'),
+            'zreact': 'preact',
+            // 'preact': resolve('../node_modules/zreact/dist/zreact.esm.js'),
             '@': resolve('../src')
         },
         extensions: ['.js', '.ts', '.tsx']

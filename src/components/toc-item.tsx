@@ -24,7 +24,7 @@ export default class TocItem extends Component<any, any> {
         const toc = state;
         return <div class={ styl.tocItem }>
             {
-                toc.children ? (<div class={styl.tocItemToggler + (!toc.disable ? " " + styl.none : "")} onClick={this.itemToggler}>
+                toc.children ? (<div class={styl.tocItemToggler + (toc.disable ? " " + styl.none : "")} onClick={this.itemToggler}>
                     </div>) : null
             }
             <a href={"#" + toc.page} onClick={this.itemClick}>{toc.text}</a>
