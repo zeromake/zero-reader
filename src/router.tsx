@@ -9,12 +9,12 @@ const Home = (props: any) => (
             <a href="/library/d66d7f8982411628163d95ee978ad9166849e16072b67995309406c6cbcbba41">自制编译器</a>
         </nav>
     </div>
-)
+);
 
 const MainRouter = () => (
     <Router>
         <Home  path="/"/>
-        <BookLayout path="/library/:sha"></BookLayout>
+        {h(BookLayout, {path : "/library/:sha"})}
     </Router>
-)
-export default MainRouter
+);
+export default MainRouter;

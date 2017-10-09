@@ -1,10 +1,8 @@
 import { h, Component } from "zreact";
 import styl from "@/css/book-tools-bar.styl";
 
-
-
-export default class BookToolsBar extends Component<any, any>{
-    render(props: any) {
+export default class BookToolsBar extends Component<any, any> {
+    public render(props: any) {
         const options = props.options;
         return <div class={styl.container_bar}>
             <div class={styl.toolbarLeft}>
@@ -17,6 +15,6 @@ export default class BookToolsBar extends Component<any, any>{
             <div class={styl.toolbarMiddle}>
 
             </div>
-        </div>
-    };
+        </div>;
+    }
 }

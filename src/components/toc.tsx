@@ -7,11 +7,11 @@ const Toc = (props: any, content: any) => {
     return (
         <div class={styl.tocView + (theme ? " " + styl[theme] : "")}>
             {
-                props.tocs.map(toc => {
-                    return <TocItem onclick={props.onclick} toc={toc}/>
+                props.tocs.map((toc) => {
+                    return <TocItem onclick={props.onclick} toc={toc}/>;
                 })
             }
         </div>
-    )
-}
-export default Toc
+    );
+};
+export default Toc;

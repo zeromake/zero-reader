@@ -1,7 +1,7 @@
 import { h, Component } from "zreact";
 import styl from "@/css/toc.styl";
 
-export default class TocItem extends Component<any, any>{
+export default class TocItem extends Component<any, any> {
     constructor(p: any, c: any) {
         super(p, c);
         this.state = { ...p.toc };
@@ -9,17 +9,17 @@ export default class TocItem extends Component<any, any>{
         this.itemToggler = this.itemToggler.bind(this);
     }
     public shouldComponentUpdate(nextProps: any, nextState: any, nextContext: any): boolean {
-        return this.state.disable != nextState.disable;
+        return this.state.disable !== nextState.disable;
     }
-    itemClick() {
-        this.props.onclick(this.state)
+    private itemClick() {
+        this.props.onclick(this.state);
     }
-    itemToggler() {
-        this.setState((state: any)=> {
-            state.disable = !state.disable
-        })
+    private itemToggler() {
+        this.setState((state: any) => {
+            state.disable = !state.disable;
+        });
     }
-    render(props: any, state: any) {
+    public render(props: any, state: any) {
         const propsClick = props.onclick;
         const toc = state;
         return <div class={ styl.tocItem }>
@@ -27,7 +27,7 @@ export default class TocItem extends Component<any, any>{
                 toc.children ? (<div class={styl.tocItemToggler + (!toc.disable ? " " + styl.none : "")} onClick={this.itemToggler}>
                     </div>) : null
             }
-            <a href={'#' + toc.page} onClick={this.itemClick}>{toc.text}</a>
+            <a href={"#" + toc.page} onClick={this.itemClick}>{toc.text}</a>
             {
                 toc.children ? <div class={ styl.tocItems}>
                 {
@@ -35,6 +35,6 @@ export default class TocItem extends Component<any, any>{
                 }
                 </div> : null
             }
-        </div>
+        </div>;
     }
 }

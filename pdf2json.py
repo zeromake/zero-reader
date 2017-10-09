@@ -7,7 +7,9 @@ import sys
 import json
 import shutil
 import hashlib
+import zipfile
 import argparse
+import platform
 import subprocess
 from lxml import etree
 
@@ -52,6 +54,9 @@ class Pdf2Json(object):
         """
         执行处理
         """
+        if os.path.exists(self.dist):
+            print('book sha256: %s is exist' % self.dist)
+            return
         self.mkdir()
         self.exec_pdf()
         self.container_to_json(
@@ -84,23 +89,42 @@ class Pdf2Json(object):
         """
         转换
         """
+        pdf2html_dict = {
+            "Windows": ('bin/pdf2htmlEX-win32.zip', 'bin/pdf2htmlEX.exe'),
+            "Linux": ('bin/pdf2htmlEX-linux-x64.zip', 'bin/pdf2htmlEX.sh')
+        }
+        sysstr = platform.system()
+        pdf2html = pdf2html_dict.get(sysstr)
+        if pdf2html:
+            if not os.path.exists(pdf2html[1]):
+                self.extract_zip(pdf2html[0])
+        else:
+            raise NameError("bin not on")
+        if sysstr == 'Linux':
+            subprocess.call(["chmod", "+x", pdf2html[1]])
+            subprocess.call(["chmod", "+x", 'bin/pdf2htmlEX'])
         return subprocess.call([
-        'pdf2html',
-        '--embed-css 0',
-        '--embed-font 0',
-        '--embed-image 0',
-        '--embed-javascript 0',
-        '--embed-outline 0',
-        '--outline-filename %s' % self.toc,
-        '--split-pages 1',
-        '--css-filename %s' % self.css,
-        '--page-filename %s' % self.page,
-        '--space-as-offset 1',
-        '--data-dir %s' % self.share,
-        '--dest-dir %s' % self.out,
-        self.pdf_name,
-        'index.html'
-    ])
+            pdf2html[1],
+            '--embed-css 0',
+            '--embed-font 0',
+            '--embed-image 0',
+            '--embed-javascript 0',
+            '--embed-outline 0',
+            '--outline-filename %s' % self.toc,
+            '--split-pages 1',
+            '--css-filename %s' % self.css,
+            '--page-filename %s' % self.page,
+            '--space-as-offset 1',
+            '--data-dir %s' % self.share,
+            '--dest-dir %s' % self.out,
+            self.pdf_name,
+            'index.html'
+        ])
+
+    def extract_zip(self, zip_name):
+        with zipfile.ZipFile(zip_name,'r') as f:
+            for file in f.namelist():
+                f.extract(file,"bin/")
 
     def toc_to_json(self, toc_html_name, toc_json_name):
         """
@@ -277,59 +301,12 @@ def add_args():
     parser.add_argument('-c', '--css', type=str, help='css file name', default="style.css")
     parser.add_argument('-p', '--page', type=str, help='page file name', default="page-.html")
     parser.add_argument('-j', '--join', type=str, help='json file dir', default="pages")
-    parser.add_argument('-s', '--share', type=str, help='pdf2htmlEX share dir', default="/home/zero/project/pdf2html/share")
+    parser.add_argument('-s', '--share', type=str, help='pdf2htmlEX share dir', default="bin/data")
     parser.add_argument('-t', '--toc', type=str, help='toc filename', default="toc.html")
     return parser.parse_args()
 
 
-# def css_copy():
-#     css_name = 'out/style.css'
-#     out_name = 'dist/style.css'
-#     font_pat = re.compile(r'url\((\w+\.woff)\)')
-#     px_and_pat = re.compile(r'(.*){([\w-]+):(-?\d+(?:\.\d+)?)(px|pt);}')
-#     zoom = []
-#     field = ('select', 'attribute', 'size', 'unit')
-
-#     with open(css_name, 'r', encoding='utf-8') as fd:
-#         with open(out_name, 'w', encoding='utf-8') as out_fd:
-#             line = fd.readline()
-#             media_print = False
-#             while line:
-#                 match = px_and_pat.match(line)
-#                 if match:
-#                     item = {key: val for key, val in zip(field, match.groups())}
-#                     item['size'] = float(item['size'])
-#                     item['media_print'] = media_print
-#                     zoom.append(item)
-#                 elif line.startswith('@font-face{font-family'):
-#                     font = font_pat.sub(font_copy, line)
-#                     out_fd.write(font)
-#                 elif line == '@media print{\n':
-#                     media_print = True
-#                 elif line == '}\n' and media_print:
-#                     media_print = False
-#                 out_fd.write(line)
-#                 line = fd.readline()
-#     with open('dist/zoom.json', 'w') as fd:
-#         json.dump(zoom, fd, ensure_ascii=False, indent="  ")
-# def font_copy(group):
-#     """
-#     拷贝字体
-#     """
-#     out_dir = 'dist'
-#     input_dir = 'out'
-#     font_name = group.group(1)
-#     out_name = os.path.join(out_dir, 'font', font_name)
-#     input_name = os.path.join(input_dir, font_name)
-#     shutil.copyfile(input_name, out_name)
-#     return 'url(%s)' % ('font' + '/' + font_name)
-
-
 if __name__ == '__main__':
     args = add_args()
-    print(type(args))
     pdf = Pdf2Json(args)
     pdf.run()
-    # main(sys.argv[1:])
-    # pages = container_to_json('out/index.html', 'dist/container.json', copy_page)
-    # copy_page('pages/page-1.html')
