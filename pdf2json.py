@@ -91,7 +91,7 @@ class Pdf2Json(object):
         """
         pdf2html_dict = {
             "Windows": ('bin/pdf2htmlEX-win32.zip', 'bin/pdf2htmlEX.exe'),
-            "Linux": ('bin/pdf2htmlEX-linux-x64.zip', 'bin/pdf2htmlEX.sh')
+            "Linux": (None, 'bin/pdf2htmlEX.sh')
         }
         sysstr = platform.system()
         pdf2html = pdf2html_dict.get(sysstr)
@@ -105,18 +105,18 @@ class Pdf2Json(object):
             subprocess.call(["chmod", "+x", 'bin/pdf2htmlEX'])
         return subprocess.call([
             pdf2html[1],
-            '--embed-css 0',
-            '--embed-font 0',
-            '--embed-image 0',
-            '--embed-javascript 0',
-            '--embed-outline 0',
-            '--outline-filename %s' % self.toc,
-            '--split-pages 1',
-            '--css-filename %s' % self.css,
-            '--page-filename %s' % self.page,
-            '--space-as-offset 1',
-            '--data-dir %s' % self.share,
-            '--dest-dir %s' % self.out,
+            '--embed-css','0',
+            '--embed-font','0',
+            '--embed-image','0',
+            '--embed-javascript', '0',
+            '--embed-outline', '0',
+            '--outline-filename', '%s' % self.toc,
+            '--split-page', '1',
+            '--css-filename', '%s' % self.css,
+            '--page-filename', '%s' % self.page,
+            '--space-as-offset', '1',
+            '--data-dir', '%s' % self.share,
+            '--dest-dir', '%s' % self.out,
             self.pdf_name,
             'index.html'
         ])
@@ -134,7 +134,7 @@ class Pdf2Json(object):
             'data-dest-detail': lambda x: tuple(json.loads(x)),
             'href': lambda x: x[1:]
         }
-        with open(toc_html_name, 'r') as fd:
+        with open(toc_html_name, 'r', encoding='utf8') as fd:
             tree = etree.parse(fd)
             toc = []
             def callback_toc(item, level):
@@ -167,7 +167,7 @@ class Pdf2Json(object):
             root = tree.getroot()
             deep_tree(root, 0, callback_toc)
         if toc_json_name:
-            with open(toc_json_name, 'w') as fd:
+            with open(toc_json_name, 'w', encoding='utf8') as fd:
                 json.dump(toc, fd, ensure_ascii=False, indent="  ")
         self.tocs = toc
     
@@ -175,13 +175,11 @@ class Pdf2Json(object):
         """
         转换内容页
         """
-        xmlns = 'http://www.w3.org/1999/xhtml'
-        namespaces = {'ns': xmlns}
         page_id_to_index = {}
         containers = []
-        with open(container_name) as fd:
+        with open(container_name, encoding='utf8') as fd:
             tree = etree.parse(fd)
-            container_root = tree.xpath(u'//ns:div[@id="page-container"]', namespaces = namespaces)[0]
+            container_root = tree.xpath(u'//div[@id="page-container"]')[0]
             last_class = None
             index = 0
             for row in container_root.iterchildren():
@@ -194,7 +192,7 @@ class Pdf2Json(object):
                 last_class = row.get('class')
                 index += 1
         if json_name:
-            with open(json_name, 'w') as fd:
+            with open(json_name, 'w', encoding='utf8') as fd:
                 json.dump(containers, fd, ensure_ascii=False, indent="  ")
         self.containers = containers
         self.pages = page_id_to_index
@@ -209,7 +207,7 @@ class Pdf2Json(object):
         join_dir = 'img'
         input_name = os.path.join(input_dir, page_name)
         out_name = os.path.join(out_dir, page_name)
-        with open(input_name, 'r') as fd:
+        with open(input_name, 'r', encoding='utf8') as fd:
             tree = etree.parse(fd)
             for img in tree.xpath('//img'):
                 parent = img.getparent()
@@ -256,7 +254,7 @@ class Pdf2Json(object):
                         media_print = False
                     out_fd.write(line)
                     line = fd.readline()
-        with open(os.path.join(self.dist, self.zoom), 'w') as fd:
+        with open(os.path.join(self.dist, self.zoom), 'w', encoding='utf8') as fd:
             json.dump(zoom, fd, ensure_ascii=False, indent="  ")
     def font_copy(self, group):
         """
@@ -269,30 +267,6 @@ class Pdf2Json(object):
         input_name = os.path.join(input_dir, font_name)
         shutil.copyfile(input_name, out_name)
         return 'url(%s)' % (self.font_join + '/' + font_name)
-
-def main(options):
-    if len(options) < 1:
-        print("argv miss pdf name")
-        return
-    pdf_name = options[0]
-    return subprocess.call([
-        'pdf2html',
-        '--embed-css 0',
-        '--embed-font 0',
-        '--embed-image 0',
-        '--embed-javascript 0',
-        '--embed-outline 0',
-        '--outline-filename toc.html',
-        '--split-pages 1',
-        '--css-filename style.css',
-        '--page-filename pages/page-.html',
-        '--space-as-offset 1',
-        '--data-dir /home/zero/project/pdf2html/share',
-        '--dest-dir ./out',
-        pdf_name,
-        'index.html'
-    ])
-
 def add_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--file', type=str, help='pdf file')

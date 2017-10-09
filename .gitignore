@@ -9,3 +9,5 @@ __pycache__/
 node_modules/
 /bin/*
 !/bin/*.zip
+!/bin/pdf2htmlEX.exe
+!/bin/data/manifest

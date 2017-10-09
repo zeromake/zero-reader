@@ -52,20 +52,13 @@ module.exports = {
                     fallback: "style-loader",
                     use: ["css-loader?modules", 'stylus-loader']
                 })
-                // use: [
-                //     {
-                //         loader: 'style-loader'
-                //     },
-                //     {
-                //         loader: 'css-loader',
-                //         options: {
-                //             modules: true
-                //         }
-                //     },
-                //     {
-                //         loader: 'stylus-loader'
-                //     }
-                // ]
+            },
+            {
+                test: /\.css$/,
+                use: ExtractTextPlugin.extract({
+                    fallback: "style-loader",
+                    use: ["css-loader"]
+                })
             },
             {
                 test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
