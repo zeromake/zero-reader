@@ -10,7 +10,6 @@
     "files": [
        "src/types.d.ts",
       //  "node_modules/preact/src/preact.d.ts"
-       "node_modules/zreact/types/zreact.d.ts",
-       "node_modules/preact-router/index.d.ts"
+       "node_modules/zreact/types/zreact.d.ts"
     ]
 }

@@ -249,6 +249,11 @@ class Pdf2Json(object):
         """
         page_id_to_index = {}
         containers = []
+        out_bg_css = os.path.join(self.dist, 'bg.css')
+        background = []
+        background.append("div.background_img_class{")
+        background.append("  background-size: 100%;")
+        background.append("}")
         with open(container_name, encoding='utf8') as fd:
             tree = etree.parse(fd)
             container_root = tree.xpath(u'//div[@id="page-container"]')[0]
@@ -260,16 +265,18 @@ class Pdf2Json(object):
                 item['index'] = index
                 containers.append(item)
                 if callback:
-                    callback(item)
+                    callback(item, background)
                 last_class = row.get('class')
                 index += 1
         if json_name:
             with open(json_name, 'w', encoding='utf8') as fd:
                 json.dump(containers, fd, ensure_ascii=False, indent="  ")
+        with open(out_bg_css, 'w', encoding='utf8') as fd:
+            fd.write("\n".join(background))
         self.containers = containers
         self.pages = page_id_to_index
 
-    def copy_page(self, page):
+    def copy_page(self, page, background):
         """
         拷贝page的html，并做好预处理
         """
@@ -284,20 +291,21 @@ class Pdf2Json(object):
             for img in tree.xpath('//img'):
                 parent = img.getparent()
                 div = etree.Element('div')
-                for key, val in img.items():
-                    if key == 'src':
-                        shutil.copyfile(os.path.join(input_dir, val), os.path.join(out_dir, join_dir, val))
-                        style = "background-image: url('" + self.abs_url + join_dir + '/' + val + "'); background-size: 100%;"
-                        div.set('style', style)
-                    elif key == 'alt':
-                        if val != '':
-                            div.set('title', val)
-                    else:
-                        if  key == 'class':
-                            val += ' global_background_div'
-                        div.set(key, val)
+                val = img.get('src')
+                shutil.copyfile(os.path.join(input_dir, val), os.path.join(out_dir, join_dir, val))
+                img_sha = self.file_sha256(os.path.join(input_dir, val))
+                background.append("div.img_" + img_sha + "{")
+                background.append("  background-image: url('./" + join_dir + '/' + val + "');")
+                background.append("}")
+                val = img.get('alt')
+                if val != '':
+                    div.set('title', val)
+                val = img.get('class')
+                val += ' img_' + img_sha + ' background_img_class'
+                div.set('class', val)
                 parent.replace(img, div)
             tree.write(out_name, pretty_print=True, encoding='utf-8', method='html')
+        
     def css_copy(self):
         css_name = os.path.join(self.out, self.css)
         out_name = os.path.join(self.dist, self.css)
@@ -337,7 +345,7 @@ class Pdf2Json(object):
         out_name = os.path.join(out_dir, self.font_join, font_name)
         input_name = os.path.join(input_dir, font_name)
         shutil.copyfile(input_name, out_name)
-        return 'url(%s)' % (self.abs_url + self.font_join + '/' + font_name)
+        return 'url(%s)' % ('./' + self.font_join + '/' + font_name)
 def add_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--file', type=str, help='pdf file')

@@ -19,8 +19,8 @@ module.exports = {
     },
     resolve: {
         alias: {
-            'zreact': 'preact',
-            // 'preact': resolve('../node_modules/zreact/dist/zreact.esm.js'),
+            'zreact': resolve('../node_modules/zreact/dist/zreact.ie8.js'),
+            'preact': 'zreact',
             '@': resolve('../src')
         },
         extensions: ['.js', '.ts', '.tsx']
@@ -35,7 +35,7 @@ module.exports = {
     ],
     devServer: {
         contentBase: outPath,
-        host: '127.0.0.1',
+        host: '0.0.0.0',
         port: 8089,
         inline: true,
         historyApiFallback: true

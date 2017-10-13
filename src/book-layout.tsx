@@ -2,6 +2,8 @@ import { h, Component } from "zreact";
 import Toc from "@/components/toc";
 import styl from "@/css/layout.styl";
 import BookToolsBar from "@/components/book-tools-bar";
+import Animate from "preact-animate";
+import { addLinkCss, removeLinkCss } from "./utils";
 
 export default class Layout extends Component<any, any> {
     public tocs: any[];
@@ -19,21 +21,15 @@ export default class Layout extends Component<any, any> {
         this.showToc = this.showToc.bind(this);
     }
     public componentDidMount() {
-        const link = document.createElement("link");
-        link.setAttribute("href", `/library/${this.props.sha}/style.css`);
-        link.setAttribute("rel", "stylesheet");
-        link.id = "base_css_id";
-        document.head.appendChild(link);
-
+        addLinkCss(`/library/${this.props.sha}/style.css`, "base_css_id");
+        addLinkCss(`/library/${this.props.sha}/bg.css`, "bg_css_id");
         this.getContainer().then(() => {
             return this.getPage(0);
         });
     }
     public componentWillUnmount() {
-        const link = document.getElementById("base_css_id");
-        if (link) {
-            document.head.removeChild(link);
-        }
+        removeLinkCss("base_css_id");
+        removeLinkCss("bg_css_id");
     }
     private tocClick(toc) {
         const page = +toc.page;
@@ -73,11 +69,20 @@ export default class Layout extends Component<any, any> {
         const tocClass = styl.toc_layout + (state.theme ? " " + styl[state.theme] : "");
         return (
             <div class={styl.content}>
-                { state.toc_open ? <div class={tocClass}>
-                    <div class={styl.toc_content}>
-                        <Toc tocs={ this.tocs } onclick={this.tocClick} theme={state.theme}></Toc>
-                    </div>
-                </div> : null}
+                <Animate
+                    component={null}
+                    transitionEnter={true}
+                    transitionLeave={true}
+                    transitionName = {{
+                        enter: "fadeInLeft",
+                        leave: "fadeInRight",
+                    }}>
+                    { state.toc_open ? <div class={tocClass + " animated"}>
+                        <div class={styl.toc_content}>
+                            <Toc tocs={ this.tocs } onclick={this.tocClick} theme={state.theme}></Toc>
+                        </div>
+                    </div> : null}
+                </Animate>
                 <BookToolsBar options={ { showToc: this.showToc } }/>
                 <div class={styl.pageHtml}>
                     <div class={styl.view + " w0 h0"} dangerouslySetInnerHTML={{__html: state.pageHtml}}>
