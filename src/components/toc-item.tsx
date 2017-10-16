@@ -19,7 +19,7 @@ export default class TocItem extends Component<any, any> {
             state.disable = !state.disable;
         });
     }
-    public render(props: any, state: any) {
+    public render(props: any, state: any): any {
         const propsClick = props.onclick;
         const toc = state;
         return <div class={ styl.tocItem }>

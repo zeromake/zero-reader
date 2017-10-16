@@ -14,7 +14,7 @@ const Home = (props: any) => (
 
 const MainRouter = () => (
     <Router>
-        <Library  path="/"/>
+        {h(Library, { path: "/"})}
         {h(BookLayout, {path : "/library/:sha/"})}
     </Router>
 );

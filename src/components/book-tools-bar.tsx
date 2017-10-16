@@ -3,7 +3,7 @@ import styl from "@/css/book-tools-bar.styl";
 import { Link } from "preact-router";
 
 export default class BookToolsBar extends Component<any, any> {
-    public render(props: any) {
+    public render(props?: any) {
         const options = props.options;
         return <div class={styl.container_bar}>
             <div class={styl.toolbarLeft}>

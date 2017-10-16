@@ -7,6 +7,7 @@ import { addLinkCss, removeLinkCss } from "./utils";
 
 export default class Layout extends Component<any, any> {
     public tocs: any[];
+    public zoom: any[];
     constructor(p: any, c: any) {
         super(p, c);
         this.state = {
@@ -51,6 +52,14 @@ export default class Layout extends Component<any, any> {
             });
         });
     }
+    private getZoom() {
+        return fetch(`/library/${this.props.sha}/zoom.json`).then((res) => res.json()).then((data) => {
+            // this.zoom =
+        });
+    }
+    private addZoom(zoom: number) {
+
+    }
     private showToc() {
         if (this.tocs) {
             this.setState((state: any) => {
@@ -65,7 +74,7 @@ export default class Layout extends Component<any, any> {
             });
         }
     }
-    public render(props: any, state: any) {
+    public render(props: any, state: any): any {
         const tocClass = styl.toc_layout + (state.theme ? " " + styl[state.theme] : "");
         return (
             <div class={styl.content}>
