@@ -7,17 +7,22 @@
   "author": "zeromake <a390720046@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "webpack --config build/webpack.config.js",
+    "build": "cross-env NODE_ENV=production webpack --config build/webpack.config.js",
     "rollup": "rollup -c rollup.config.js",
     "dev": "webpack-dev-server --progress --colors --config build/webpack.config.js"
   },
   "dependencies": {
+    "lodash.throttle": "^4.1.1",
     "preact-animate": "^1.1.0",
     "preact-async-route": "^2.0.0",
     "preact-router": "^2.5.7",
+    "screenfull": "^3.3.2",
+    "unfetch": "^3.0.0",
     "zreact": "^0.2.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.80",
+    "cross-env": "^5.1.0",
     "css-loader": "^0.28.7",
     "extract-text-webpack-plugin": "^3.0.1",
     "file-loader": "^1.1.5",
@@ -37,6 +42,7 @@
     "typescript": "^2.5.3",
     "url-loader": "^0.6.2",
     "webpack": "^3.6.0",
+    "webpack-bundle-analyzer": "^2.9.0",
     "webpack-dev-server": "^2.9.1"
   }
 }

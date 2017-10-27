@@ -10,17 +10,18 @@
     transition-duration 200ms
     transition-timing-function: ease;
     transition-property: width;
-html, body, .content
-    height 100%
-    width 100%
 .content
     background-color #404040
+    overflow auto
+    width 100%
+    height 100%
 @media screen and (max-width: 379px)
     .toc_layout
         width 95%
 
 
 .toc_content
+    background-color #404040
     height 100%
     overflow-y: auto;
 
@@ -48,13 +49,7 @@ html, body, .content
     padding 0 1rem
 
 .pageHtml
+    padding-top 2.8rem
     box-shadow inset 1px 0 0 hsla(0,0%,100%,.05)
-    overflow auto
-    position absolute
-    top 2.4rem
-    right 0
-    bottom 0
-    left 0
-    outline none
 .view
     margin: 1px auto -8px auto;

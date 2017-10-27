@@ -15,3 +15,13 @@ declare module "preact-css-transition-group" {
     const Animate: any;
     export default Animate;
 }
+
+declare module "lodash.throttle" {
+    import { throttle } from "lodash";
+    export default throttle
+}
+
+declare module "screenfull" {
+    const screenfull: any;
+    export default screenfull;
+}

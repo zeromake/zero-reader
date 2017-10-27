@@ -7,7 +7,7 @@ const isProd = process.env.NODE_ENV === 'production'
 const resolve = file => path.resolve(__dirname, file)
 
 const outPath = resolve('../dist');
-module.exports = {
+const config = {
     devtool: isProd ? false : "#source-map",
     entry: {
         "main": resolve('../src/main.tsx')
@@ -27,8 +27,9 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
+            isProd,
             filename: 'index.html',
-            template: 'src/index.html',
+            template: 'src/index.ejs',
             inject: true
         }),
         new ExtractTextPlugin("css/common.[chunkhash].css")
@@ -74,3 +75,26 @@ module.exports = {
         ]
     }
 }
+if (isProd) {
+    config.plugins.push(
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: '"production"'
+            }
+        })
+    )
+    config.plugins.push(
+        new webpack.optimize.UglifyJsPlugin({
+            compress: {
+                warnings: false
+            }
+        })
+    )
+    // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+    // config.plugins.push(
+    //     new BundleAnalyzerPlugin({
+    //         analyzerPort: 9999
+    //     })
+    // )
+}
+module.exports = config;

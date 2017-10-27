@@ -321,17 +321,20 @@ class Pdf2Json(object):
                 while line:
                     match = px_and_pat.match(line)
                     if match:
-                        item = {key: val for key, val in zip(field, match.groups())}
-                        item['size'] = float(item['size'])
-                        item['media_print'] = media_print
-                        zoom.append(item)
+                        if not media_print:
+                            item = {key: val for key, val in zip(field, match.groups())}
+                            item['size'] = float(item['size'])
+                            item['media_print'] = media_print
+                            zoom.append(item)
                     elif line.startswith('@font-face{font-family'):
                         line = font_pat.sub(self.font_copy, line)
+                        out_fd.write(line)
                     elif line == '@media print{\n':
                         media_print = True
                     elif line == '}\n' and media_print:
                         media_print = False
-                    out_fd.write(line)
+                    else:
+                        out_fd.write(line)
                     line = fd.readline()
         with open(os.path.join(self.dist, self.zoom), 'w', encoding='utf8') as fd:
             json.dump(zoom, fd, ensure_ascii=False, indent="  ")

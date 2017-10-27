@@ -46,7 +46,7 @@
   -webkit-user-select:none;
   user-select:none;
 }
-@media print {
+/* @media print {
   .pf {
     margin:0;
     box-shadow:none;
@@ -60,7 +60,7 @@
     }
     .pc {overflow:visible;}
   }
-}
+} */
 .c {
   position:absolute;
   border:0;
@@ -170,4 +170,8 @@
 
 .none {
   display: none;
+}
+#main, body, html{
+  height: 100%;
+  width: 100%;
 }

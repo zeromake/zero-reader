@@ -5,7 +5,10 @@
       "sourceMap": true,
       "target": "es5", // 目标代码平台
       "jsx": "react",
-      "jsxFactory": "h"
+      "jsxFactory": "h",
+      "types": [
+        "lodash"
+      ]
     },
     "files": [
        "src/types.d.ts",

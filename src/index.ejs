@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>zero-reader</title>
+</head>
+<body>
+    <div id="main"></div>
+    <% if (!htmlWebpackPlugin.options.isProd){%>
+    <script src="https://unpkg.com/alloylever@1.0.2/alloy-lever.js"></script>
+    <script>
+        AlloyLever.config({
+            cdn:'//s.url.cn/qqun/qun/qqweb/m/qun/confession/js/vconsole.min.js',
+            entry:"#entry"
+        })
+    </script>
+    <%}%>
+</body>
+</html>

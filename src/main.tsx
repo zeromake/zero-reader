@@ -1,3 +1,4 @@
+import "unfetch/polyfill";
 import { render, h } from "zreact";
 // import { initDevTools } from "zreact/dist/devtools";
 import MainRouter from "./router";
@@ -5,6 +6,5 @@ import MainRouter from "./router";
 import "./css/main.styl";
 import "./css/base.css";
 
-render(<MainRouter/>, document.body);
-
+render(<MainRouter/>, document.getElementById("main"));
 // initDevTools();
