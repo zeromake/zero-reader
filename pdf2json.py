@@ -311,9 +311,10 @@ class Pdf2Json(object):
         out_name = os.path.join(self.dist, self.css)
         font_pat = re.compile(r'url\((\w+\.woff)\)')
         px_and_pat = re.compile(r'(.*){([\w-]+):(-?\d+(?:\.\d+)?)(px|pt);}')
-        zoom = []
+        zoom_arr = []
         field = ('select', 'attribute', 'size', 'unit')
-
+        zoom = {
+        }
         with open(css_name, 'r', encoding='utf-8') as fd:
             with open(out_name, 'w', encoding='utf-8') as out_fd:
                 line = fd.readline()
@@ -324,8 +325,9 @@ class Pdf2Json(object):
                         if not media_print:
                             item = {key: val for key, val in zip(field, match.groups())}
                             item['size'] = float(item['size'])
+                            
                             item['media_print'] = media_print
-                            zoom.append(item)
+                            zoom_arr.append(item)
                     elif line.startswith('@font-face{font-family'):
                         line = font_pat.sub(self.font_copy, line)
                         out_fd.write(line)

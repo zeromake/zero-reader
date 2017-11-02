@@ -1,9 +1,9 @@
 declare module "*.styl" {
-    const style:any;
+    const style: any;
     export default style;
 }
 declare module "preact-router" {
-    const style:any;
+    const style: any;
     export const Link: any;
     export default style;
 }
@@ -18,7 +18,7 @@ declare module "preact-css-transition-group" {
 
 declare module "lodash.throttle" {
     import { throttle } from "lodash";
-    export default throttle
+    export default throttle;
 }
 
 declare module "screenfull" {
