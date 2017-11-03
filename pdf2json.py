@@ -173,7 +173,7 @@ class Pdf2Json(object):
             for file in f.namelist():
                 f.extract(file,"bin/")
 
-    def toc_to_json(self, toc_html_name, toc_json_name):
+    def toc_to_json(self, toc_html_name, toc_json_name, is_try=False):
         """
         把html的toc转为json
         """
@@ -188,9 +188,11 @@ class Pdf2Json(object):
             try:
                 tree = etree.parse(fd)
             except etree.XMLSyntaxError as e:
+                if is_try:
+                    raise e
                 fd.seek(0)
                 self.toc_del_zero(toc_html_name)
-                return self.toc_to_json(toc_html_name, toc_json_name)
+                return self.toc_to_json(toc_html_name, toc_json_name, True)
             toc = []
             def callback_toc(item, level):
                 for row in item.iterchildren():
@@ -314,6 +316,8 @@ class Pdf2Json(object):
         zoom_arr = []
         field = ('select', 'attribute', 'size', 'unit')
         zoom = {
+            'width': 0,
+            'height': 0
         }
         with open(css_name, 'r', encoding='utf-8') as fd:
             with open(out_name, 'w', encoding='utf-8') as out_fd:
@@ -325,7 +329,10 @@ class Pdf2Json(object):
                         if not media_print:
                             item = {key: val for key, val in zip(field, match.groups())}
                             item['size'] = float(item['size'])
-                            
+                            if item['select'].startswith('.w'):
+                                zoom['width'] = max([item['size'], zoom['width']])
+                            elif item['select'].startswith('.h'):
+                                zoom['height'] = max([item['size'], zoom['height']])
                             item['media_print'] = media_print
                             zoom_arr.append(item)
                     elif line.startswith('@font-face{font-family'):
@@ -338,6 +345,7 @@ class Pdf2Json(object):
                     else:
                         out_fd.write(line)
                     line = fd.readline()
+        zoom['css'] = zoom_arr
         with open(os.path.join(self.dist, self.zoom), 'w', encoding='utf8') as fd:
             json.dump(zoom, fd, ensure_ascii=False, indent="  ")
     def font_copy(self, group):

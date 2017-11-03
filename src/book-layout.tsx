@@ -28,7 +28,10 @@ export default class Layout extends Component<any, any> {
             page: 0,
             pageHtml: "",
             zoom: undefined,
-            pageWidth: 0,
+            width: 0,
+            height: 0,
+            offset: 20,
+            toc_open: false,
         };
         this.tocClick = this.tocClick.bind(this);
         this.showToc = this.showToc.bind(this);
@@ -40,8 +43,9 @@ export default class Layout extends Component<any, any> {
         addLinkCss(`/library/${this.props.sha}/style.css`, "base_css_id");
         addLinkCss(`/library/${this.props.sha}/bg.css`, "bg_css_id");
         this.getContainer().then(() => {
-            this.getZoom();
-            return this.getPage(0);
+            return this.getPage(0, () => {
+                this.getZoom();
+            });
         });
         window.addEventListener("resize", this.resize);
     }
@@ -63,32 +67,31 @@ export default class Layout extends Component<any, any> {
             // this.setState({container: data});
         });
     }
-    private getPage(num: number) {
+    private getPage(num: number, callback?: any) {
         const pageName = this.state.container[num]["data-page-url"];
         return fetch(`/library/${this.props.sha}/${pageName}`).then((res) => res.text()).then((data) => {
             this.setState({
                 pageHtml: data,
                 page: num,
-            });
+            }, callback);
         });
     }
     private getZoom() {
         return fetch(`/library/${this.props.sha}/zoom.json`).then((res) => res.json()).then((data) => {
-            this.state.zoom = data;
-            for (const item of data) {
-                if (item.select === ".w0" && !item.media_print) {
-                    this.state.pageWidth = item.size;
-                    break;
-                }
-            }
-            this.setZoom();
+            this.state.zoom = data.css;
+            this.state.width = data.width;
+            this.state.height = data.height;
+            this.setZoom(true);
         });
     }
-    private setZoom() {
+    private setZoom(flag?) {
         if (this.page) {
             const clientWidth = this.page.clientWidth;
-            console.log(clientWidth, this.state.pageWidth);
-            const zoom = (clientWidth - 10) / this.state.pageWidth;
+            let offset = this.state.offset;
+            if (flag) {
+                offset += 15;
+            }
+            const zoom = (clientWidth - offset) / this.state.width;
             // console.log(zoom);
             this.addZoom(zoom);
         }
@@ -96,24 +99,11 @@ export default class Layout extends Component<any, any> {
     private addZoom(zoom: number) {
         if (this.state.zoom && this.state.zoom.length > 0) {
             const css = [];
-            // let flag = false;
             this.state.zoom.forEach((pZoom: IZoom) => {
-                // if (pZoom.media_print && !flag) {
-                //     flag = true;
-                //     css.push("@media print {");
-                // }
-                // if (!pZoom.media_print && flag) {
-                //     flag = false;
-                //     css.push("}");
-                // }
                 css.push(`${pZoom.select}{`);
                 css.push(`  ${pZoom.attribute}: ${pZoom.size * zoom}${pZoom.unit};`);
                 css.push("}");
             });
-            // if (flag) {
-            //     flag = false;
-            //     css.push("}");
-            // }
             const cssText = css.join("\n");
             addStyle("zoom_style", cssText);
         }
@@ -137,6 +127,7 @@ export default class Layout extends Component<any, any> {
         return (
             <div class={styl.content}>
                 <Animate
+                    showProp="data-show"
                     component={null}
                     transitionEnter={true}
                     transitionLeave={true}
@@ -144,11 +135,11 @@ export default class Layout extends Component<any, any> {
                         enter: "fadeInLeft",
                         leave: "fadeInRight",
                     }}>
-                    { state.toc_open ? <div class={tocClass + " animated"}>
+                    <div class={tocClass + " animated"} data-show={state.toc_open}>
                         <div class={styl.toc_content}>
-                            <Toc tocs={ this.tocs } onclick={this.tocClick} theme={state.theme}></Toc>
+                            {this.tocs ? <Toc tocs={ this.tocs } onclick={this.tocClick} theme={state.theme}></Toc> : null}
                         </div>
-                    </div> : null}
+                    </div>
                 </Animate>
                 <BookToolsBar options={ { showToc: this.showToc } }/>
                 <div ref={(vdom: any) => this.page = findDOMNode(vdom)} class={styl.pageHtml}>
