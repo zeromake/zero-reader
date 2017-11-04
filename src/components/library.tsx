@@ -22,11 +22,11 @@ export default class Library extends Component<any, any> {
                         return (
                             <div class={styl.center_book}>
                                 <Link href={"/library/" + book.sha + "/"}>
-                                <div class={styl.book_image}>
-                                    <img src={"/library/" + book.sha + "/img/bg1.png"} alt={book.title} title={book.title}/>
-                                </div>
+                                    <div class={styl.book_image}>
+                                        <img src={"/library/" + book.sha + "/img/bg1.png"} alt={book.title} title={book.title}/>
+                                    </div>
                                 </Link>
-                                {book.title}
+                                <span class={styl.book_title}>{book.title}</span>
                             </div>
                         );
                     })

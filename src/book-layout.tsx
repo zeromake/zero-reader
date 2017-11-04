@@ -2,6 +2,7 @@ import { h, Component, findDOMNode } from "zreact";
 import Toc from "@/components/toc";
 import styl from "@/css/layout.styl";
 import BookToolsBar from "@/components/book-tools-bar";
+import BottomBar from "@/components/bottom-bar";
 import Animate from "preact-animate";
 import throttle from "lodash.throttle";
 import { addLinkCss, addStyle, removeHead } from "./utils";
@@ -30,7 +31,7 @@ export default class Layout extends Component<any, any> {
             zoom: undefined,
             width: 0,
             height: 0,
-            offset: 20,
+            offset: 0,
             toc_open: false,
         };
         this.tocClick = this.tocClick.bind(this);
@@ -146,6 +147,7 @@ export default class Layout extends Component<any, any> {
                     <div class={styl.view + " w0 h0"} dangerouslySetInnerHTML={{__html: state.pageHtml}}>
                     </div>
                 </div>
+                <BottomBar></BottomBar>
             </div>
         );
     }
