@@ -1,0 +1,64 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "14bd866ffe5a085cc3365a5342100756257c37f269e1fef8e647031bd01f8ae8"
+        },
+        "host-environment-markers": {
+            "implementation_name": "cpython",
+            "implementation_version": "0",
+            "os_name": "posix",
+            "platform_machine": "x86_64",
+            "platform_python_implementation": "CPython",
+            "platform_release": "4.13.11-1-MANJARO",
+            "platform_system": "Linux",
+            "platform_version": "#1 SMP PREEMPT Thu Nov 2 13:37:46 UTC 2017",
+            "python_full_version": "2.7.14",
+            "python_version": "2.7",
+            "sys_platform": "linux2"
+        },
+        "pipfile-spec": 6,
+        "requires": {},
+        "sources": [
+            {
+                "name": "doubanio",
+                "url": "https://pypi.doubanio.com/simple/",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "argparse": {
+            "hashes": [],
+            "version": "==1.4.0"
+        },
+        "certifi": {
+            "hashes": [],
+            "version": "==2017.11.5"
+        },
+        "chardet": {
+            "hashes": [],
+            "version": "==3.0.4"
+        },
+        "idna": {
+            "hashes": [],
+            "version": "==2.6"
+        },
+        "lxml": {
+            "hashes": [],
+            "version": "==4.1.1"
+        },
+        "pypdf2": {
+            "hashes": [],
+            "version": "==1.26.0"
+        },
+        "requests": {
+            "hashes": [],
+            "version": "==2.18.4"
+        },
+        "urllib3": {
+            "hashes": [],
+            "version": "==1.22"
+        }
+    },
+    "develop": {}
+}

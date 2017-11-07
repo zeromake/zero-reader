@@ -1,0 +1,17 @@
+[[source]]
+
+url = "https://pypi.doubanio.com/simple/"
+verify_ssl = true
+name = "doubanio"
+
+
+[packages]
+
+requests = "*"
+lxml = "*"
+argparse = "*"
+"pypdf2" = "*"
+
+
+[dev-packages]
+

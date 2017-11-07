@@ -3,9 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+/converts/out/
+/converts/library/
 /out/
-/dist/
 /library/
+/dist/
 node_modules/
 /bin/lib/*
 /bin/pdf2htmlEX.sh

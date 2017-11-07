@@ -1,3 +1,4 @@
+import "es6-promise/auto";
 import "unfetch/polyfill";
 import { render, h } from "zreact";
 // import { initDevTools } from "zreact/dist/devtools";

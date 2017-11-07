@@ -2,6 +2,7 @@ const webpack = require('webpack')
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require("extract-text-webpack-plugin")
+const es3ifyPlugin = require('es3ify-webpack-plugin');
 
 const isProd = process.env.NODE_ENV === 'production'
 const resolve = file => path.resolve(__dirname, file)
@@ -32,7 +33,8 @@ const config = {
             template: 'src/index.ejs',
             inject: true
         }),
-        new ExtractTextPlugin("css/common.[chunkhash].css")
+        new ExtractTextPlugin("css/common.[chunkhash].css"),
+        // new es3ifyPlugin()
     ],
     devServer: {
         contentBase: outPath,

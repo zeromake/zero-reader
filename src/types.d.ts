@@ -4,7 +4,6 @@ declare module "*.styl" {
 }
 declare module "preact-router" {
     const style: any;
-    export const Link: any;
     export default style;
 }
 declare module "preact-animate" {

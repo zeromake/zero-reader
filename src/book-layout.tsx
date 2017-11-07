@@ -123,6 +123,9 @@ export default class Layout extends Component<any, any> {
             });
         }
     }
+    public pageClick = (event: MouseEvent) => {
+        console.log(event);
+    }
     public render(props: any, state: any): any {
         const tocClass = styl.toc_layout + (state.theme ? " " + styl[state.theme] : "");
         return (
@@ -143,7 +146,7 @@ export default class Layout extends Component<any, any> {
                     </div>
                 </Animate>
                 <BookToolsBar options={ { showToc: this.showToc } }/>
-                <div ref={(vdom: any) => this.page = findDOMNode(vdom)} class={styl.pageHtml}>
+                <div ref={(vdom: any) => this.page = findDOMNode(vdom)} class={styl.pageHtml} onClick={this.pageClick}>
                     <div class={styl.view + " w0 h0"} dangerouslySetInnerHTML={{__html: state.pageHtml}}>
                     </div>
                 </div>

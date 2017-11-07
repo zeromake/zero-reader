@@ -11,10 +11,12 @@
     <% if (!htmlWebpackPlugin.options.isProd){%>
     <script src="https://unpkg.com/alloylever@1.0.2/alloy-lever.js"></script>
     <script>
-        AlloyLever.config({
-            cdn:'//s.url.cn/qqun/qun/qqweb/m/qun/confession/js/vconsole.min.js',
-            entry:"#entry"
-        })
+        if ('AlloyLever' in window) {
+            AlloyLever.config({
+                cdn:'//s.url.cn/qqun/qun/qqweb/m/qun/confession/js/vconsole.min.js',
+                entry:"#entry"
+            })
+        }
     </script>
     <%}%>
 </body>

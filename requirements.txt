@@ -1,4 +1,0 @@
-lxml
-argparse
-PyPDF2
-requests

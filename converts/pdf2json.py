@@ -1,35 +1,33 @@
 #!/bin/env python
 # coding: utf-8
 
+"""
+pdf to json
+"""
+
 import re
 import os
-import sys
 import json
 import shutil
-import hashlib
 import zipfile
 import argparse
 import platform
 import subprocess
-import requests
 from lxml import etree
+from utils import deep_tree, read_meta_pdf, read_meta_opf,\
+     requests_douban_meta, file_open, read_json, save_json, file_sha256
 
-from PyPDF2 import PdfFileReader
-from PyPDF2.generic import IndirectObject, TextStringObject
-
-
-
-def deep_tree(roots, level, callback):
-    for row in roots.iterchildren():
-        callback(row, level)
 
 class Pdf2Json(object):
+    """
+    转换
+    """
     def __init__(self, options):
         """
         初始化
         """
         self.pdf_name = options.file
-        self.sha = self.file_sha256(self.pdf_name)
+        self.sha = file_sha256(self.pdf_name)
         self.abs_url = '/library/' + self.sha + '/'
         self.dist = os.path.join(options.dist, self.sha)
         self.out = os.path.join(options.out, self.sha)
@@ -46,17 +44,7 @@ class Pdf2Json(object):
         self.containers = None
         self.font_join = 'font'
         self.zoom = 'zoom.json'
-    
-    def file_sha256(self, file_name):
-        sha = hashlib.sha256()
-        with open(file_name, 'rb') as fd:
-            byte = fd.read(8096)
-            while byte:
-                sha.update(byte)
-                byte = fd.read(8096)
-        return sha.hexdigest()
 
-    
     def run(self):
         """
         执行处理
@@ -80,6 +68,9 @@ class Pdf2Json(object):
         # self.deldir()
 
     def read_meta(self):
+        """
+        分发读取
+        """
         opf_name = self.pdf_name[:self.pdf_name.rfind('.')] + '.opf'
         if self.meta != '' and os.path.exists(self.meta):
             meta = read_meta_opf(self.meta)
@@ -87,28 +78,33 @@ class Pdf2Json(object):
             meta = read_meta_opf(opf_name)
         else:
             meta = read_meta_pdf(self.pdf_name)
-        if 'identifier' in meta and 'DOUBAN' in meta['identifier']:
+        if 'identifier' in meta and \
+                (('douban' in meta['identifier'])
+                    or ('isbn' in meta['identifier'])):
             meta = requests_douban_meta(meta)
         meta['sha'] = self.sha
         if 'title' not in meta:
-            meta['title'] = self.pdf_name[self.pdf_name.rfind('/') + 1:self.pdf_name.rfind('.')]
-        with open(os.path.join(self.dist, 'meta.json'), 'w', encoding='utf8') as fd:
-            json.dump(meta, fd, ensure_ascii=False, indent="  ")
+            meta['title'] = self.pdf_name[
+                self.pdf_name.rfind('/') + 1: self.pdf_name.rfind('.')
+            ]
+        save_json(os.path.join(self.dist, 'meta.json'), meta)
         db_name = os.path.join('library', 'db.json')
         db_data = []
         if os.path.exists(db_name):
-            with open(db_name, 'r', encoding='utf8') as fd:
-                db_data = json.load(fd)
+            db_data = read_json(db_name)
+            # with open(db_name, 'r', encoding='utf8') as fd:
+            #     db_data = json.load(fd)
         sha_set = set([row['sha']for row in db_data])
         if self.sha not in sha_set:
             db_data.append(meta)
-        with open(db_name, 'w', encoding='utf8') as fd:
-            json.dump(db_data, fd, ensure_ascii=False, indent="  ")
-
-        
-
+        save_json(db_name, db_data)
+        # with open(db_name, 'w', encoding='utf8') as fd:
+        #     json.dump(db_data, fd, ensure_ascii=False, indent="  ")
 
     def mkdir(self):
+        """
+        创建文件夹
+        """
         dirs = [
             self.out,
             self.dist,
@@ -120,17 +116,21 @@ class Pdf2Json(object):
         for row in dirs:
             if not os.path.exists(row):
                 os.makedirs(row)
+
     def deldir(self):
+        """
+        删除
+        """
         shutil.rmtree(self.out)
-    
+
     def exec_pdf(self):
         """
         转换
         """
         lock_name = os.path.join(self.out, 'exec.lock')
         if os.path.exists(lock_name):
-            with open(lock_name, 'r', encoding='utf8') as fd:
-                if fd.read(1) == '0':
+            with file_open(lock_name, 'r', encoding='utf8') as file_:
+                if file_.read(1) == '0':
                     print('MISS exec_pdf')
                     return
 
@@ -150,9 +150,9 @@ class Pdf2Json(object):
             subprocess.call(["chmod", "+x", 'bin/pdf2htmlEX'])
         state = subprocess.call([
             pdf2html[1],
-            '--embed-css','0',
-            '--embed-font','0',
-            '--embed-image','0',
+            '--embed-css', '0',
+            '--embed-font', '0',
+            '--embed-image', '0',
             '--embed-javascript', '0',
             '--embed-outline', '0',
             '--outline-filename', '%s' % self.toc,
@@ -165,13 +165,16 @@ class Pdf2Json(object):
             self.pdf_name,
             'index.html'
         ])
-        with open(os.path.join(self.out, 'exec.lock'), 'w') as fd:
-            fd.write(str(state))
+        with file_open(os.path.join(self.out, 'exec.lock'), 'w') as file_:
+            file_.write(str(state))
 
     def extract_zip(self, zip_name):
-        with zipfile.ZipFile(zip_name,'r') as f:
-            for file in f.namelist():
-                f.extract(file,"bin/")
+        """
+        解压bin下的zip
+        """
+        with zipfile.ZipFile(zip_name, 'r') as file_:
+            for file_name in file_.namelist():
+                file_.extract(file_name, "bin/")
 
     def toc_to_json(self, toc_html_name, toc_json_name, is_try=False):
         """
@@ -184,17 +187,21 @@ class Pdf2Json(object):
             'data-dest-detail': lambda x: tuple(json.loads(x)),
             'href': lambda x: x[1:]
         }
-        with open(toc_html_name, 'r', encoding='utf8') as fd:
+        with file_open(toc_html_name, 'r', encoding='utf8') as file_:
             try:
-                tree = etree.parse(fd)
-            except etree.XMLSyntaxError as e:
+                tree = etree.parse(file_)
+            except etree.XMLSyntaxError as error:
                 if is_try:
-                    raise e
-                fd.seek(0)
+                    raise error
+                file_.seek(0)
                 self.toc_del_zero(toc_html_name)
                 return self.toc_to_json(toc_html_name, toc_json_name, True)
             toc = []
+
             def callback_toc(item, level):
+                """
+                递归中的回调
+                """
                 for row in item.iterchildren():
                     if row.tag == 'a':
                         toc_item = {}
@@ -211,7 +218,7 @@ class Pdf2Json(object):
                             toc.append(toc_item)
                         else:
                             parent = toc[-1]
-                            index = level -1
+                            index = level - 1
                             while index:
                                 index -= 1
                                 parent = parent['children'][-1]
@@ -220,31 +227,25 @@ class Pdf2Json(object):
                             parent['children'].append(toc_item)
                     elif row.tag == 'ul':
                         deep_tree(row, level + 1, callback_toc)
-                        
             root = tree.getroot()
             deep_tree(root, 0, callback_toc)
         if toc_json_name:
-            with open(toc_json_name, 'w', encoding='utf8') as fd:
-                json.dump(toc, fd, ensure_ascii=False, indent="  ")
+            save_json(toc_json_name, toc)
         self.tocs = toc
-    
+
     def toc_del_zero(self, toc_html_name):
-        with open(toc_html_name, 'rb') as fd:
-            data = fd.read()
+        """
+        删除0x00
+        """
+        with file_open(toc_html_name, 'rb') as file_:
+            data = file_.read()
         buffer = bytearray()
         for char in data:
             if char != 0x00:
                 buffer.append(char)
-        with open(toc_html_name, 'wb') as fd:
-            fd.write(buffer)
-            # with open(toc_html_name, 'wb') as out_fd:
-            #     char = fd.read(1)
-            #     while char != None
-            #         if char != 0x00
-            #             out_fd.write(char)
-            #         char = fd.read(1)
-        # return subprocess.call(['sed', r"'s/\x00//g'", toc_html_name])
-    
+        with file_open(toc_html_name, 'wb') as file_:
+            file_.write(buffer)
+
     def container_to_json(self, container_name, json_name, callback=None):
         """
         转换内容页
@@ -256,13 +257,17 @@ class Pdf2Json(object):
         background.append("div.background_img_class{")
         background.append("  background-size: 100%;")
         background.append("}")
-        with open(container_name, encoding='utf8') as fd:
-            tree = etree.parse(fd)
+        with file_open(container_name, encoding='utf8') as file_:
+            tree = etree.parse(file_)
             container_root = tree.xpath(u'//div[@id="page-container"]')[0]
             last_class = None
             index = 0
             for row in container_root.iterchildren():
-                item = {key: val for key, val in row.items() if key != 'data-page-no' and not (key == 'class' and val == last_class)}
+                item = {key: val for key, val in row.items()
+                        if key != 'data-page-no' and not (
+                            key == 'class' and
+                            val == last_class
+                        )}
                 page_id_to_index[item['id']] = index
                 item['index'] = index
                 containers.append(item)
@@ -271,10 +276,9 @@ class Pdf2Json(object):
                 last_class = row.get('class')
                 index += 1
         if json_name:
-            with open(json_name, 'w', encoding='utf8') as fd:
-                json.dump(containers, fd, ensure_ascii=False, indent="  ")
-        with open(out_bg_css, 'w', encoding='utf8') as fd:
-            fd.write("\n".join(background))
+            save_json(json_name, containers)
+        with file_open(out_bg_css, 'w', encoding='utf8') as file_:
+            file_.write("\n".join(background))
         self.containers = containers
         self.pages = page_id_to_index
 
@@ -288,16 +292,25 @@ class Pdf2Json(object):
         join_dir = 'img'
         input_name = os.path.join(input_dir, page_name)
         out_name = os.path.join(out_dir, page_name)
-        with open(input_name, 'r', encoding='utf8') as fd:
-            tree = etree.parse(fd)
+        with file_open(input_name, 'r', encoding='utf8') as file_:
+            tree = etree.parse(file_)
             for img in tree.xpath('//img'):
                 parent = img.getparent()
                 div = etree.Element('div')
                 val = img.get('src')
-                shutil.copyfile(os.path.join(input_dir, val), os.path.join(out_dir, join_dir, val))
-                img_sha = self.file_sha256(os.path.join(input_dir, val))
+                shutil.copyfile(
+                    os.path.join(input_dir, val),
+                    os.path.join(out_dir, join_dir, val)
+                )
+                img_sha = file_sha256(os.path.join(input_dir, val))
                 background.append("div.img_" + img_sha + "{")
-                background.append("  background-image: url('./" + join_dir + '/' + val + "');")
+                background.append(
+                    "  background-image: url('./" +
+                    join_dir +
+                    '/' +
+                    val +
+                    "');"
+                )
                 background.append("}")
                 val = img.get('alt')
                 if val != '':
@@ -306,9 +319,17 @@ class Pdf2Json(object):
                 val += ' img_' + img_sha + ' background_img_class'
                 div.set('class', val)
                 parent.replace(img, div)
-            tree.write(out_name, pretty_print=True, encoding='utf-8', method='html')
-        
+            tree.write(
+                out_name,
+                pretty_print=True,
+                encoding='utf-8',
+                method='html'
+            )
+
     def css_copy(self):
+        """
+        css 拷贝
+        """
         css_name = os.path.join(self.out, self.css)
         out_name = os.path.join(self.dist, self.css)
         font_pat = re.compile(r'url\((\w+\.woff)\)')
@@ -319,20 +340,34 @@ class Pdf2Json(object):
             'width': 0,
             'height': 0
         }
-        with open(css_name, 'r', encoding='utf-8') as fd:
-            with open(out_name, 'w', encoding='utf-8') as out_fd:
-                line = fd.readline()
+        with file_open(css_name, 'r', encoding='utf-8') as file_:
+            with file_open(out_name, 'w', encoding='utf-8') as out_fd:
+                line = file_.readline()
                 media_print = False
                 while line:
                     match = px_and_pat.match(line)
                     if match:
                         if not media_print:
-                            item = {key: val for key, val in zip(field, match.groups())}
+                            item = {
+                                key: val
+                                for key, val in
+                                zip(field, match.groups())
+                            }
                             item['size'] = float(item['size'])
                             if item['select'].startswith('.w'):
-                                zoom['width'] = max([item['size'], zoom['width']])
+                                zoom['width'] = max(
+                                    (
+                                        item['size'],
+                                        zoom['width']
+                                    )
+                                )
                             elif item['select'].startswith('.h'):
-                                zoom['height'] = max([item['size'], zoom['height']])
+                                zoom['height'] = max(
+                                    (
+                                        item['size'],
+                                        zoom['height']
+                                    )
+                                )
                             item['media_print'] = media_print
                             zoom_arr.append(item)
                     elif line.startswith('@font-face{font-family'):
@@ -344,10 +379,10 @@ class Pdf2Json(object):
                         media_print = False
                     else:
                         out_fd.write(line)
-                    line = fd.readline()
+                    line = file_.readline()
         zoom['css'] = zoom_arr
-        with open(os.path.join(self.dist, self.zoom), 'w', encoding='utf8') as fd:
-            json.dump(zoom, fd, ensure_ascii=False, indent="  ")
+        save_json(os.path.join(self.dist, self.zoom), zoom)
+
     def font_copy(self, group):
         """
         拷贝字体
@@ -359,85 +394,76 @@ class Pdf2Json(object):
         input_name = os.path.join(input_dir, font_name)
         shutil.copyfile(input_name, out_name)
         return 'url(%s)' % ('./' + self.font_join + '/' + font_name)
+
+
 def add_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--file', type=str, help='pdf file')
-    parser.add_argument('-o', '--out', type=str, help='out file dir', default="out")
-    parser.add_argument('-d', '--dist', type=str, help='dist file dir', default="library")
-    parser.add_argument('-c', '--css', type=str, help='css file name', default="style.css")
-    parser.add_argument('-p', '--page', type=str, help='page file name', default="page-.html")
-    parser.add_argument('-j', '--join', type=str, help='json file dir', default="pages")
-    parser.add_argument('-s', '--share', type=str, help='pdf2htmlEX share dir', default="bin/data")
-    parser.add_argument('-t', '--toc', type=str, help='toc filename', default="toc.html")
-    parser.add_argument('-m', '--meta', type=str, help='meta filename', default="")
+    parser.add_argument(
+        '-f',
+        '--file',
+        type=str,
+        help='pdf file'
+    )
+    parser.add_argument(
+        '-o',
+        '--out',
+        type=str,
+        help='out file dir',
+        default="out"
+    )
+    parser.add_argument(
+        '-d',
+        '--dist',
+        type=str,
+        help='dist file dir',
+        default="library"
+    )
+    parser.add_argument(
+        '-c',
+        '--css',
+        type=str,
+        help='css file name',
+        default="style.css"
+    )
+    parser.add_argument(
+        '-p',
+        '--page',
+        type=str,
+        help='page file name',
+        default="page-.html"
+    )
+    parser.add_argument(
+        '-j',
+        '--join',
+        type=str,
+        help='json file dir',
+        default="pages"
+    )
+    parser.add_argument(
+        '-s',
+        '--share',
+        type=str,
+        help='pdf2htmlEX share dir',
+        default="bin/data"
+    )
+    parser.add_argument(
+        '-t',
+        '--toc',
+        type=str,
+        help='toc filename',
+        default="toc.html"
+    )
+    parser.add_argument(
+        '-m',
+        '--meta',
+        type=str,
+        help='meta filename',
+        default=""
+    )
     return parser.parse_args()
 
-def convert(name):
-    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
-
-def read_meta_pdf(pdf_name):
-    with open(pdf_name, 'rb') as fd:
-        doc = PdfFileReader(fd)
-        info = doc.documentInfo
-        new_info = {}
-        for key, tmp in info.items():
-            key = convert(key[1:])
-            if isinstance(tmp, IndirectObject):
-                new_info[key] = tmp.getObject()
-            elif isinstance(tmp, TextStringObject):
-                new_info[key] = tmp.title()
-            else:
-                new_info[key] = str(tmp)
-    return new_info
-
-NAMESPACES = {'OPF': 'http://www.idpf.org/2007/opf',
-              'DC': "http://purl.org/dc/elements/1.1/"}
-
-def read_meta_opf(opf_name):
-    opf = NAMESPACES['OPF']
-    dc = '{%s}' % NAMESPACES['DC']
-    identifier = '{%s}scheme' % opf
-    dc_len = len(dc)
-    meta = {}
-    with open(opf_name, 'rb') as fd:
-        root = etree.parse(fd).find('{%s}metadata' % opf)
-        for val in root.iterchildren():
-            tag = val.tag
-            if tag == '{%s}meta' % opf:
-                name = val.get('name')
-                name_arr = name.split(':')
-                name = name_arr[1] if len(name_arr) > 1 else name
-                meta[name] = val.get('content')
-            elif tag.startswith(dc):
-                tag = tag[dc_len:]
-                if tag in ('subject', 'identifier'):
-                    if tag == 'subject':
-                        if tag not in meta:
-                            meta[tag] = []
-                        meta[tag].append(val.text)
-                    else:
-                        if tag not in meta:
-                            meta[tag] = {}
-                        meta[tag][val.get(identifier)] = val.text
-                else:
-                    meta[tag] = val.text
-    return meta
-
-def requests_douban_meta(meta):
-    """
-    通过原meta查询到豆瓣的meta
-    """
-    douban_id = meta['identifier']['DOUBAN']
-    douban_url = 'https://api.douban.com/v2/book/%s' % douban_id
-    r = requests.get(douban_url)
-    douban_meta = r.json()
-    douban_meta['type'] = 'pdf'
-    douban_meta['title'] = meta['title']
-    return douban_meta
 
 if __name__ == '__main__':
-    args = add_args()
-    pdf = Pdf2Json(args)
-    pdf.run()
-    # pdf.toc_del_zero('out/tmp/toc.html')
+    option = add_args()
+    pdf_obj = Pdf2Json(option)
+    pdf_obj.run()
