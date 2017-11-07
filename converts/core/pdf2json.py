@@ -10,12 +10,19 @@ import os
 import json
 import shutil
 import zipfile
-import argparse
 import platform
 import subprocess
 from lxml import etree
-from utils import deep_tree, read_meta_pdf, read_meta_opf,\
-     requests_douban_meta, file_open, read_json, save_json, file_sha256
+from .utils import (
+    deep_tree,
+    read_meta_pdf,
+    read_meta_opf,
+    requests_douban_meta,
+    file_open,
+    read_json,
+    save_json,
+    file_sha256
+)
 
 
 class Pdf2Json(object):
@@ -26,18 +33,18 @@ class Pdf2Json(object):
         """
         初始化
         """
-        self.pdf_name = options.file
+        self.pdf_name = options['file']
         self.sha = file_sha256(self.pdf_name)
         self.abs_url = '/library/' + self.sha + '/'
-        self.dist = os.path.join(options.dist, self.sha)
-        self.out = os.path.join(options.out, self.sha)
-        self.css = options.css
-        self.join = options.join
-        self.page = os.path.join(self.join, options.page)
+        self.dist = os.path.join(options['dist'], self.sha)
+        self.out = os.path.join(options['out'], self.sha)
+        self.css = options['css']
+        self.join = options['join']
+        self.page = os.path.join(self.join, options['page'])
         self.img_dir = 'img'
-        self.share = options.share
-        self.toc = options.toc
-        self.meta = options.meta
+        self.share = options['share']
+        self.toc = options['toc']
+        self.meta = options['meta']
 
         self.pages = None
         self.tocs = None
@@ -396,74 +403,8 @@ class Pdf2Json(object):
         return 'url(%s)' % ('./' + self.font_join + '/' + font_name)
 
 
-def add_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-f',
-        '--file',
-        type=str,
-        help='pdf file'
-    )
-    parser.add_argument(
-        '-o',
-        '--out',
-        type=str,
-        help='out file dir',
-        default="out"
-    )
-    parser.add_argument(
-        '-d',
-        '--dist',
-        type=str,
-        help='dist file dir',
-        default="library"
-    )
-    parser.add_argument(
-        '-c',
-        '--css',
-        type=str,
-        help='css file name',
-        default="style.css"
-    )
-    parser.add_argument(
-        '-p',
-        '--page',
-        type=str,
-        help='page file name',
-        default="page-.html"
-    )
-    parser.add_argument(
-        '-j',
-        '--join',
-        type=str,
-        help='json file dir',
-        default="pages"
-    )
-    parser.add_argument(
-        '-s',
-        '--share',
-        type=str,
-        help='pdf2htmlEX share dir',
-        default="bin/data"
-    )
-    parser.add_argument(
-        '-t',
-        '--toc',
-        type=str,
-        help='toc filename',
-        default="toc.html"
-    )
-    parser.add_argument(
-        '-m',
-        '--meta',
-        type=str,
-        help='meta filename',
-        default=""
-    )
-    return parser.parse_args()
-
-
 if __name__ == '__main__':
-    option = add_args()
-    pdf_obj = Pdf2Json(option)
-    pdf_obj.run()
+    pass
+    # option = add_args()
+    # pdf_obj = Pdf2Json(option)
+    # pdf_obj.run()
