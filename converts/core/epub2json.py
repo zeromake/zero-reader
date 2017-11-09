@@ -17,7 +17,8 @@ from .utils import (
     save_json,
     copy_zip_file,
     zip_join,
-    HTTP_NAME
+    HTTP_NAME,
+    logger
 )
 
 
@@ -143,7 +144,13 @@ class Epub2Json(object):
             # print(self.page_map)
             self.handle_page(epub_file)
         # meta
-        douban_meta = requests_douban_meta(meta)
+        if 'identifier' in meta and (
+            'douban' in meta['identifier'] or
+            'isbn' in meta['identifier']
+        ):
+            douban_meta = requests_douban_meta(meta)
+        else:
+            douban_meta = meta
         if 'cover' in meta and meta['cover'] in self.manifest_map:
             cover_name = self.manifest_map[meta['cover']]
             cover_path = zip_join(self.opf_dir, cover_name)
@@ -160,7 +167,6 @@ class Epub2Json(object):
         douban_meta['toc'] = self.toc_file
         save_json(self.meta_dist_path, douban_meta)
 
-    
     def load_items(self, tree):
         """
         把所有items处理为字典
@@ -201,12 +207,9 @@ class Epub2Json(object):
             if href_name not in self.tcontainer:
                 href_path = zip_join(self.opf_dir, href_name)
                 href_dir = self.get_zip_file_dir(href_path)
-                try:
-                    self.copy_html(epub_file, href_path, href_dir, self.container_count)
-                    self.page_map[href_path] = self.container_count
-                    self.container_count += 1
-                except KeyError:
-                    print('miss: %s not in zip' % href_path)
+                self.copy_html(epub_file, href_path, href_dir, self.container_count)
+                self.page_map[href_path] = self.container_count
+                self.container_count += 1
 
     def split_container(self, epub_file):
         """
@@ -322,6 +325,9 @@ class Epub2Json(object):
                 css_out_name = zip_join(self.css_dir, css_name)
                 copy_zip_file(epub_file, css_zip_path, os.path.join(self.dist, css_out_name))
                 self.css_list.append(css_out_name)
+        # styles = tree.findall('//xmlns:style', namespaces={'xmlns': NAMESPACES['XHTML']})
+        # for style in styles:
+
 
     def handle_page(self, epub_file):
         """
@@ -332,7 +338,8 @@ class Epub2Json(object):
             old_page_name = self.get_old_page_name(index)
             old_page_dir = self.get_zip_file_dir(old_page_name)
             now_page_path = os.path.join(self.dist, page_name)
-            print(now_page_path)
+            # print(now_page_path)
+            # print(old_page_name)
             with file_open(
                 now_page_path,
                 'r',
@@ -347,8 +354,9 @@ class Epub2Json(object):
                         continue
                     link_arr = href.split('#')
                     # print(link_arr)
+                    # print(link_arr)
                     link_page = link_arr[0]
-                    link_id = link_arr[1] if len(link_page) > 1 else None
+                    link_id = link_arr[1] if len(link_arr) > 1 else None
                     # link_args = None
                     if link_id and '?' in link_id:
                         tmp = link_id.split('?')

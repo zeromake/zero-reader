@@ -10,8 +10,9 @@ import sys
 import json
 import codecs
 import hashlib
-import requests
+import logging
 import posixpath
+import requests
 
 from lxml import etree
 from PyPDF2 import PdfFileReader
@@ -22,6 +23,13 @@ try:
     sys.setdefaultencoding('utf-8')
 except:
     pass
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="[%(asctime)s] %(name)s:%(levelname)s: %(message)s"
+)
+logger = logging.getLogger('converts')
+
 
 IS_PY3 = sys.version_info[0] > 2
 ENCODING = 'utf-8'
@@ -152,6 +160,7 @@ def requests_douban_meta(meta):
     """
     通过原meta查询到豆瓣的meta
     """
+    # print(meta)
     if 'douban' in meta['identifier']:
         douban_id = meta['identifier']['douban']
         douban_url = 'https://api.douban.com/v2/book/%s' % douban_id
@@ -193,12 +202,15 @@ def copy_zip_file(zip_file, from_path, to_path):
     """
     拷贝zip中的文件
     """
-    with zip_file.open(from_path, 'r') as from_file:
-        with file_open(to_path, 'wb') as to_file:
-            data = from_file.read(4096)
-            while data:
-                to_file.write(bytes(data))
+    try:
+        with zip_file.open(from_path, 'r') as from_file:
+            with file_open(to_path, 'wb') as to_file:
                 data = from_file.read(4096)
+                while data:
+                    to_file.write(bytes(data))
+                    data = from_file.read(4096)
+    except KeyError:
+        logger.debug('miss: %s not in zip' % zip_file)
 
 def zip_join(*dirs):
     """
