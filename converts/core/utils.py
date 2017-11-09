@@ -33,7 +33,9 @@ NAMESPACES = {
     'OPF': 'http://www.idpf.org/2007/opf',
     'CONTAINERNS': 'urn:oasis:names:tc:opendocument:xmlns:container',
     'DC': "http://purl.org/dc/elements/1.1/",
-    'XHTML': 'http://www.w3.org/1999/xhtml'
+    'XHTML': 'http://www.w3.org/1999/xhtml',
+    'SVG': 'http://www.w3.org/2000/svg',
+    'SVGLINK': 'http://www.w3.org/1999/xlink'
 }
 
 HTTP_NAME = re.compile(r'(^(?:[a-z]+\:)?(?:\/\/))')
@@ -158,7 +160,7 @@ def requests_douban_meta(meta):
         douban_url = 'https://api.douban.com/v2/book/isbn/%s' % douban_id
     res = requests.get(douban_url)
     douban_meta = res.json()
-    douban_meta['type'] = 'pdf'
+    # douban_meta['type'] = 'pdf'
     douban_meta['meta_type'] = 'douban'
     douban_meta['title'] = meta['title']
     return douban_meta
