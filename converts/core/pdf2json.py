@@ -21,7 +21,8 @@ from .utils import (
     file_open,
     read_json,
     save_json,
-    file_sha256
+    file_sha256,
+    zip_join
 )
 
 
@@ -46,11 +47,13 @@ class Pdf2Json(object):
         self.toc = options['toc']
         self.meta = options['meta']
 
+        self.meta_file = 'meta.json'
         self.pages = None
         self.tocs = None
         self.containers = None
         self.font_join = 'font'
         self.zoom = 'zoom.json'
+        self.page_css = []
 
     def run(self):
         """
@@ -60,7 +63,6 @@ class Pdf2Json(object):
             print('book sha256: %s is exist' % self.dist)
             return
         self.mkdir()
-        self.read_meta()
         self.exec_pdf()
         self.container_to_json(
             os.path.join(self.out, 'index.html'),
@@ -72,6 +74,7 @@ class Pdf2Json(object):
             os.path.join(self.dist, 'toc.json')
         )
         self.css_copy()
+        self.read_meta()
         # self.deldir()
 
     def read_meta(self):
@@ -94,7 +97,13 @@ class Pdf2Json(object):
             meta['title'] = self.pdf_name[
                 self.pdf_name.rfind('/') + 1: self.pdf_name.rfind('.')
             ]
-        save_json(os.path.join(self.dist, 'meta.json'), meta)
+        meta['type'] = 'pdf'
+        meta['page_style'] = self.page_css
+        meta['container'] = 'container.json'
+        meta['toc'] = 'toc.json'
+        meta['zoom'] = 'zoom.json'
+        meta['cover'] = zip_join(self.img_dir, 'bg1.png')
+        save_json(os.path.join(self.dist, self.meta_file), meta)
         db_name = os.path.join('library', 'db.json')
         db_data = []
         if os.path.exists(db_name):
@@ -260,6 +269,7 @@ class Pdf2Json(object):
         page_id_to_index = {}
         containers = []
         out_bg_css = os.path.join(self.dist, 'bg.css')
+        self.page_css.append('bg.css')
         background = []
         background.append("div.background_img_class{")
         background.append("  background-size: 100%;")
@@ -339,6 +349,7 @@ class Pdf2Json(object):
         """
         css_name = os.path.join(self.out, self.css)
         out_name = os.path.join(self.dist, self.css)
+        self.page_css.append(self.css)
         font_pat = re.compile(r'url\((\w+\.woff)\)')
         px_and_pat = re.compile(r'(.*){([\w-]+):(-?\d+(?:\.\d+)?)(px|pt);}')
         zoom_arr = []

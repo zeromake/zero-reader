@@ -19,6 +19,7 @@ export default class Layout extends Component<any, any> {
     public tocs: any[];
     public zoom: any[];
     private page: any;
+    private cssMount: string[] = [];
     constructor(p: any, c: any) {
         super(p, c);
         this.state = {
@@ -41,19 +42,45 @@ export default class Layout extends Component<any, any> {
         this.setZoom();
     }, 15);
     public componentDidMount() {
-        addLinkCss(`/library/${this.props.sha}/style.css`, "base_css_id");
-        addLinkCss(`/library/${this.props.sha}/bg.css`, "bg_css_id");
-        this.getContainer().then(() => {
-            return this.getPage(0, () => {
-                this.getZoom();
-            });
+        this.getBookMeta().then((meta) => {
+            if (meta) {
+                const page_style = meta.page_style;
+                if (page_style && page_style.length > 0) {
+                    let index = 1;
+                    page_style.forEach((style: string) => {
+                        const cssId = `css_id_${index}`;
+                        index ++;
+                        this.cssMount.push(cssId);
+                        addLinkCss(`/library/${this.props.sha}/${style}`, cssId);
+                    });
+                }
+                // addLinkCss(`/library/${this.props.sha}/bg.css`, "bg_css_id");
+                this.getContainer(meta.container).then(() => {
+                    return this.getPage(0, () => {
+                        this.getZoom(meta.zoom);
+                    });
+                });
+                window.addEventListener("resize", this.resize);
+            }
         });
-        window.addEventListener("resize", this.resize);
+    }
+    public getBookMeta() {
+        return fetch(`/library/${this.props.sha}/meta.json`).then((res) => res.json()).then((data) => {
+            this.state.meta = data;
+            return data;
+        });
     }
     public componentWillUnmount() {
-        removeHead("base_css_id");
-        removeHead("bg_css_id");
-        removeHead("zoom_style");
+        if (this.cssMount.length > 0) {
+            let cssId = this.cssMount.pop();
+            while (cssId) {
+                removeHead(cssId);
+                cssId = this.cssMount.pop();
+            }
+        }
+        // removeHead("base_css_id");
+        // removeHead("bg_css_id");
+        // removeHead("zoom_style");
         window.removeEventListener("resize", this.resize);
     }
     private tocClick(toc) {
@@ -62,8 +89,8 @@ export default class Layout extends Component<any, any> {
             this.getPage(page);
         }
     }
-    private getContainer() {
-        return fetch(`/library/${this.props.sha}/container.json`).then((res) => res.json()).then((data) => {
+    private getContainer(container: string) {
+        return fetch(`/library/${this.props.sha}/${container}`).then((res) => res.json()).then((data) => {
             this.state.container = data;
             // this.setState({container: data});
         });
@@ -77,8 +104,8 @@ export default class Layout extends Component<any, any> {
             }, callback);
         });
     }
-    private getZoom() {
-        return fetch(`/library/${this.props.sha}/zoom.json`).then((res) => res.json()).then((data) => {
+    private getZoom(zoom: string) {
+        return fetch(`/library/${this.props.sha}/${zoom}`).then((res) => res.json()).then((data) => {
             this.state.zoom = data.css;
             this.state.width = data.width;
             this.state.height = data.height;
@@ -106,7 +133,9 @@ export default class Layout extends Component<any, any> {
                 css.push("}");
             });
             const cssText = css.join("\n");
-            addStyle("zoom_style", cssText);
+            const cssId = "zoom_style";
+            this.cssMount.push(cssId);
+            addStyle(cssId, cssText);
         }
     }
     private showToc() {

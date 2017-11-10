@@ -7,6 +7,12 @@ const bottomMenu = [
     {icon: "fa-exclamation-circle", title: "文档属性", id: 3},
     {icon: "fa-gear", title: "设置", id: 4},
 ];
+// const bottomMenu = [
+//     {icon: "lnr-menu", title: "目录", id: 1},
+//     {icon: "lnr-screen", title: "浏览方式", id: 2},
+//     {icon: "lnr-question-circle", title: "文档属性", id: 3},
+//     {icon: "lnr-cog", title: "设置", id: 4},
+// ];
 
 export default class BottomBar extends Component<any, any> {
     public test(id, event) {

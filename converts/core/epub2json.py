@@ -4,6 +4,7 @@
 """
 epub2json
 """
+import re
 import os
 import zipfile
 import posixpath
@@ -91,7 +92,8 @@ class Epub2Json(object):
             ) as epub_file:
                 self.load_meta_info(epub_file)
                 self.load_opf(epub_file)
-                # self.load_meta(epub_file)
+                self.save_container()
+                # self.save_toc()
         except zipfile.BadZipfile:
             raise Exception(0, 'Bad Zip file')
         except zipfile.LargeZipFile:
@@ -165,7 +167,27 @@ class Epub2Json(object):
         douban_meta['type'] = 'epub'
         douban_meta['container'] = self.container_file
         douban_meta['toc'] = self.toc_file
+        douban_meta['sha'] = self.sha
         save_json(self.meta_dist_path, douban_meta)
+
+    def save_container(self):
+        """
+        保存内容清单
+        """
+        str1 = '^%s\d+.html' % zip_join(self.page_dir, self.page_join)
+        # print(str1)
+        # page_re = re.compile()
+        container_data = []
+        for container_name, container_num in self.container:
+            link_ids = list(self.toc_link[container_num])
+            container_data.append({
+                'ids': link_ids,
+                'data-page-url': container_name,
+                'index': container_num
+            })
+        save_json(os.path.join(self.dist, self.container_file), container_data)
+
+            
 
     def load_items(self, tree):
         """

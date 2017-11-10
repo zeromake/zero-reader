@@ -21,12 +21,12 @@ export default class Library extends Component<any, any> {
                     state.library.map((book) => {
                         return (
                             <div class={styl.center_book}>
-                                <Link href={"/library/" + book.sha + "/"}>
+                                <Link href={"/library/" + book.sha + "/"} title={book.title}>
                                     <div class={styl.book_image}>
-                                        <img src={"/library/" + book.sha + "/img/bg1.png"} alt={book.title} title={book.title}/>
+                                        <img src={"/library/" + book.sha + "/" + book.cover} alt={book.title} title={book.title}/>
                                     </div>
                                 </Link>
-                                <span class={styl.book_title}>{book.title}</span>
+                                <span class={styl.book_title} title={book.title}>{book.title}</span>
                             </div>
                         );
                     })

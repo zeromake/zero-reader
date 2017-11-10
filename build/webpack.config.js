@@ -54,14 +54,14 @@ const config = {
                 test: /.styl$/,
                 use: ExtractTextPlugin.extract({
                     fallback: "style-loader",
-                    use: ["css-loader?modules", 'stylus-loader']
+                    use: ["css-loader?modules", 'postcss-loader', 'stylus-loader']
                 })
             },
             {
                 test: /\.css$/,
                 use: ExtractTextPlugin.extract({
                     fallback: "style-loader",
-                    use: ["css-loader"]
+                    use: ["css-loader", 'postcss-loader']
                 })
             },
             {

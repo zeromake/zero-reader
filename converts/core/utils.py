@@ -31,6 +31,7 @@ logging.basicConfig(
 logger = logging.getLogger('converts')
 
 
+
 IS_PY3 = sys.version_info[0] > 2
 ENCODING = 'utf-8'
 
@@ -47,6 +48,7 @@ NAMESPACES = {
 }
 
 HTTP_NAME = re.compile(r'(^(?:[a-z]+\:)?(?:\/\/))')
+
 
 def file_open(*args, **k):
     """
@@ -108,6 +110,7 @@ def read_meta_pdf(pdf_name):
                 new_info[key] = tmp.title()
             else:
                 new_info[key] = str(tmp)
+    new_info['meta_type'] = 'pdf'
     return new_info
 
 def read_tree_meta_opf(tree):

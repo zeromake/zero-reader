@@ -7,6 +7,7 @@ import MainRouter from "./router";
 import "./css/main.styl";
 import "./css/base.css";
 import "font-awesome/css/font-awesome.min.css";
+// import "linearicons";
 
-render(<MainRouter/>, document.getElementById("main"));
+render(<MainRouter/>, document.body);
 // initDevTools();

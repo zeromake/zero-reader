@@ -10,26 +10,30 @@ black_rgba(alpha)
     rgba(0, 0, 0, alpha)
 
 .tocView > .tocItem
+    font-size 1.5rem
     margin-left item_offset
 
 .tocItemToggler
+    margin-left -1.5rem
+    color white_rgba(.6)
     float left
     position relative
+    text-align center
     height 0
     width 0
-    color white_rgba(.5)
-    // color rgba(255, 255, 255, .5)
+
 .theme_white .tocItemToggler
     color black_rgba(.5)
 
-.tocItemToggler::before
-    display inline-block
-    content url(../img/treeitem-expanded.png)
-    position absolute
-    right 4px
+// .tocItemToggler::before
+//     display inline-block
+//     // content url(../img/treeitem-expanded.png)
+//     position absolute
+//     right 4px
 
-.tocItemToggler.none::before
-    content url(../img/treeitem-collapsed.png)
+// .tocItemToggler.none::before
+//     content "\f054"
+    // content url(../img/treeitem-collapsed.png)
 
 .tocItemToggler.none ~ .tocItems
     display none
@@ -48,8 +52,8 @@ black_rgba(alpha)
     border-radius 2px
     // color rgba(255, 255, 255, .8)
     color white_rgba(.8)
-    font-size 13px
-    line-height 15px
+    font-size 1.2rem
+    line-height 1.2rem
     white-space normal
 
 .theme_white .tocItem > a
