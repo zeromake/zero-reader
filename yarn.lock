@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@types/lodash@^4.14.84":
-  version "4.14.84"
-  resolved "http://registry.npm.taobao.org/@types/lodash/download/@types/lodash-4.14.84.tgz#ede7e6bbb4f0d35adf8b32d57b44bf125f7a2a41"
+"@types/lodash@^4.14.85":
+  version "4.14.85"
+  resolved "http://registry.npm.taobao.org/@types/lodash/download/@types/lodash-4.14.85.tgz#a16fbf942422f6eca5622b6910492c496c35069b"
 
 abbrev@1:
   version "1.1.1"
@@ -66,6 +66,10 @@ alphanum-sort@^1.0.1, alphanum-sort@^1.0.2:
 amdefine@>=0.0.4:
   version "1.0.1"
   resolved "http://registry.npm.taobao.org/amdefine/download/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
+
+animate.css@^3.5.2:
+  version "3.5.2"
+  resolved "http://registry.npm.taobao.org/animate.css/download/animate.css-3.5.2.tgz#91e668dc069a808e5e499514867b97aae0166c36"
 
 ansi-html@0.0.7:
   version "0.0.7"
@@ -3088,9 +3092,9 @@ preact-async-route@^2.0.0:
   version "2.0.1"
   resolved "http://registry.npm.taobao.org/preact-async-route/download/preact-async-route-2.0.1.tgz#df1eb07be5eca9264d6749299a95b4a8fb37f6d2"
 
-preact-router@^2.5.7:
-  version "2.5.7"
-  resolved "http://registry.npm.taobao.org/preact-router/download/preact-router-2.5.7.tgz#571fa585472fb2b9918e8610d8ef8526cf2ee263"
+preact-router@^2.6.0:
+  version "2.6.0"
+  resolved "http://registry.npm.taobao.org/preact-router/download/preact-router-2.6.0.tgz#55f7fbc84e6b8af0df3ea04c8ce4c268714089b6"
 
 prepend-http@^1.0.0:
   version "1.0.4"

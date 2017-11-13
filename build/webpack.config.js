@@ -15,12 +15,11 @@ const config = {
     },
     output: {
         path: outPath,
-        publicPath: "/",
         filename: '[name]-[hash].js'
     },
     resolve: {
         alias: {
-            'zreact': resolve('../node_modules/zreact/dist/zreact.ie8.js'),
+            'zreact': resolve('../node_modules/zreact/dist/zreact.esm.js'),
             'preact': 'zreact',
             '@': resolve('../src')
         },
@@ -54,14 +53,49 @@ const config = {
                 test: /.styl$/,
                 use: ExtractTextPlugin.extract({
                     fallback: "style-loader",
-                    use: ["css-loader?modules", 'postcss-loader', 'stylus-loader']
+                    use: [
+                        {
+                            loader: "css-loader",
+                            options: {
+                                sourceMap: true,
+                                modules: true,
+                            }
+                        },
+                        {
+                            loader: 'postcss-loader',
+                            options: {
+                                sourceMap: true
+                            }
+                        },
+                        {
+                            loader: 'stylus-loader',
+                            options: {
+                                sourceMap: true
+                            }
+                        }
+                    ],
+                    publicPath: '../'
                 })
             },
             {
                 test: /\.css$/,
                 use: ExtractTextPlugin.extract({
                     fallback: "style-loader",
-                    use: ["css-loader", 'postcss-loader']
+                    use: [
+                        {
+                            loader: "css-loader",
+                            options: {
+                                sourceMap: true,
+                            }
+                        },
+                        {
+                            loader: 'postcss-loader',
+                            options: {
+                                sourceMap: true
+                            }
+                        }
+                    ],
+                    publicPath: '../'
                 })
             },
             {

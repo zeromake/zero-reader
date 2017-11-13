@@ -166,7 +166,7 @@ export default class Layout extends Component<any, any> {
                     transitionLeave={true}
                     transitionName = {{
                         enter: "fadeInLeft",
-                        leave: "fadeInRight",
+                        leave: "fadeOutLeft",
                     }}>
                     <div class={tocClass + " animated"} data-show={state.toc_open}>
                         <div class={styl.toc_content}>

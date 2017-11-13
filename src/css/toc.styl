@@ -10,17 +10,20 @@ black_rgba(alpha)
     rgba(0, 0, 0, alpha)
 
 .tocView > .tocItem
-    font-size 1.5rem
     margin-left item_offset
 
-.tocItemToggler
-    margin-left -1.5rem
-    color white_rgba(.6)
-    float left
+.tocItem
     position relative
+
+
+.tocItemToggler
+    font-size 1.4rem
+    color white_rgba(.6)
+    // float left
+    position absolute
     text-align center
-    height 0
-    width 0
+    top 0
+    left -1.4rem
 
 .theme_white .tocItemToggler
     color black_rgba(.5)
@@ -41,20 +44,7 @@ black_rgba(alpha)
 .tocItem > .tocItems
     margin-left item_offset
 
-.tocItem > a
-    padding 2px 0 5px 4px
-    text-decoration none
-    display inline-block
-    min-width 95%
-    min-width calc(100% - 4px)
-    height auto
-    margin-bottom 1px
-    border-radius 2px
-    // color rgba(255, 255, 255, .8)
-    color white_rgba(.8)
-    font-size 1.2rem
-    line-height 1.2rem
-    white-space normal
+// .tocItem > a
 
 .theme_white .tocItem > a
     color black_rgba(.8)
@@ -77,3 +67,19 @@ black_rgba(alpha)
 
 .theme_white.tocView
     background-color white_rgba(.1)
+
+.toc_text
+    // padding 2px 0 5px 4px
+    text-decoration none
+    display inline-block
+    min-width 95%
+    min-width calc(100% - 4px)
+    height auto
+    margin-bottom 1px
+    border-radius 2px
+    // color rgba(255, 255, 255, .8)
+    color white_rgba(.8)
+    font-size 1.2rem
+    line-height 1.2rem
+    white-space normal
+    padding 4px 2px
