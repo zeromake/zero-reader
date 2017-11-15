@@ -19,7 +19,10 @@ from .utils import (
     copy_zip_file,
     zip_join,
     HTTP_NAME,
-    logger
+    FONT_RE,
+    logger,
+    get_file_path_dir,
+    get_file_path_name
 )
 
 
@@ -51,8 +54,13 @@ class Epub2Json(object):
         self.page_dir = 'page'
         # css文件夹
         self.css_dir = 'css'
+        # css文件深度
+        self.css_deep = self.css_dir.count('/') + 1
         # 内容页文件名前缀
         self.page_join = 'page-'
+
+        # 字体文件夹
+        self.font_dir = 'font'
 
         # 内容页分割大小
         self.split_size = 100 * 1024
@@ -107,13 +115,14 @@ class Epub2Json(object):
             self.dist,
             os.path.join(self.dist, self.image_dir),
             os.path.join(self.dist, self.page_dir),
+            os.path.join(self.dist, self.font_dir),
             os.path.join(self.dist, self.css_dir)
         ]
         for row in dirs:
             if not os.path.exists(row):
                 os.makedirs(row)
 
-    def load_meta_info(self, epub_file):
+    def load_meta_info(self, epub_file) -> None:
         """
         读取根文件
         """
@@ -156,8 +165,9 @@ class Epub2Json(object):
         if 'cover' in meta and meta['cover'] in self.manifest_map:
             cover_name = self.manifest_map[meta['cover']]
             cover_path = zip_join(self.opf_dir, cover_name)
-            if '/' in cover_name:
-                cover_name = cover_name[cover_name.rindex('/') + 1:]
+            cover_name = get_file_path_name(cover_name)
+            # if '/' in cover_name:
+            #     cover_name = cover_name[cover_name.rindex('/') + 1:]
             cover_name = cover_name.lower()
             copy_zip_file(epub_file, cover_path, os.path.join(self.dist, self.image_dir, cover_name))
             # epub_file.extract(cover_path, os.path.join(self.dist, self.image_dir))
@@ -225,10 +235,10 @@ class Epub2Json(object):
             href = item.get('href')
             href_arr = href.split('#')
             href_name = href_arr[0]
-            href_id = href_arr[1] if len(href_arr) > 1 else None
+            # href_id = href_arr[1] if len(href_arr) > 1 else None
             if href_name not in self.tcontainer:
                 href_path = zip_join(self.opf_dir, href_name)
-                href_dir = self.get_zip_file_dir(href_path)
+                href_dir = get_file_path_dir(href_path)
                 self.copy_html(epub_file, href_path, href_dir, self.container_count)
                 self.page_map[href_path] = self.container_count
                 self.container_count += 1
@@ -240,34 +250,47 @@ class Epub2Json(object):
         self.container_count = 1
         for container in self.tcontainer:
             zip_path = zip_join(self.opf_dir, container)
+            logger.debug('copy container: ' + zip_path)
             container_dir = None
             if '/' in zip_path:
-                container_dir = zip_path[:zip_path.rindex('/')]
+                container_dir = get_file_path_dir(zip_path)
+                # container_dir = zip_path[:zip_path.rindex('/')]
             info = epub_file.getinfo(zip_path)
             if info.file_size > self.split_size:
                 split_count = int(info.file_size / self.split_size)
                 if info.file_size % self.split_size:
                     split_count += 1
+                if split_count > 0:
                 # with epub_file.open(zip_path) as html_file:
-                self.page_map[zip_path] = set(range(
-                    self.container_count,
-                    self.container_count + split_count
-                ))
-                self.split_html(
-                    epub_file,
-                    zip_path,
-                    container_dir,
-                    split_count,
-                    self.container_count
-                )
-                self.container_count += split_count - 1
+                    self.page_map[zip_path] = set(range(
+                        self.container_count,
+                        self.container_count + split_count
+                    ))
+                    self.split_html(
+                        epub_file,
+                        zip_path,
+                        container_dir,
+                        split_count,
+                        self.container_count
+                    )
+                    self.container_count += split_count - 1
+                else:
+                    self.page_map[zip_path] = self.container_count
+                    self.copy_html(epub_file, zip_path, container_dir, self.container_count)
+                    
             else:
                 # with epub_file.open(zip_path) as html_file:
                 self.page_map[zip_path] = self.container_count
                 self.copy_html(epub_file, zip_path, container_dir, self.container_count)
             self.container_count += 1
 
-    def copy_html(self, epub_file, zip_path, container_dir, container_count):
+    def copy_html(
+            self,
+            epub_file,
+            zip_path,
+            container_dir,
+            container_count
+    ):
         """
         不分割拷贝
         """
@@ -281,7 +304,14 @@ class Epub2Json(object):
                 page_xml.append(child)
             self.save_html(page_xml, container_count)
 
-    def split_html(self, epub_file, zip_path, container_dir, split_count, container_count):
+    def split_html(
+            self,
+            epub_file,
+            zip_path,
+            container_dir,
+            split_count,
+            container_count
+    ):
         """
         切割html
         """
@@ -292,8 +322,9 @@ class Epub2Json(object):
             children = body.getchildren()
             children_len = len(children)
             if children_len < split_count:
-                self.copy_html(epub_file, html_file, container_dir, container_count)
+                self.copy_html(epub_file, zip_path, container_dir, container_count)
                 self.container_count -= split_count - 1
+                return
             split_num = int(children_len / split_count)
             page_count = 0
             page_xml = None
@@ -313,6 +344,7 @@ class Epub2Json(object):
         保存并处理
         """
         page_name = '%s%d.html' % (self.page_join, container_count)
+        logger.debug('save container: ' + page_name)
         links = xml.xpath('//@id', namespaces={'xmlns': NAMESPACES['XHTML']})
         page_path = zip_join(self.page_dir, page_name)
         self.container.append((page_path, container_count))
@@ -329,7 +361,12 @@ class Epub2Json(object):
         )
 
 
-    def find_head_css(self, epub_file, tree, container_dir):
+    def find_head_css(
+            self,
+            epub_file,
+            tree,
+            container_dir
+    ):
         """
         处理内容页head上的css
         """
@@ -342,26 +379,48 @@ class Epub2Json(object):
                 css_zip_path = css_name
             if css_zip_path not in self.css_set:
                 self.css_set.add(css_zip_path)
-                if '/' in css_name:
-                    css_name = css_name[css_name.rindex('/') + 1: ].lower()
+                css_name = get_file_path_name(css_name).lower()
                 css_out_name = zip_join(self.css_dir, css_name)
-                copy_zip_file(epub_file, css_zip_path, os.path.join(self.dist, css_out_name))
+                self.filter_font_by_css(epub_file, css_zip_path, os.path.join(self.dist, css_out_name))
+                logger.debug('save css: ' + css_zip_path + ' -> ' + css_out_name)
+                # copy_zip_file(epub_file, css_zip_path, os.path.join(self.dist, css_out_name))
                 self.css_list.append(css_out_name)
-        # styles = tree.findall('//xmlns:style', namespaces={'xmlns': NAMESPACES['XHTML']})
-        # for style in styles:
 
+    def filter_font_by_css(self, epub_file, css_zip_path, css_out_path):
+        """
+        过滤字体
+        """
+        css_dir = get_file_path_dir(css_zip_path)
+        def replace_copy_font(match):
+            """
+            替换css中的字体路径，并拷贝到指定目录
+            """
+            font_url = match.group(1)
+            font_path = zip_join(css_dir, font_url)
+            font_name = get_file_path_name(font_url)
+            out_name = zip_join(self.font_dir, font_name)
+            out_path = os.path.join(self.dist, out_name)
+            copy_zip_file(epub_file, font_path, out_path)
+            out_url = ('../' * self.css_deep) + out_name
+            logger.debug('save font: ' + font_path + ' -> ' + out_name)
+            return 'src: url(%s)' % out_url
+
+        with epub_file.open(css_zip_path, 'r') as from_file:
+            line = from_file.readline().decode('utf8')
+            with file_open(css_out_path, 'w', encoding='utf8') as out_fd:
+                while line:
+                    line = FONT_RE.sub(replace_copy_font, line)
+                    out_fd.write(line)
+                    line = from_file.readline().decode('utf8')
 
     def handle_page(self, epub_file):
         """
         处理page中的锚点
         """
-        # print(self.container)
         for page_name, index in self.container:
             old_page_name = self.get_old_page_name(index)
-            old_page_dir = self.get_zip_file_dir(old_page_name)
+            old_page_dir = get_file_path_dir(old_page_name)
             now_page_path = os.path.join(self.dist, page_name)
-            # print(now_page_path)
-            # print(old_page_name)
             with file_open(
                 now_page_path,
                 'r',
@@ -375,23 +434,19 @@ class Epub2Json(object):
                     if len(http_head) > 0:
                         continue
                     link_arr = href.split('#')
-                    # print(link_arr)
-                    # print(link_arr)
                     link_page = link_arr[0]
                     link_id = link_arr[1] if len(link_arr) > 1 else None
-                    # link_args = None
                     if link_id and '?' in link_id:
                         tmp = link_id.split('?')
                         link_id = tmp[0]
-                        # link_args = tmp[1]
                     link_page_name = zip_join(old_page_dir, link_page)
                     if link_page_name in self.page_map:
                         now_page = self.page_map[link_page_name]
                         if isinstance(now_page, int):
-                            new_href = '%s%d.html#%s' % (
+                            new_href = '%s%d.html%s' % (
                                 self.page_join,
                                 now_page,
-                                link_id if link_id else ''
+                                "#" + link_id if link_id else ''
                             )
                             link.set('href', new_href)
                         else:
@@ -400,10 +455,10 @@ class Epub2Json(object):
                                     page_num in self.toc_link and
                                     link_id in self.toc_link[page_num]
                                 ):
-                                    new_href = '%s%d.html#%s' % (
+                                    new_href = '%s%d.html%s' % (
                                         self.page_join,
                                         page_num,
-                                        link_id if link_id else ''
+                                        "#" + link_id if link_id else ''
                                     )
                                     link.set('href', new_href)
                 images = tree.findall(
@@ -418,7 +473,7 @@ class Epub2Json(object):
                     if '/' in img_src:
                         img_out_name = zip_join(
                             self.image_dir,
-                            img_src[img_src.rindex('/') + 1:]
+                            get_file_path_name(img_src)
                         )
                     else:
                         img_out_name = zip_join(self.image_dir, img_src)
@@ -428,7 +483,6 @@ class Epub2Json(object):
                         os.path.join(self.dist, img_out_name)
                     )
                     del img.attrib['src']
-                    # print(dir(img))
                     img.set('data-src', img_out_name)
                 images = tree.findall(
                     '//xmlns:image[@xlink:href]',
@@ -442,15 +496,13 @@ class Epub2Json(object):
                     for img in images:
                         name_spaces = '{%s}href' % NAMESPACES['SVGLINK']
                         img_src = img.get(name_spaces)
-                        # print(img_src, name_spaces)
                         img_zip_path = zip_join(old_page_dir, img_src)
                         if '/' in img_src:
-                            img_out_name = zip_join(self.image_dir, img_src[img_src.rindex('/') + 1:])
+                            img_out_name = zip_join(self.image_dir, get_file_path_name(img_src))
                         else:
                             img_out_name = zip_join(self.image_dir, img_src)
                         copy_zip_file(epub_file, img_zip_path, os.path.join(self.dist, img_out_name))
                         del img.attrib[name_spaces]
-                        # print(dir(img))
                         img.set('data-src', img_out_name)
                 tree.write(
                     now_page_path,
@@ -458,21 +510,7 @@ class Epub2Json(object):
                     encoding='utf-8',
                     method='html'
                 )
-                    # print(href, link.get('href'))
-                    # print(link_page_name)
-                    
-                    
 
-
-    def get_zip_file_dir(self, file_name):
-        """
-        获取文件的目录
-        """
-        if '/' in file_name:
-            return file_name[:file_name.rindex('/')]
-        else:
-            return ''
-    
     def get_old_page_name(self, count):
         """
         根据count数取到原有name

@@ -49,6 +49,8 @@ NAMESPACES = {
 
 HTTP_NAME = re.compile(r'(^(?:[a-z]+\:)?(?:\/\/))')
 
+FONT_RE = re.compile(r'src *: *url\(\'?"? *([a-zA-Z0-9\/\-_]+\.(?:ttf|woff|woff2|svg|eot)) *\'?"?\)')
+
 
 def file_open(*args, **k):
     """
@@ -232,3 +234,21 @@ def zip_join(*dirs):
             dist_dirs.append(dir_name)
     
     return posixpath.join(dist_dirs[0], *dist_dirs[1:])
+
+def get_file_path_dir(file_name):
+    """
+    获取文件的目录
+    """
+    if '/' in file_name:
+        return file_name[:file_name.rindex('/')]
+    else:
+        return ''
+
+def get_file_path_name(file_name):
+    """
+    获取文件的名字
+    """
+    if '/' in file_name:
+        return file_name[file_name.rindex('/') + 1:]
+    else:
+        return file_name

@@ -22,6 +22,7 @@ export default class Layout extends Component<any, any> {
     private cssMount: string[] = [];
     constructor(p: any, c: any) {
         super(p, c);
+        console.log(p);
         this.state = {
             theme: undefined,
             tocs: undefined,
@@ -42,7 +43,7 @@ export default class Layout extends Component<any, any> {
         this.setZoom();
     }, 15);
     public componentDidMount() {
-        this.getBookMeta().then((meta) => {
+        return this.getBookMeta().then((meta) => {
             if (meta) {
                 const page_style = meta.page_style;
                 if (page_style && page_style.length > 0) {

@@ -6,6 +6,10 @@
       "target": "es5", // 目标代码平台
       "jsx": "react",
       "jsxFactory": "h",
+      "lib": [
+        "es2015",
+        "dom"
+      ],
       "types": [
         "lodash"
       ]
@@ -13,6 +17,7 @@
     "files": [
        "src/types.d.ts",
       //  "node_modules/preact/src/preact.d.ts"
-       "node_modules/zreact/types/zreact.d.ts"
+       "node_modules/zreact/types/zreact.d.ts",
+       "src/components/book-layout.tsx"
     ]
 }
