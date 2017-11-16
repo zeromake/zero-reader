@@ -5,8 +5,8 @@
 命令行
 """
 
-from core.pdf2json import Pdf2Json
-from core.epub2json import Epub2Json
+from converts.pdf2json import Pdf2Json
+from converts.epub2json import Epub2Json
 import argparse
 
 def add_args():

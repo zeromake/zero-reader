@@ -58,19 +58,19 @@ const config = {
                             loader: "css-loader",
                             options: {
                                 sourceMap: true,
-                                modules: true,
+                                modules: !isProd,
                             }
                         },
                         {
                             loader: 'postcss-loader',
                             options: {
-                                sourceMap: true
+                                sourceMap: !isProd
                             }
                         },
                         {
                             loader: 'stylus-loader',
                             options: {
-                                sourceMap: true
+                                sourceMap: !isProd
                             }
                         }
                     ],
@@ -85,13 +85,13 @@ const config = {
                         {
                             loader: "css-loader",
                             options: {
-                                sourceMap: true,
+                                sourceMap: !isProd,
                             }
                         },
                         {
                             loader: 'postcss-loader',
                             options: {
-                                sourceMap: true
+                                sourceMap: !isProd
                             }
                         }
                     ],

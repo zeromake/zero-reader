@@ -25,6 +25,7 @@ except:
     pass
 
 logging.basicConfig(
+    filename='debug.log',
     level=logging.DEBUG,
     format="[%(asctime)s] %(name)s:%(levelname)s: %(message)s"
 )
@@ -49,7 +50,9 @@ NAMESPACES = {
 
 HTTP_NAME = re.compile(r'(^(?:[a-z]+\:)?(?:\/\/))')
 
-FONT_RE = re.compile(r'src *: *url\(\'?"? *([a-zA-Z0-9\/\-_]+\.(?:ttf|woff|woff2|svg|eot)) *\'?"?\)')
+FONT_RE = re.compile(
+    r'src *: *url\(\'?"? *([a-zA-Z0-9\/\-_]+\.(?:ttf|woff|woff2|svg|eot)) *\'?"?\)'
+)
 
 
 def file_open(*args, **k):

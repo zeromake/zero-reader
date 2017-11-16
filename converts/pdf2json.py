@@ -164,25 +164,69 @@ class Pdf2Json(object):
         if sysstr == 'Linux':
             subprocess.call(["chmod", "+x", pdf2html[1]])
             subprocess.call(["chmod", "+x", 'bin/pdf2htmlEX'])
-        state = subprocess.call([
-            pdf2html[1],
-            '--embed-css', '0',
-            '--embed-font', '0',
-            '--embed-image', '0',
-            '--embed-javascript', '0',
-            '--embed-outline', '0',
-            '--outline-filename', '%s' % self.toc,
-            '--split-page', '1',
-            '--css-filename', '%s' % self.css,
-            '--page-filename', '%s' % self.page,
-            '--space-as-offset', '1',
-            '--data-dir', '%s' % self.share,
-            '--dest-dir', '%s' % self.out,
-            self.pdf_name,
-            'index.html'
-        ])
+        p = subprocess.Popen(
+            " ".join([
+                pdf2html[1],
+                '--embed-css', '0',
+                '--embed-font', '0',
+                '--embed-image', '0',
+                '--embed-javascript', '0',
+                '--embed-outline', '0',
+                '--outline-filename', '%s' % self.toc,
+                '--split-page', '1',
+                '--css-filename', '%s' % self.css,
+                '--page-filename', '%s' % self.page,
+                '--space-as-offset', '1',
+                '--data-dir', '%s' % self.share,
+                '--dest-dir', '%s' % self.out,
+                self.pdf_name,
+                'index.html'
+            ]),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            shell=True
+        )
+        flag = False
+        read_num = 1
+        offset = 0
+        offset_start = False
+        while True:
+            line = p.stdout.read(read_num)
+            if not line:
+                break
+            if not flag and line == b'W':
+                if offset_start:
+                    flag = True
+                    read_num = offset +2
+                    print(read_num)
+                    offset_start = False
+                else:
+                    offset_start = True
+
+            if offset_start:
+                offset += 1
+            if flag:
+                # line += p.stdout.read(read_num -1)
+                print(line, '------')
+        # state = subprocess.call([
+        #     pdf2html[1],
+        #     '--embed-css', '0',
+        #     '--embed-font', '0',
+        #     '--embed-image', '0',
+        #     '--embed-javascript', '0',
+        #     '--embed-outline', '0',
+        #     '--outline-filename', '%s' % self.toc,
+        #     '--split-page', '1',
+        #     '--css-filename', '%s' % self.css,
+        #     '--page-filename', '%s' % self.page,
+        #     '--space-as-offset', '1',
+        #     '--data-dir', '%s' % self.share,
+        #     '--dest-dir', '%s' % self.out,
+        #     self.pdf_name,
+        #     'index.html'
+        # ])
         with file_open(os.path.join(self.out, 'exec.lock'), 'w') as file_:
-            file_.write(str(state))
+            file_.write('0')
 
     def extract_zip(self, zip_name):
         """
