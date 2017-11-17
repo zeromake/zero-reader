@@ -11,6 +11,10 @@ requests = "*"
 lxml = "*"
 argparse = "*"
 "pypdf2" = "*"
+sanic = "*"
+peewee-async = "*"
+aiomysql = "*"
+peewee = "*"
 
 
 [dev-packages]

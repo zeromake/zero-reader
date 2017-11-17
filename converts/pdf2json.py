@@ -22,7 +22,9 @@ from .utils import (
     read_json,
     save_json,
     file_sha256,
-    zip_join
+    zip_join,
+    PDF_EXEC,
+    logger
 )
 
 
@@ -102,7 +104,9 @@ class Pdf2Json(object):
         meta['container'] = 'container.json'
         meta['toc'] = 'toc.json'
         meta['zoom'] = 'zoom.json'
-        meta['cover'] = zip_join(self.img_dir, 'bg1.png')
+        cover_url = zip_join(self.img_dir, 'bg1.png')
+        if os.path.exists(os.path.join(self.dist, cover_url)):
+            meta['cover'] = cover_url
         save_json(os.path.join(self.dist, self.meta_file), meta)
         db_name = os.path.join('library', 'db.json')
         db_data = []
@@ -147,7 +151,7 @@ class Pdf2Json(object):
         if os.path.exists(lock_name):
             with file_open(lock_name, 'r', encoding='utf8') as file_:
                 if file_.read(1) == '0':
-                    print('MISS exec_pdf')
+                    logger.info('MISS exec_pdf')
                     return
 
         pdf2html_dict = {
@@ -164,7 +168,7 @@ class Pdf2Json(object):
         if sysstr == 'Linux':
             subprocess.call(["chmod", "+x", pdf2html[1]])
             subprocess.call(["chmod", "+x", 'bin/pdf2htmlEX'])
-        p = subprocess.Popen(
+        popen_obj = subprocess.Popen(
             " ".join([
                 pdf2html[1],
                 '--embed-css', '0',
@@ -172,13 +176,13 @@ class Pdf2Json(object):
                 '--embed-image', '0',
                 '--embed-javascript', '0',
                 '--embed-outline', '0',
-                '--outline-filename', '%s' % self.toc,
+                '--outline-filename', self.toc,
                 '--split-page', '1',
-                '--css-filename', '%s' % self.css,
-                '--page-filename', '%s' % self.page,
+                '--css-filename', self.css,
+                '--page-filename', self.page,
                 '--space-as-offset', '1',
-                '--data-dir', '%s' % self.share,
-                '--dest-dir', '%s' % self.out,
+                '--data-dir', self.share,
+                '--dest-dir', self.out,
                 self.pdf_name,
                 'index.html'
             ]),
@@ -190,43 +194,40 @@ class Pdf2Json(object):
         read_num = 1
         offset = 0
         offset_start = False
+        old_line = b''
+        add_set = {int('9' * i) for i in range(1, 5)}
+        state = 1
         while True:
-            line = p.stdout.read(read_num)
+            line = popen_obj.stdout.read(read_num)
             if not line:
+                state = popen_obj.wait()
                 break
             if not flag and line == b'W':
                 if offset_start:
                     flag = True
-                    read_num = offset +2
-                    print(read_num)
+                    read_num = offset
                     offset_start = False
+                    match = PDF_EXEC.match(old_line.decode('utf8'))
+                    task_progress = match.group(1)
+                    task_count = int(match.group(2))
+                    logger.debug('progress: %s/%d' % (task_progress, task_count))
+                    line = line + popen_obj.stdout.read(read_num -1)
                 else:
                     offset_start = True
 
             if offset_start:
                 offset += 1
+                old_line += line
             if flag:
-                # line += p.stdout.read(read_num -1)
-                print(line, '------')
-        # state = subprocess.call([
-        #     pdf2html[1],
-        #     '--embed-css', '0',
-        #     '--embed-font', '0',
-        #     '--embed-image', '0',
-        #     '--embed-javascript', '0',
-        #     '--embed-outline', '0',
-        #     '--outline-filename', '%s' % self.toc,
-        #     '--split-page', '1',
-        #     '--css-filename', '%s' % self.css,
-        #     '--page-filename', '%s' % self.page,
-        #     '--space-as-offset', '1',
-        #     '--data-dir', '%s' % self.share,
-        #     '--dest-dir', '%s' % self.out,
-        #     self.pdf_name,
-        #     'index.html'
-        # ])
+                line_str = line.decode('utf8')
+                match = PDF_EXEC.match(line_str)
+                if match:
+                    task_progress = int(match.group(1))
+                    if task_progress in add_set:
+                        read_num += 1
+                    logger.debug('progress: %d/%d' % (task_progress, task_count))
         with file_open(os.path.join(self.out, 'exec.lock'), 'w') as file_:
-            file_.write('0')
+            file_.write(str(state))
 
     def extract_zip(self, zip_name):
         """

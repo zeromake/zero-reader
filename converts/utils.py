@@ -25,9 +25,7 @@ except:
     pass
 
 logging.basicConfig(
-    filename='debug.log',
-    level=logging.DEBUG,
-    format="[%(asctime)s] %(name)s:%(levelname)s: %(message)s"
+    level=logging.DEBUG
 )
 logger = logging.getLogger('converts')
 
@@ -54,6 +52,7 @@ FONT_RE = re.compile(
     r'src *: *url\(\'?"? *([a-zA-Z0-9\/\-_]+\.(?:ttf|woff|woff2|svg|eot)) *\'?"?\)'
 )
 
+PDF_EXEC = re.compile(r'Working: *(\d+)\/(\d+)')
 
 def file_open(*args, **k):
     """

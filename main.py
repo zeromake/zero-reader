@@ -5,9 +5,11 @@
 命令行
 """
 
+import argparse
+
 from converts.pdf2json import Pdf2Json
 from converts.epub2json import Epub2Json
-import argparse
+from converts.utils import logger
 
 def add_args():
     """
@@ -15,17 +17,10 @@ def add_args():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-e',
-        '--epub',
-        type=bool,
-        help='is epub file',
-        default=False
-    )
-    parser.add_argument(
         '-f',
         '--file',
         type=str,
-        help='pdf file'
+        help='book file'
     )
     parser.add_argument(
         '-o',
@@ -89,10 +84,13 @@ def add_args():
 if __name__ == '__main__':
     args = add_args()
     options = args.__dict__
-    if options['epub']:
+    file_name = options['file']
+    if file_name.endswith('.epub'):
         epub_converts = Epub2Json(options)
         epub_converts.run()
         # print('dont converts epub')
-    else:
+    elif file_name.endswith('.pdf'):
         pdf_converts = Pdf2Json(options)
         pdf_converts.run()
+    else:
+        logger.error('only support book on epub, pdf!')

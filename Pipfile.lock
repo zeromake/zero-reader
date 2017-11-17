@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "14bd866ffe5a085cc3365a5342100756257c37f269e1fef8e647031bd01f8ae8"
+            "sha256": "23a5772bf98cbeafdc0c69275ffce93c032b76bc14175e24d7c3ddd74a96e72f"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -27,6 +27,14 @@
         ]
     },
     "default": {
+        "aiofiles": {
+            "hashes": [],
+            "version": "==0.3.2"
+        },
+        "aiomysql": {
+            "hashes": [],
+            "version": "==0.0.9"
+        },
         "argparse": {
             "hashes": [],
             "version": "==1.4.0"
@@ -39,6 +47,10 @@
             "hashes": [],
             "version": "==3.0.4"
         },
+        "httptools": {
+            "hashes": [],
+            "version": "==0.0.9"
+        },
         "idna": {
             "hashes": [],
             "version": "==2.6"
@@ -46,6 +58,18 @@
         "lxml": {
             "hashes": [],
             "version": "==4.1.1"
+        },
+        "peewee": {
+            "hashes": [],
+            "version": "==2.10.2"
+        },
+        "peewee-async": {
+            "hashes": [],
+            "version": "==0.5.9"
+        },
+        "pymysql": {
+            "hashes": [],
+            "version": "==0.7.11"
         },
         "pypdf2": {
             "hashes": [],
@@ -55,9 +79,25 @@
             "hashes": [],
             "version": "==2.18.4"
         },
+        "sanic": {
+            "hashes": [],
+            "version": "==0.6.0"
+        },
+        "ujson": {
+            "hashes": [],
+            "version": "==1.35"
+        },
         "urllib3": {
             "hashes": [],
             "version": "==1.22"
+        },
+        "uvloop": {
+            "hashes": [],
+            "version": "==0.8.1"
+        },
+        "websockets": {
+            "hashes": [],
+            "version": "==4.0.1"
         }
     },
     "develop": {}
