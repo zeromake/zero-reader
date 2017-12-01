@@ -10,11 +10,13 @@ name = "doubanio"
 requests = "*"
 lxml = "*"
 argparse = "*"
-"pypdf2" = "*"
-sanic = "*"
+"PyPDF2" = "*"
+Sanic = "*"
 peewee-async = "*"
 aiomysql = "*"
 peewee = "*"
+"lz4tools" = "*"
+"aiosqlite3" = "*"
 
 
 [dev-packages]
