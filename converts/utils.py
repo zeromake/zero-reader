@@ -4,6 +4,7 @@
 """
 函数工具
 """
+import os
 import io
 import re
 import sys
@@ -13,10 +14,14 @@ import hashlib
 import logging
 import posixpath
 import requests
+import tempfile
 
 from lxml import etree
 from PyPDF2 import PdfFileReader
 from PyPDF2.generic import IndirectObject, TextStringObject
+from .compress.zstd_tar import ZstdTar
+
+import tarfile
 
 try:
     reload(sys)
@@ -212,10 +217,10 @@ def copy_zip_file(zip_file, from_path, to_path):
     try:
         with zip_file.open(from_path, 'r') as from_file:
             with file_open(to_path, 'wb') as to_file:
-                data = from_file.read(4096)
+                data = from_file.read(io.DEFAULT_BUFFER_SIZE)
                 while data:
-                    to_file.write(bytes(data))
-                    data = from_file.read(4096)
+                    to_file.write(data)
+                    data = from_file.read(io.DEFAULT_BUFFER_SIZE)
     except KeyError:
         logger.debug('miss: %s not in zip' % zip_file)
 
@@ -234,7 +239,6 @@ def zip_join(*dirs):
                     dist_dirs.append(item)
         else:
             dist_dirs.append(dir_name)
-    
     return posixpath.join(dist_dirs[0], *dist_dirs[1:])
 
 def get_file_path_dir(file_name):
@@ -254,3 +258,36 @@ def get_file_path_name(file_name):
         return file_name[file_name.rindex('/') + 1:]
     else:
         return file_name
+
+def add_path_to_tar(tar_file, input_path, output_path):
+    """
+    通过文件路径把文件添加到tar
+    """
+    with file_open(input_path, 'rb') as input_file:
+        info = tar_file.gettarinfo(input_path, output_path)
+        tar_file.addfile(info, input_file)
+
+
+def add_zipfile_to_tar(tar_file, zip_file, zip_path, output_path):
+    """
+    把zip文件放入tar中
+    """
+    temp = tempfile.mktemp()
+    copy_zip_file(zip_file, zip_path, temp)
+    add_path_to_tar(tar_file, temp, output_path)
+    os.remove(temp)
+
+def add_json_to_tar(tar_file, json_data, output_path):
+    """
+    json对象添加到tar
+    """
+    temp = tempfile.mktemp(suffix='.json')
+    save_json(temp, json_data)
+    add_path_to_tar(tar_file, temp, output_path)
+    os.remove(temp)
+
+def tar_open(name, mode='r:zstd'):
+    """
+    打开tar文件
+    """
+    return tarfile.open(name, mode)

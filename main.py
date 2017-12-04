@@ -17,6 +17,13 @@ def add_args():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '-c',
+        '--compress',
+        type=int,
+        help='book out dir is tar.zstd',
+        default=1
+    )
+    parser.add_argument(
         '-f',
         '--file',
         type=str,
@@ -35,13 +42,6 @@ def add_args():
         type=str,
         help='dist file dir',
         default="library"
-    )
-    parser.add_argument(
-        '-c',
-        '--css',
-        type=str,
-        help='css file name',
-        default="style.css"
     )
     parser.add_argument(
         '-p',
@@ -85,6 +85,9 @@ if __name__ == '__main__':
     args = add_args()
     options = args.__dict__
     file_name = options['file']
+    options['css'] = 'style.css'
+    options['compress'] = bool(options['compress'])
+    print(options)
     if file_name.endswith('.epub'):
         epub_converts = Epub2Json(options)
         epub_converts.run()

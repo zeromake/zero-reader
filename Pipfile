@@ -12,10 +12,6 @@ lxml = "*"
 argparse = "*"
 "PyPDF2" = "*"
 Sanic = "*"
-peewee-async = "*"
-aiomysql = "*"
-peewee = "*"
-"lz4tools" = "*"
 "aiosqlite3" = "*"
 
 

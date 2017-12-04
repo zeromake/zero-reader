@@ -22,7 +22,10 @@ from .utils import (
     FONT_RE,
     logger,
     get_file_path_dir,
-    get_file_path_name
+    get_file_path_name,
+    tar_open,
+    add_zipfile_to_tar,
+    add_json_to_tar
 )
 
 
@@ -38,12 +41,14 @@ class Epub2Json(object):
         self.options = options
         # epub 文件
         self.file_name = options['file']
+        # 是否压缩
+        self.compress = options['compress']
         # 该文件的sha256值
         self.sha = file_sha256(self.file_name)
         # 输出文件夹
         self.dist = os.path.join(options['dist'], self.sha)
         # meta文件
-        self.meta_dist_path = os.path.join(self.dist, 'meta.json')
+        self.meta_path = 'meta.json'
         # container文件
         self.container_file = 'container.json'
         # toc文件
@@ -85,6 +90,8 @@ class Epub2Json(object):
         self.page_map = {}
         self.container_count = 1
         self.guide = []
+        if self.compress:
+            self.tar_file = tar_open(self.dist + '.tar.zstd', 'w:zstd')
 
     def run(self):
         """
@@ -106,6 +113,31 @@ class Epub2Json(object):
             raise Exception(0, 'Bad Zip file')
         except zipfile.LargeZipFile:
             raise Exception(1, 'Large Zip file')
+        finally:
+            if self.compress and self.tar_file:
+                self.tar_file.close()
+                self.tar_file = None
+                
+
+    def save_zip_file(self, zip_file, zip_path, output_path):
+        """
+        保存zip中的文件到tar或文件系统
+        """
+        if self.compress:
+            add_zipfile_to_tar(self.tar_file, zip_file, zip_path, output_path)
+        else:
+            output_path = os.path.join(self.dist, output_path)
+            copy_zip_file(zip_file, zip_path, output_path)
+    
+    def save_tar_json(self, output_path, data):
+        """
+        保存json
+        """
+        if self.compress:
+            add_json_to_tar(self.tar_file, data, output_path)
+        else:
+            output_path = os.path.join(self.dist, output_path)
+            save_json(output_path, data)
 
     def mkdirs(self):
         """
@@ -122,7 +154,7 @@ class Epub2Json(object):
             if not os.path.exists(row):
                 os.makedirs(row)
 
-    def load_meta_info(self, epub_file) -> None:
+    def load_meta_info(self, epub_file):
         """
         读取根文件
         """
@@ -169,7 +201,7 @@ class Epub2Json(object):
             # if '/' in cover_name:
             #     cover_name = cover_name[cover_name.rindex('/') + 1:]
             cover_name = cover_name.lower()
-            copy_zip_file(epub_file, cover_path, os.path.join(self.dist, self.image_dir, cover_name))
+            self.save_zip_file(epub_file, cover_path, os.path.join(self.image_dir, cover_name))
             # epub_file.extract(cover_path, os.path.join(self.dist, self.image_dir))
             douban_meta['cover'] = os.path.join(self.image_dir, cover_name).replace('\\', '/')
         if len(self.css_list) > 0:
@@ -178,7 +210,7 @@ class Epub2Json(object):
         douban_meta['container'] = self.container_file
         douban_meta['toc'] = self.toc_file
         douban_meta['sha'] = self.sha
-        save_json(self.meta_dist_path, douban_meta)
+        self.save_tar_json(self.meta_path, douban_meta)
 
     def save_container(self):
         """
@@ -195,9 +227,7 @@ class Epub2Json(object):
                 'data-page-url': container_name,
                 'index': container_num
             })
-        save_json(os.path.join(self.dist, self.container_file), container_data)
-
-            
+        self.save_tar_json(self.container_file, container_data)
 
     def load_items(self, tree):
         """
@@ -277,7 +307,6 @@ class Epub2Json(object):
                 else:
                     self.page_map[zip_path] = self.container_count
                     self.copy_html(epub_file, zip_path, container_dir, self.container_count)
-                    
             else:
                 # with epub_file.open(zip_path) as html_file:
                 self.page_map[zip_path] = self.container_count
@@ -399,8 +428,7 @@ class Epub2Json(object):
             font_path = zip_join(css_dir, font_url)
             font_name = get_file_path_name(font_url)
             out_name = zip_join(self.font_dir, font_name)
-            out_path = os.path.join(self.dist, out_name)
-            copy_zip_file(epub_file, font_path, out_path)
+            self.save_zip_file(epub_file, font_path, out_name)
             out_url = ('../' * self.css_deep) + out_name
             logger.debug('save font: ' + font_path + ' -> ' + out_name)
             return 'src: url(%s)' % out_url
@@ -477,10 +505,10 @@ class Epub2Json(object):
                         )
                     else:
                         img_out_name = zip_join(self.image_dir, img_src)
-                    copy_zip_file(
+                    self.save_zip_file(
                         epub_file,
                         img_zip_path,
-                        os.path.join(self.dist, img_out_name)
+                        img_out_name
                     )
                     del img.attrib['src']
                     img.set('data-src', img_out_name)
@@ -501,7 +529,7 @@ class Epub2Json(object):
                             img_out_name = zip_join(self.image_dir, get_file_path_name(img_src))
                         else:
                             img_out_name = zip_join(self.image_dir, img_src)
-                        copy_zip_file(epub_file, img_zip_path, os.path.join(self.dist, img_out_name))
+                        self.save_zip_file(epub_file, img_zip_path, os.path.join(img_out_name))
                         del img.attrib[name_spaces]
                         img.set('data-src', img_out_name)
                 tree.write(
