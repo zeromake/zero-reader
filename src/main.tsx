@@ -1,6 +1,8 @@
 import "es6-promise/auto";
 import "unfetch/polyfill";
-import { render, h } from "zreact";
+import { h, render } from "react-import";
+// import { createElement as h } from "react";
+// import { render } from "react-dom";
 // import { initDevTools } from "zreact/dist/devtools";
 import MainRouter from "./router";
 // import BookLayout from "./book-layout";
@@ -10,5 +12,5 @@ import "./css/base.css";
 import "font-awesome/css/font-awesome.min.css";
 // import "linearicons";
 
-render(<MainRouter/>, document.body);
+render(<MainRouter/>, document.getElementById("app"));
 // initDevTools();

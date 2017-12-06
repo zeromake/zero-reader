@@ -4,7 +4,7 @@
 """
 命令行
 """
-
+import os
 import argparse
 
 from converts.pdf2json import Pdf2Json
@@ -87,7 +87,10 @@ if __name__ == '__main__':
     file_name = options['file']
     options['css'] = 'style.css'
     options['compress'] = bool(options['compress'])
-    print(options)
+
+    if not os.path.exists(options['dist']):
+        os.makedirs(options['dist'])
+
     if file_name.endswith('.epub'):
         epub_converts = Epub2Json(options)
         epub_converts.run()

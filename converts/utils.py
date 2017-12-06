@@ -286,8 +286,68 @@ def add_json_to_tar(tar_file, json_data, output_path):
     add_path_to_tar(tar_file, temp, output_path)
     os.remove(temp)
 
+def save_xml_path(xml, output_path):
+    """
+    保存xml
+    """
+    return etree.ElementTree(xml).write(
+        output_path,
+        pretty_print=True,
+        encoding='utf-8',
+        method='html'
+    )
+
+def save_xml_tree_path(tree, output_path):
+    """
+    保存tree
+    """
+    return tree.write(
+        output_path,
+        pretty_print=True,
+        encoding='utf-8',
+        method='html'
+    )
+
+def add_xml_tree_to_tar(tar_file, tree, output_path):
+    """
+    tree
+    """
+    temp = tempfile.mktemp(suffix='.xml')
+    res = save_xml_tree_path(tree, temp)
+    add_path_to_tar(tar_file, temp, output_path)
+    os.remove(temp)
+    return res
+
 def tar_open(name, mode='r:zstd'):
     """
     打开tar文件
     """
     return tarfile.open(name, mode)
+
+class TempTar():
+    def __init__(self, tar_file, temp, output_path, *args, **k):
+        self._tar_file = tar_file
+        self._temp = temp
+        self._output_path = output_path
+        self._obj = file_open(self._temp, *args, **k)
+
+    def __enter__(self):
+        self._obj.__enter__()
+        return self._obj
+
+    def __exit__(self, arg1, arg2, arg3):
+        self._obj.__exit__(arg1, arg2, arg3)
+        self.close()
+
+    def close(self):
+        self._obj.close()
+        add_path_to_tar(self._tar_file, self._temp, self._output_path)
+        os.remove(self._temp)
+
+def open_temp_file(tar_file, output_path, *args, **k):
+    """
+    打开一个临时文件，在退出上下文时会自动保存到tar中
+    """
+    temp = tempfile.mktemp()
+    temp_file = TempTar(tar_file, temp, output_path, *args, **k)
+    return temp_file

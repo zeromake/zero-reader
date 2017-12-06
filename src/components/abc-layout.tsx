@@ -1,4 +1,4 @@
-import { h, Component } from "zreact";
+import { h, Component } from "react-import";
 import { get_json, get_text } from "@/http/index";
 import { addLinkCss, addStyle, removeHead } from "@/utils";
 import styl from "@/css/layout.styl";
@@ -91,8 +91,7 @@ export default abstract class AbcLayout<AbcState extends IabcState> extends Comp
             page: 0,
         });
     }
-    // public componentDidMount() {
-    // }
+
     private getPage(container: Icontainer[], sha: string, num: number) {
         const pageName = container[num]["data-page-url"];
         return get_text(`/library/${sha}/${pageName}`);
@@ -119,7 +118,7 @@ export default abstract class AbcLayout<AbcState extends IabcState> extends Comp
      */
     protected abstract renderContent(): JSX.Element | JSX.Element[] | void;
     public render() {
-        return <div class={styl.content}>
+        return <div className={styl.content}>
             { this.renderHeader() }
             { this.renderContent() }
             { this.renderFooter() }

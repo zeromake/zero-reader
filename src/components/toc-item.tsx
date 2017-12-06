@@ -1,4 +1,4 @@
-import { h, Component } from "zreact";
+import { h, Component } from "react-import";
 import styl from "@/css/toc.styl";
 import Animate from "preact-animate";
 
@@ -23,12 +23,12 @@ export default class TocItem extends Component<any, any> {
     public render(props: any, state: any): any {
         const propsClick = props.onclick;
         const toc = state;
-        return <div class={ styl.tocItem }>
+        return <div className={ styl.tocItem }>
             {
-                toc.children ? (<div class={styl.tocItemToggler} onClick={this.itemToggler}><i class={"fa" + (toc.disable ? " fa-chevron-down " + styl.none : " fa-chevron-right")}>
+                toc.children ? (<div className={styl.tocItemToggler} onClick={this.itemToggler}><i className={"fa" + (toc.disable ? " fa-chevron-down " + styl.none : " fa-chevron-right")}>
                     </i></div>) : null
             }
-            <a class={styl.toc_text} href={"#" + toc.page} onClick={this.itemClick}>{toc.text}</a>
+            <a className={styl.toc_text} href={"#" + toc.page} onClick={this.itemClick}>{toc.text}</a>
             { toc.children ? <Animate
                     showProp="data-show"
                     component={null}
@@ -38,7 +38,7 @@ export default class TocItem extends Component<any, any> {
                         enter: "fadeInRight",
                         leave: "fadeOutRight",
                     }}>
-                <div  data-show={!toc.disable} class={ styl.tocItems + " animated"}>
+                <div  data-show={!toc.disable} className={ styl.tocItems + " animated"}>
                 {
                     toc.children.map((item: any) => <TocItem onclick={props.onclick} toc={item}/>)
                 }

@@ -1,6 +1,7 @@
-import { h, Component } from "zreact";
+// import { Component, createElement as h } from "react";
+// import { Link } from "react-router-dom";
+import { Component, h, Link } from "react-import";
 import styl from "@/css/library.styl";
-import { Link } from "preact-router";
 
 export default class Library extends Component<any, any> {
     constructor(p, c) {
@@ -14,19 +15,23 @@ export default class Library extends Component<any, any> {
             this.setState({ library: data });
         });
     }
-    public render(props: any, state: any) {
+    public render() {
+        const props = this.props;
+        const state = this.state;
         return (
-            <div class={styl.library}>
+            <div className={styl.library}>
                 {
                     state.library.map((book) => {
+                        const href = "/library/" + book.sha + "/";
                         return (
-                            <div class={styl.center_book}>
-                                <Link href={"/library/" + book.sha + "/"} title={book.title}>
-                                    <div class={styl.book_image}>
-                                        <img src={"/library/" + book.sha + "/" + book.cover} alt={book.title} title={book.title}/>
+                            <div key={book.sha} className={styl.center_book}>
+
+                                <Link href={href} to={href} title={book.title}>
+                                    <div className={styl.book_image}>
+                                        <img src={book.cover ? "/library/" + book.sha + "/" + book.cover : null} alt={book.title} title={book.title}/>
                                     </div>
                                 </Link>
-                                <span class={styl.book_title} title={book.title}>{book.title}</span>
+                                <span className={styl.book_title} title={book.title}>{book.title}</span>
                             </div>
                         );
                     })

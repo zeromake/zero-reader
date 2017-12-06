@@ -1,4 +1,4 @@
-import { h, Component } from "zreact";
+import { h, Component } from "react-import";
 import styl from "@/css/bottom-bar.styl";
 
 const bottomMenu = [
@@ -19,12 +19,12 @@ export default class BottomBar extends Component<any, any> {
         console.log("-------", id);
     }
     public render() {
-        return <div class={styl.bottom_bar}>
-            <ul class={styl.menus}>
+        return <div className={styl.bottom_bar}>
+            <ul className={styl.menus}>
             {
                 bottomMenu.map((menu) => {
-                    return <li class={styl.menu}>
-                        <i class={"fa " + menu.icon + " " + styl.icon} onClick={this.test.bind(this, menu.id)} title={menu.title}></i>
+                    return <li className={styl.menu}>
+                        <i className={"fa " + menu.icon + " " + styl.icon} onClick={this.test.bind(this, menu.id)} title={menu.title}></i>
                     </li>;
                 })
             }

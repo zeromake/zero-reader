@@ -159,7 +159,7 @@ export default class Layout extends Component<any, any> {
     public render(props: any, state: any): any {
         const tocClass = styl.toc_layout + (state.theme ? " " + styl[state.theme] : "");
         return (
-            <div class={styl.content}>
+            <div className={styl.content}>
                 <Animate
                     showProp="data-show"
                     component={null}
@@ -169,15 +169,15 @@ export default class Layout extends Component<any, any> {
                         enter: "fadeInLeft",
                         leave: "fadeOutLeft",
                     }}>
-                    <div class={tocClass + " animated"} data-show={state.toc_open}>
-                        <div class={styl.toc_content}>
+                    <div className={tocClass + " animated"} data-show={state.toc_open}>
+                        <div className={styl.toc_content}>
                             {this.tocs ? <Toc tocs={ this.tocs } onclick={this.tocClick} theme={state.theme}></Toc> : null}
                         </div>
                     </div>
                 </Animate>
                 <BookToolsBar options={ { showToc: this.showToc } }/>
-                <div ref={(vdom: any) => this.page = findDOMNode(vdom)} class={styl.pageHtml} onClick={this.pageClick}>
-                    <div class={styl.view + " w0 h0"} dangerouslySetInnerHTML={{__html: state.pageHtml}}>
+                <div ref={(vdom: any) => this.page = findDOMNode(vdom)} className={styl.pageHtml} onClick={this.pageClick}>
+                    <div className={styl.view + " w0 h0"} dangerouslySetInnerHTML={{__html: state.pageHtml}}>
                     </div>
                 </div>
                 <BottomBar></BottomBar>

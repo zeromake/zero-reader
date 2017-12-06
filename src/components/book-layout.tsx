@@ -1,4 +1,4 @@
-import { h, findDOMNode } from "zreact";
+import { h, findDOMNode } from "react-import";
 import AbcLayout, { IabcState } from "./abc-layout";
 import styl from "@/css/layout.styl";
 import BookToolsBar from "@/components/book-tools-bar";
@@ -51,15 +51,15 @@ export default class BookLayout extends AbcLayout<IBookState> {
     protected  renderHeader() {
         const state = this.state;
         // const tocClass = styl.toc_layout + (state.theme ? " " + styl[state.theme] : "");
-        return <BookToolsBar options={ { showToc: () => this.setState({ toc_open: !state.toc_open }) } }/>;
+        return <BookToolsBar options={ { showToc: () => {this.setState({ toc_open: !state.toc_open }); console.log("555555555"); } } }/>;
     }
     protected  renderFooter() {
         return <BottomBar/>;
     }
     protected  renderContent() {
         const state = this.state;
-        return <div ref={((vdom: any) => this.page = findDOMNode(vdom))} class={styl.pageHtml}>
-                <div class={styl.view + " w0 h0"} dangerouslySetInnerHTML={{__html: state.pageHtml}}>
+        return <div ref={((vdom: any) => this.page = findDOMNode(vdom))} className={styl.pageHtml}>
+                <div className={styl.view + " w0 h0"} dangerouslySetInnerHTML={{__html: state.pageHtml}}>
                 </div>
             </div>;
     }

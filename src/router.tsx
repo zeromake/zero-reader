@@ -1,23 +1,13 @@
-import Router from "preact-router";
 import BookLayout from "./components/book-layout";
 import Library from "./components/library";
-import { render, h } from "zreact";
-
-const Home = (props: any) => (
-    <div>
-        <h1>主页1</h1>
-        <nav>
-            <a href="/library/d66d7f8982411628163d95ee978ad9166849e16072b67995309406c6cbcbba41">自制编译器</a>
-        </nav>
-    </div>
-);
-
-console.log(BookLayout);
+// import { createElement as h } from "react";
+// import { BrowserRouter as Router, Route} from "react-router-dom";
+import { h, Router, Route } from "react-import";
 
 const MainRouter = () => (
     <Router>
-        <Library path = "/"/>
-        <BookLayout path="/library/:sha/"/>
+        <Route path="/" component={Library} />
+        <Route component={BookLayout} path="/library/:sha/"/>
     </Router>
 );
 export default MainRouter;

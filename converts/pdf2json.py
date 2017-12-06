@@ -242,7 +242,7 @@ class Pdf2Json(object):
         把html的toc转为json
         """
         if os.path.getsize(toc_html_name) < 1:
-            print('MISS empty TOC')
+            logger.debug('MISS empty TOC')
             return
         handle = {
             'data-dest-detail': lambda x: tuple(json.loads(x)),

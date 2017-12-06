@@ -8,6 +8,7 @@ import re
 import os
 import zipfile
 import posixpath
+import tempfile
 from lxml import etree
 from .utils import (
     file_sha256,
@@ -25,9 +26,16 @@ from .utils import (
     get_file_path_name,
     tar_open,
     add_zipfile_to_tar,
-    add_json_to_tar
+    add_json_to_tar,
+    save_xml_path,
+    add_xml_tree_to_tar,
+    save_xml_tree_path,
+    open_temp_file
 )
 
+NAV_POINT = '{%s}navPoint' % NAMESPACES['DAISY']
+NAV_LABEL = '{%s}navLabel' % NAMESPACES['DAISY']
+NAV_CONTENT = '{%s}content' % NAMESPACES['DAISY']
 
 class Epub2Json(object):
     """
@@ -82,6 +90,8 @@ class Epub2Json(object):
         self.container = []
         # 目录文件路径
         self.toc_zip_path = None
+        #
+        self.toc_dir_path = None
         # page嵌入css原路径
         self.css_set = set()
         # 新css清单
@@ -90,6 +100,7 @@ class Epub2Json(object):
         self.page_map = {}
         self.container_count = 1
         self.guide = []
+        self.temp_dir = tempfile.mkdtemp()
         if self.compress:
             self.tar_file = tar_open(self.dist + '.tar.zstd', 'w:zstd')
 
@@ -97,7 +108,8 @@ class Epub2Json(object):
         """
         创建zip文件对象
         """
-        self.mkdirs()
+        if not self.compress:
+            self.mkdirs()
         try:
             with zipfile.ZipFile(
                 self.file_name,
@@ -108,7 +120,7 @@ class Epub2Json(object):
                 self.load_meta_info(epub_file)
                 self.load_opf(epub_file)
                 self.save_container()
-                # self.save_toc()
+                self.save_toc(epub_file)
         except zipfile.BadZipfile:
             raise Exception(0, 'Bad Zip file')
         except zipfile.LargeZipFile:
@@ -117,7 +129,6 @@ class Epub2Json(object):
             if self.compress and self.tar_file:
                 self.tar_file.close()
                 self.tar_file = None
-                
 
     def save_zip_file(self, zip_file, zip_path, output_path):
         """
@@ -128,7 +139,7 @@ class Epub2Json(object):
         else:
             output_path = os.path.join(self.dist, output_path)
             copy_zip_file(zip_file, zip_path, output_path)
-    
+
     def save_tar_json(self, output_path, data):
         """
         保存json
@@ -138,6 +149,35 @@ class Epub2Json(object):
         else:
             output_path = os.path.join(self.dist, output_path)
             save_json(output_path, data)
+
+    def save_tar_xml(self, tree, output_path):
+        """
+        保存xml到tar
+        """
+        if self.compress:
+            res = add_xml_tree_to_tar(self.tar_file, tree, output_path)
+        else:
+            output_path = os.path.join(self.dist, output_path)
+            res = save_xml_tree_path(tree, output_path)
+        return res
+
+    def save_temp_xml(self, xml, output_path):
+        """
+        保存文件到临时文件夹
+        """
+        name = os.path.join(self.temp_dir, output_path)
+        return save_xml_path(xml, name)
+
+    def open_temp_file(self, output_path, *args, **k):
+        """
+        打开临时或dist路径下的文件
+        """
+        if self.compress:
+            return open_temp_file(self.tar_file, output_path, *args, **k)
+        else:
+            output_path = os.path.join(self.dist, output_path)
+            return file_open(output_path, *args, **k)
+        
 
     def mkdirs(self):
         """
@@ -161,13 +201,13 @@ class Epub2Json(object):
         with epub_file.open(self.meta_info_path) as container:
             tree = etree.parse(container)
             for root_file in tree.findall(
-                '//xmlns:rootfile[@media-type]',
-                namespaces={'xmlns': NAMESPACES['CONTAINERNS']}
+                    '//xmlns:rootfile[@media-type]',
+                    namespaces={'xmlns': NAMESPACES['CONTAINERNS']}
             ):
                 if root_file.get('media-type') == "application/oebps-package+xml":
                     self.opf_file = root_file.get('full-path')
                     self.opf_dir = posixpath.dirname(self.opf_file)
-    
+
     def load_opf(self, epub_file):
         """
         读取opf文件
@@ -188,8 +228,8 @@ class Epub2Json(object):
             self.handle_page(epub_file)
         # meta
         if 'identifier' in meta and (
-            'douban' in meta['identifier'] or
-            'isbn' in meta['identifier']
+                'douban' in meta['identifier'] or
+                'isbn' in meta['identifier']
         ):
             douban_meta = requests_douban_meta(meta)
         else:
@@ -216,7 +256,6 @@ class Epub2Json(object):
         """
         保存内容清单
         """
-        str1 = '^%s\d+.html' % zip_join(self.page_dir, self.page_join)
         # print(str1)
         # page_re = re.compile()
         container_data = []
@@ -249,6 +288,7 @@ class Epub2Json(object):
         toc_id = tree.get('toc')
         if toc_id in self.manifest_map:
             self.toc_zip_path = zip_join(self.opf_dir, self.manifest_map[toc_id])
+            self.toc_dir_path = get_file_path_dir(self.toc_zip_path)
         for cont in tree.iterchildren():
             cout_id = cont.get('idref')
             if cout_id in self.manifest_map:
@@ -292,10 +332,10 @@ class Epub2Json(object):
                     split_count += 1
                 if split_count > 0:
                 # with epub_file.open(zip_path) as html_file:
-                    self.page_map[zip_path] = set(range(
+                    self.page_map[zip_path] = range(
                         self.container_count,
                         self.container_count + split_count
-                    ))
+                    )
                     self.split_html(
                         epub_file,
                         zip_path,
@@ -375,19 +415,19 @@ class Epub2Json(object):
         page_name = '%s%d.html' % (self.page_join, container_count)
         logger.debug('save container: ' + page_name)
         links = xml.xpath('//@id', namespaces={'xmlns': NAMESPACES['XHTML']})
-        page_path = zip_join(self.page_dir, page_name)
-        self.container.append((page_path, container_count))
+        self.container.append((page_name, container_count))
         link_set = set()
         for link in links:
             link_set.add(link)
         # if len(link_set) > 0:
         self.toc_link[container_count] = link_set
-        return etree.ElementTree(xml).write(
-            os.path.join(self.dist, self.page_dir, page_name),
-            pretty_print=True,
-            encoding='utf-8',
-            method='html'
-        )
+        return self.save_temp_xml(xml, page_name)
+        # return etree.ElementTree(xml).write(
+        #     os.path.join(self.dist, self.page_dir, page_name),
+        #     pretty_print=True,
+        #     encoding='utf-8',
+        #     method='html'
+        # )
 
 
     def find_head_css(
@@ -410,7 +450,7 @@ class Epub2Json(object):
                 self.css_set.add(css_zip_path)
                 css_name = get_file_path_name(css_name).lower()
                 css_out_name = zip_join(self.css_dir, css_name)
-                self.filter_font_by_css(epub_file, css_zip_path, os.path.join(self.dist, css_out_name))
+                self.filter_font_by_css(epub_file, css_zip_path, css_out_name)
                 logger.debug('save css: ' + css_zip_path + ' -> ' + css_out_name)
                 # copy_zip_file(epub_file, css_zip_path, os.path.join(self.dist, css_out_name))
                 self.css_list.append(css_out_name)
@@ -435,7 +475,7 @@ class Epub2Json(object):
 
         with epub_file.open(css_zip_path, 'r') as from_file:
             line = from_file.readline().decode('utf8')
-            with file_open(css_out_path, 'w', encoding='utf8') as out_fd:
+            with self.open_temp_file(css_out_path, 'w', encoding='utf8') as out_fd:
                 while line:
                     line = FONT_RE.sub(replace_copy_font, line)
                     out_fd.write(line)
@@ -448,7 +488,8 @@ class Epub2Json(object):
         for page_name, index in self.container:
             old_page_name = self.get_old_page_name(index)
             old_page_dir = get_file_path_dir(old_page_name)
-            now_page_path = os.path.join(self.dist, page_name)
+            now_page_path = os.path.join(self.temp_dir, page_name)
+            new_page_path = os.path.join(self.page_dir, page_name)
             with file_open(
                 now_page_path,
                 'r',
@@ -461,34 +502,15 @@ class Epub2Json(object):
                     http_head = HTTP_NAME.findall(href)
                     if len(http_head) > 0:
                         continue
-                    link_arr = href.split('#')
-                    link_page = link_arr[0]
-                    link_id = link_arr[1] if len(link_arr) > 1 else None
-                    if link_id and '?' in link_id:
-                        tmp = link_id.split('?')
-                        link_id = tmp[0]
-                    link_page_name = zip_join(old_page_dir, link_page)
-                    if link_page_name in self.page_map:
-                        now_page = self.page_map[link_page_name]
-                        if isinstance(now_page, int):
-                            new_href = '%s%d.html%s' % (
-                                self.page_join,
-                                now_page,
-                                "#" + link_id if link_id else ''
-                            )
-                            link.set('href', new_href)
-                        else:
-                            for page_num in now_page:
-                                if not link_id or (
-                                    page_num in self.toc_link and
-                                    link_id in self.toc_link[page_num]
-                                ):
-                                    new_href = '%s%d.html%s' % (
-                                        self.page_join,
-                                        page_num,
-                                        "#" + link_id if link_id else ''
-                                    )
-                                    link.set('href', new_href)
+                    link_page_name = zip_join(old_page_dir, href)
+                    now_page, link_id, query_str = self.handle_href(link_page_name)
+                    if now_page is not None:
+                        new_href = '%s%d.html' % (self.page_join, now_page)
+                        if link_id:
+                            new_href += '#' + link_id
+                        if query_str:
+                            new_href += '?' + query_str
+                        link.set('href', new_href)
                 images = tree.findall(
                     '//xmlns:img[@src]',
                     namespaces={
@@ -532,12 +554,13 @@ class Epub2Json(object):
                         self.save_zip_file(epub_file, img_zip_path, os.path.join(img_out_name))
                         del img.attrib[name_spaces]
                         img.set('data-src', img_out_name)
-                tree.write(
-                    now_page_path,
-                    pretty_print=True,
-                    encoding='utf-8',
-                    method='html'
-                )
+                self.save_tar_xml(tree, new_page_path)
+                # tree.write(
+                #     now_page_path,
+                #     pretty_print=True,
+                #     encoding='utf-8',
+                #     method='html'
+                # )
 
     def get_old_page_name(self, count):
         """
@@ -550,6 +573,87 @@ class Epub2Json(object):
             elif count in new_page:
                 return old_page_name
         return None
+
+    def save_toc(self, epub_file):
+        """
+        处理并保存toc
+        """
+        if not self.toc_zip_path:
+            return
+        with epub_file.open(self.toc_zip_path, 'r') as toc_file:
+            tree = etree.parse(toc_file)
+            nav_map = tree.find('//xmlns:navMap', namespaces={'xmlns': NAMESPACES['DAISY']})
+            tocs_info = []
+            for point in nav_map.iterchildren():
+                if point.tag == NAV_POINT:
+                    toc_info = self.handle_toc_item(point)
+                    tocs_info.append(toc_info)
+            self.save_tar_json(self.toc_file, tocs_info)
+
+    def handle_toc_item(self, nav_point, level=1):
+        """
+        递归处理toc
+        """
+        toc_info = {'level': level}
+        toc_info['id'] = nav_point.get('id')
+        toc_info['play_order'] = nav_point.get('playOrder')
+        for item in nav_point.iterchildren():
+            if item.tag == NAV_LABEL:
+                text = item.getchildren()
+                toc_info['text'] = text[0].text
+            elif item.tag == NAV_POINT:
+                if 'children' not in toc_info:
+                    toc_info['children'] = []
+                toc_info['children'].append(self.handle_toc_item(item, level + 1))
+            elif item.tag == NAV_CONTENT:
+                href_name = item.get('src')
+                page, hash_str, query_str = self.handle_href(href_name)
+                if page is not None:
+                    toc_info['page'] = page
+                    new_href = '%s%d.html' % (self.page_join, page)
+                    toc_info['href'] = new_href
+                else:
+                    toc_info['src'] = href_name
+                if hash_str:
+                    toc_info['hash'] = hash_str
+                if query_str:
+                    toc_info['query'] = query_str
+        return toc_info
+
+    def handle_href(self, href_name):
+        """
+        处理href到新的定位
+        """
+        hash_str = None
+        query_str = None
+        page = None
+        if '#' in href_name:
+            href_arr = href_name.split('#')
+            if len(href_arr) > 1:
+                hash_str = href_arr[1]
+            href_name = href_arr[0]
+        if hash_str and '?' in hash_str:
+            query_arr = hash_str.split('?')
+            if len(query_arr) > 1:
+                query_str = hash_str[1]
+            hash_str = hash_str[0]
+        if href_name in self.page_map:
+            now_page = self.page_map[href_name]
+            if isinstance(now_page, int):
+                page = now_page
+            else:
+                for page_num in now_page:
+                    if not hash_str:
+                        page = page_num
+                        break
+                    if page_num in self.toc_link and hash_str in self.toc_link[page_num]:
+                        page = page_num
+                        break
+                if not page:
+                    page = now_page[0]
+        return page, hash_str, query_str
+
+
 
 if __name__ == '__main__':
     pass

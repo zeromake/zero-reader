@@ -4,15 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta version="<%= htmlWebpackPlugin.options.version %>" buildTime="<%= htmlWebpackPlugin.options.buildTime %>">
     <title>zero-reader</title>
 </head>
 <body>
+    <div id="app"></div>
     <% if (!htmlWebpackPlugin.options.isProd){%>
-    <script src="https://cdn.bootcss.com/eruda/1.3.0/eruda.min.js"></script>
     <script>
-        if ('eruda' in window) {
-            eruda.init();
-        }
+        ;(function () {
+            var src = 'https://cdn.bootcss.com/eruda/1.3.0/eruda.min.js';
+            if (!/console=true/.test(window.location) && localStorage.getItem('active-eruda') != 'true'){
+                return;
+            }
+            if ('eruda' in window) {
+                eruda.init();
+            } else {
+                var script = document.createElement('script');
+                script.setAttribute('src', src);
+                script.onload = function() {
+                    eruda.init();
+                }
+                document.head.appendChild(script);
+            }
+            
+        })();
     </script>
     <%}%>
 </body>
