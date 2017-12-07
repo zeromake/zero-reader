@@ -3175,6 +3175,10 @@ preact-router@^2.6.0:
   version "2.6.0"
   resolved "http://registry.npm.taobao.org/preact-router/download/preact-router-2.6.0.tgz#55f7fbc84e6b8af0df3ea04c8ce4c268714089b6"
 
+preact@^8.2.6:
+  version "8.2.6"
+  resolved "http://registry.npm.taobao.org/preact/download/preact-8.2.6.tgz#0028b426ef98fcca741a3c617ff5b813b9a947c7"
+
 prepend-http@^1.0.0:
   version "1.0.4"
   resolved "http://registry.npm.taobao.org/prepend-http/download/prepend-http-1.0.4.tgz#d4f4562b0ce3696e41ac52d0e002e57a635dc6dc"

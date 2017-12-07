@@ -250,6 +250,7 @@ class Epub2Json(object):
         douban_meta['container'] = self.container_file
         douban_meta['toc'] = self.toc_file
         douban_meta['sha'] = self.sha
+        douban_meta['file_name'] = get_file_path_name(self.file_name)
         self.save_tar_json(self.meta_path, douban_meta)
 
     def save_container(self):
@@ -610,8 +611,8 @@ class Epub2Json(object):
                 page, hash_str, query_str = self.handle_href(href_name)
                 if page is not None:
                     toc_info['page'] = page
-                    new_href = '%s%d.html' % (self.page_join, page)
-                    toc_info['href'] = new_href
+                    new_href = '%s/%s%d.html' % (self.page_dir, self.page_join, page)
+                    toc_info['page_url'] = new_href
                 else:
                     toc_info['src'] = href_name
                 if hash_str:

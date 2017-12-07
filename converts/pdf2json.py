@@ -12,6 +12,7 @@ import shutil
 import zipfile
 import platform
 import subprocess
+import binascii
 from lxml import etree
 from .utils import (
     deep_tree,
@@ -24,7 +25,8 @@ from .utils import (
     file_sha256,
     zip_join,
     PDF_EXEC,
-    logger
+    logger,
+    get_file_path_name
 )
 
 
@@ -104,6 +106,7 @@ class Pdf2Json(object):
         meta['container'] = 'container.json'
         meta['toc'] = 'toc.json'
         meta['zoom'] = 'zoom.json'
+        meta['file_name'] = get_file_path_name(self.pdf_name)
         cover_url = zip_join(self.img_dir, 'bg1.png')
         if os.path.exists(os.path.join(self.dist, cover_url)):
             meta['cover'] = cover_url
@@ -274,7 +277,10 @@ class Pdf2Json(object):
                         toc_item['text'] = row.text.strip()
                         toc_item['level'] = level
                         if self.pages:
-                            toc_item['page'] = self.pages.get(toc_item['href'])
+                            index, page_no, page_url = self.pages.get(toc_item['href'])
+                            toc_item['page'] = page_no
+                            toc_item['page_url'] = page_url
+                            toc_item['index'] = index
                         if level == 0:
                             toc.append(toc_item)
                         else:
@@ -326,11 +332,17 @@ class Pdf2Json(object):
             index = 0
             for row in container_root.iterchildren():
                 item = {key: val for key, val in row.items()
-                        if key != 'data-page-no' and not (
+                        if not (
                             key == 'class' and
                             val == last_class
                         )}
-                page_id_to_index[item['id']] = index
+                data_page_no = item['data-page-no']
+                try:
+                    page_no = int('0x' + data_page_no, 16)
+                except Exception:
+                    page_no = data_page_no
+                page_id_to_index[item['id']] = (index, page_no, item['data-page-url'])
+
                 item['index'] = index
                 containers.append(item)
                 if callback:
