@@ -1,12 +1,15 @@
-import { h, Component } from "react-import";
-import { get_json, get_text } from "@/http/index";
+import { h, Component } from "zreact";
 import { addLinkCss, addStyle, removeHead } from "@/utils";
 import styl from "@/css/layout.styl";
+import { IAbcMeta, IAbcToc } from "../types/index";
+import lozad from "../assets/lozad";
 
-interface IabcProps {
+interface IabcProps<AbcMeta> {
     path: string;
     sha?: string;
     url?: string;
+    meta: AbcMeta;
+    library: any;
     matches?: {
         [key: string]: string;
     };
@@ -21,80 +24,72 @@ interface Icontainer {
 }
 
 export interface IabcState {
-    container?: Icontainer[];
-    meta?: IbookMeta;
     pageHtml?: string;
     page?: number;
+    bg: string;
     // [key: string]: string;
 }
 
-/**
- * 元数据
- */
-interface IbookMeta {
-    /**
-     * 目录地址
-     */
-    toc: string;
-    /**
-     * 页面css
-     */
-    page_style: string[];
-    /**
-     * 内容清单
-     */
-    container: string;
-    /**
-     * 元数据类型
-     */
-    meta_type: string;
-    /**
-     * 该书籍的hash值(sha256)
-     */
-    sha: string;
-    type: string;
-    /**
-     * 该书籍的封面
-     */
-    cover?: string;
-    /**
-     * pdf的缩放css数据
-     */
-    zoom?: string;
-}
-
-export default abstract class AbcLayout<AbcState extends IabcState> extends Component<IabcProps, AbcState> {
+export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta extends IAbcMeta> extends Component<IabcProps<AbcMeta>, AbcState> {
     /**
      * 被挂载的css
      */
     protected mountCss: string[] = [];
-    constructor(p: IabcProps, c: any) {
+    protected library: any;
+    protected observer: any;
+    protected lozadOptions: {};
+    protected container: Icontainer[];
+    // protected baseUrl: string;
+    constructor(p: IabcProps<AbcMeta>, c: any) {
         super(p, c);
+        // this.baseUrl = `/library/${p.meta.sha}/`;
+        this.library = p.library;
+        this.lozadOptions = {
+            load: (element) => {
+                if (element.getAttribute("data-src")) {
+                    element.src = this.library.image(element.getAttribute("data-src"));
+                }
+            },
+        };
         this.state = {
-            container: null,
-            meta: null,
+            bg: "blue",
         } as AbcState;
     }
-    protected async init(sha: string) {
-        const meta: IbookMeta = await get_json(`/library/${sha}/meta.json`);
+    protected async init() {
+        const meta = this.props.meta;
         meta.page_style.forEach((cssUrl: string, index: number) => {
             const cssId = `css_id_${index}`;
             this.mountCss.push(cssId);
-            addLinkCss(`/library/${sha}/${cssUrl}`, cssId);
+            addLinkCss(this.library.css(cssUrl), cssId);
         });
-        const container: Icontainer[] = await get_json(`/library/${sha}/${meta.container}`);
-        const html: string = await this.getPage(container, sha, 0);
-        this.setState({
-            container,
-            meta,
-            pageHtml: html,
-            page: 0,
+        this.container = await this.library.json(meta.container);
+        await this.setPage(0);
+    }
+    protected bindObserver() {
+        if (!this.observer) {
+            this.observer = lozad(".lozad", this.lozadOptions);
+            this.observer.observe();
+        } else {
+            this.observer.unobserve();
+            this.observer.update();
+        }
+    }
+    protected setPage(num: number) {
+        return this.getPage(num).then((text) => {
+            this.setState({
+                pageHtml: text,
+                page: num,
+            }, () => {
+                this.bindObserver();
+            });
         });
     }
-
-    private getPage(container: Icontainer[], sha: string, num: number) {
-        const pageName = container[num]["data-page-url"];
-        return get_text(`/library/${sha}/${pageName}`);
+    private getPage(num: number) {
+        const pageName = this.container[num]["data-page-url"];
+        return this.library.text(pageName);
+    }
+    protected getToc(tocName: string) {
+        return this.library.json(tocName);
     }
     public componentWillUnmount() {
         if (this.mountCss.length > 0) {

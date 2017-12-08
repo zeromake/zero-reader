@@ -10,7 +10,6 @@ import {
     IDouBanTag,
     IDouBanImages,
     IDouBanMeta,
-    IPdfDouBanMeta,
 } from "./meta";
 
 export {
@@ -27,5 +26,4 @@ export {
     IDouBanTag,
     IDouBanImages,
     IDouBanMeta,
-    IPdfDouBanMeta,
 };

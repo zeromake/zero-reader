@@ -62,7 +62,7 @@ export interface IOpfMeta extends IAbcMeta {
     /**
      * 评分只有整数部分
      */
-    rating?: number;
+    // rating?: number;
     /**
      * 作者国家map
      */
@@ -109,28 +109,6 @@ export interface IOpfMeta extends IAbcMeta {
     creator?: string;
 }
 
-export interface IPdfMeta extends IAbcMeta {
-    /**
-     * page的高宽样式数据url用于缩放
-     */
-    zoom: string;
-    /**
-     * 修改时间
-     */
-    mod_date?: string;
-    /**
-     * 创建时间
-     */
-    creation_date?: string;
-    /**
-     * 创建者
-     */
-    creator?: string;
-    /**
-     * 创建工具
-     */
-    producer?: string;
-}
 /**
  * 豆瓣评分
  */
@@ -274,9 +252,28 @@ export interface IDouBanMeta extends IAbcMeta {
     price?: string;
 }
 
-export interface IPdfDouBanMeta extends IDouBanMeta {
+export interface IPdfMeta extends IDouBanMeta {
     /**
      * page的高宽样式数据url用于缩放
      */
     zoom: string;
+    /**
+     * 修改时间
+     */
+    mod_date?: string;
+    /**
+     * 创建时间
+     */
+    creation_date?: string;
+    /**
+     * 创建者
+     */
+    creator?: string;
+    /**
+     * 创建工具
+     */
+    producer?: string;
+}
+
+export interface IEpubMeta extends IDouBanMeta, IOpfMeta {
 }

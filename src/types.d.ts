@@ -1,5 +1,7 @@
 declare module "*.styl" {
-    const style: any;
+    const style: {
+        [name: string]: string;
+    };
     export default style;
 }
 declare module "preact-router" {

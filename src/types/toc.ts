@@ -1,4 +1,4 @@
-export interface IAbcToc<T> {
+export interface IAbcToc {
     /**
      * 深度
      */
@@ -18,13 +18,17 @@ export interface IAbcToc<T> {
     /**
      * 子目录
      */
-    children?: T[];
+    children?: IAbcToc[];
+    /**
+     * 显示子目录
+     */
+    disable?: boolean;
 }
 
 /**
  * epub toc
  */
-export interface IEpubToc extends IAbcToc<IEpubToc> {
+export interface IEpubToc extends IAbcToc {
     /**
      * 原始数据id
      */
@@ -43,7 +47,7 @@ export interface IEpubToc extends IAbcToc<IEpubToc> {
     query?: string;
 }
 
-export interface IPdfToc extends IAbcToc<IPdfToc> {
+export interface IPdfToc extends IAbcToc {
     /**
      * 与container对应的id
      */

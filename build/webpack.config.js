@@ -44,7 +44,7 @@ const strftime = function(date) {
         ].join(':')
     ].join(' ')
     if (offset !== '00') {
-        date_str += join + offset+':00'
+        date_str += join + offset + ':00'
     }
     return date_str
 }
@@ -57,11 +57,12 @@ const config = {
     },
     output: {
         path: outPath,
+        publicPath: '/',
         filename: '[name]-[hash].js'
     },
     resolve: {
         alias: {
-            'zreact': resolve('../node_modules/zreact/dist/zreact.esm.js'),
+            // 'zreact': resolve('../node_modules/zreact/dist/zreact.esm.js'),
             'preact': 'zreact',
             'react-import': resolve('../src/import/zreact-import.ts'),
             '@': resolve('../src')

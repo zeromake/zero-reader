@@ -50,6 +50,7 @@ class Pdf2Json(object):
         self.share = options['share']
         self.toc = options['toc']
         self.meta = options['meta']
+        self.content_class = 'html_content' 
 
         self.meta_file = 'meta.json'
         self.pages = None
@@ -319,12 +320,12 @@ class Pdf2Json(object):
         """
         page_id_to_index = {}
         containers = []
-        out_bg_css = os.path.join(self.dist, 'bg.css')
-        self.page_css.append('bg.css')
-        background = []
-        background.append("div.background_img_class{")
-        background.append("  background-size: 100%;")
-        background.append("}")
+        # out_bg_css = os.path.join(self.dist, 'bg.css')
+        # self.page_css.append('bg.css')
+        # background = []
+        # background.append("div.background_img_class{")
+        # background.append("  background-size: 100%;")
+        # background.append("}")
         with file_open(container_name, encoding='utf8') as file_:
             tree = etree.parse(file_)
             container_root = tree.xpath(u'//div[@id="page-container"]')[0]
@@ -346,17 +347,17 @@ class Pdf2Json(object):
                 item['index'] = index
                 containers.append(item)
                 if callback:
-                    callback(item, background)
+                    callback(item)
                 last_class = row.get('class')
                 index += 1
         if json_name:
             save_json(json_name, containers)
-        with file_open(out_bg_css, 'w', encoding='utf8') as file_:
-            file_.write("\n".join(background))
+        # with file_open(out_bg_css, 'w', encoding='utf8') as file_:
+        #     file_.write("\n".join(background))
         self.containers = containers
         self.pages = page_id_to_index
 
-    def copy_page(self, page, background):
+    def copy_page(self, page):
         """
         拷贝page的html，并做好预处理
         """
@@ -368,6 +369,12 @@ class Pdf2Json(object):
         out_name = os.path.join(out_dir, page_name)
         with file_open(input_name, 'r', encoding='utf8') as file_:
             tree = etree.parse(file_)
+            root = tree.getroot()
+            old_class = root.get('class')
+            tmp = self.content_class
+            if old_class:
+                tmp += " " + old_class
+            root.set('class', tmp)
             for img in tree.xpath('//img'):
                 parent = img.getparent()
                 div = etree.Element('div')
@@ -376,23 +383,30 @@ class Pdf2Json(object):
                     os.path.join(input_dir, val),
                     os.path.join(out_dir, join_dir, val)
                 )
-                img_sha = file_sha256(os.path.join(input_dir, val))
-                background.append("div.img_" + img_sha + "{")
-                background.append(
-                    "  background-image: url('./" +
-                    join_dir +
-                    '/' +
-                    val +
-                    "');"
-                )
-                background.append("}")
-                val = img.get('alt')
-                if val != '':
-                    div.set('title', val)
-                val = img.get('class')
-                val += ' img_' + img_sha + ' background_img_class'
-                div.set('class', val)
-                parent.replace(img, div)
+                old_class = img.get('class')
+                tmp = 'lozad'
+                if old_class:
+                    tmp += " " + old_class
+                img.set('class', tmp)
+                del img.attrib['src']
+                img.set('data-src', zip_join(join_dir, val))
+                # img_sha = file_sha256(os.path.join(input_dir, val))
+                # background.append("div.img_" + img_sha + "{")
+                # background.append(
+                #     "  background-image: url('./" +
+                #     join_dir +
+                #     '/' +
+                #     val +
+                #     "');"
+                # )
+                # background.append("}")
+                # val = img.get('alt')
+                # if val != '':
+                #     div.set('title', val)
+                # val = img.get('class')
+                # val += ' img_' + img_sha + ' background_img_class'
+                # div.set('class', val)
+                # parent.replace(img, div)
             tree.write(
                 out_name,
                 pretty_print=True,

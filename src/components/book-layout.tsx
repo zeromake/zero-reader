@@ -1,100 +1,41 @@
-import { h, findDOMNode } from "react-import";
-import AbcLayout, { IabcState } from "./abc-layout";
-import styl from "@/css/layout.styl";
-import BookToolsBar from "@/components/book-tools-bar";
-import BottomBar from "@/components/bottom-bar";
-import { addStyle } from "@/utils";
-import Toc from "@/components/toc";
-import Animate from "preact-animate";
-import throttle from "lodash.throttle";
+import PdfLayout from "./pdf-layout";
+import EpubLayout from "./epub-layout";
+import { h, Component } from "zreact";
+import { libraryData } from "@/http/index";
+import { IAbcMeta } from "../types/index";
 
-interface IZoom {
-    select: string;
-    attribute: string;
-    size: number;
-    unit: string;
-    media_print: boolean;
-}
+const bookLayout = {
+    pdf: PdfLayout,
+    epub: EpubLayout,
+};
 
-interface IBookState extends IabcState {
-    offset: number;
-    theme?: string;
-    toc_open: boolean;
-}
-
-export default class BookLayout extends AbcLayout<IBookState> {
-    private page: any;
-    private zoom?: IZoom[];
-    private width?: number;
-    private height?: number;
-    public tocs: any[];
-
-    constructor(props, content) {
-        super(props, content);
-        this.state.offset = 20;
+export default class BookLayout extends Component<any, any> {
+    private baseUrl: string;
+    private library: any;
+    constructor(p, c) {
+        super(p, c);
+        this.library = libraryData(p.sha);
+        this.state = {
+            layoutType: null,
+            meta: null,
+        };
     }
-
-    public resize = throttle(() => {
-        this.setZoom();
-    }, 15);
-
     public componentDidMount() {
-        const sha = this.props.sha;
-        this.init(sha).then(() => {
-            if (this.state.meta.zoom) {
-                this.getZoom(this.state.meta.zoom);
-                window.addEventListener("resize", this.resize as any);
-            }
+        return this.getMeta();
+    }
+    private async getMeta() {
+        const meta = await this.library.json("meta.json");
+        this.setState({
+            layoutType: meta.type,
+            meta,
         });
     }
-
-    protected  renderHeader() {
-        const state = this.state;
-        // const tocClass = styl.toc_layout + (state.theme ? " " + styl[state.theme] : "");
-        return <BookToolsBar options={ { showToc: () => {this.setState({ toc_open: !state.toc_open }); console.log("555555555"); } } }/>;
-    }
-    protected  renderFooter() {
-        return <BottomBar/>;
-    }
-    protected  renderContent() {
-        const state = this.state;
-        return <div ref={((vdom: any) => this.page = findDOMNode(vdom))} className={styl.pageHtml}>
-                <div className={styl.view + " w0 h0"} dangerouslySetInnerHTML={{__html: state.pageHtml}}>
-                </div>
-            </div>;
-    }
-    private getZoom(zoom: string) {
-        return fetch(`/library/${this.props.sha}/${zoom}`).then((res) => res.json()).then((data) => {
-            this.zoom = data.css;
-            this.width = data.width;
-            this.height = data.height;
-            this.setZoom(true);
-        });
-    }
-    private setZoom(flag?) {
-        if (this.page) {
-            const clientWidth = this.page.clientWidth;
-            let offset = this.state.offset;
-            if (flag) {
-                offset += 15;
+    public render(): any {
+        if (this.state.layoutType) {
+            const selectLayout: any = bookLayout[this.state.layoutType];
+            if (selectLayout) {
+                return h(selectLayout, { meta: this.state.meta, library: this.library, ...this.props });
             }
-            const zoom = (clientWidth - offset) / this.width;
-            console.log(zoom, clientWidth, this.width);
-            this.addZoom(zoom);
-        }
-    }
-    private addZoom(zoom: number) {
-        if (this.zoom && this.zoom.length > 0) {
-            const css = [];
-            this.zoom.forEach((pZoom: IZoom) => {
-                css.push(`${pZoom.select}{`);
-                css.push(`  ${pZoom.attribute}: ${pZoom.size * zoom}${pZoom.unit};`);
-                css.push("}");
-            });
-            const cssText = css.join("\n");
-            const cssId = "zoom_style";
-            this.mountCss.push(cssId);
-            addStyle(cssId, cssText);
         }
     }
 }

@@ -533,6 +533,11 @@ class Epub2Json(object):
                         img_zip_path,
                         img_out_name
                     )
+                    old_class = img.get('class')
+                    tmp = 'lozad'
+                    if old_class:
+                        tmp += " " + old_class
+                    img.set('class', tmp)
                     del img.attrib['src']
                     img.set('data-src', img_out_name)
                 images = tree.findall(
