@@ -21,6 +21,7 @@ interface IBookState extends IabcState {
     offset: number;
     theme?: string;
     toc_open: boolean;
+    zoom: number;
 }
 
 export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
@@ -29,24 +30,51 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     private width?: number;
     private height?: number;
     public tocs: any[];
+    private load: boolean;
 
     constructor(props, content) {
         super(props, content);
         this.state.offset = 20;
+        this.load = false;
     }
 
     public resize = throttle(() => {
         this.setZoom();
-    }, 15);
+    });
 
+    public scroll = throttle((event) => {
+        let res: Promise<void>;
+        let pageNum: number;
+        if (!this.load) {
+            this.load = true;
+            if (event.detail > 0) {
+                pageNum = this.state.page + 1;
+            } else if (event.detail < 0) {
+                pageNum = this.state.page - 1;
+            }
+            if (pageNum >= this.pageNum || pageNum < 0) {
+                res = Promise.resolve();
+            } else {
+                res = this.setPage(pageNum);
+            }
+            res.then(() => {
+                this.load = false;
+            });
+        }
+    }, 20);
     public componentDidMount() {
         this.lozadOptions = {
             ...this.lozadOptions,
             target: this.page || document,
         };
-        this.init().then(() => {
+        this.init().then(({ pageHtml, page }) => {
             if (this.props.meta.zoom) {
-                this.getZoom(this.props.meta.zoom);
+                this.getZoom(this.props.meta.zoom).then((zoom: number) => {
+                    this.setState({
+                        pageHtml,
+                        page,
+                    });
+                });
                 window.addEventListener("resize", this.resize as any);
             }
         });
@@ -62,17 +90,19 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     }
     protected  renderContent() {
         const state = this.state;
-        return <div ref={((vdom: any) => this.page = findDOMNode(vdom))} className={styl.pageHtml}>
-                <div className={styl.view + " w0 h0 " + styl[state.bg]} dangerouslySetInnerHTML={{__html: state.pageHtml}}>
-                </div>
-            </div>;
+        console.log("render ", state);
+        return <div ref={((vdom: any) => this.page = findDOMNode(vdom))}><div
+                className={`${styl.pageHtml} w0 ${styl.view} ${styl[state.bg]}`}
+                dangerouslySetInnerHTML={{__html: state.pageHtml}}
+            >
+            </div></div>;
     }
     private getZoom(zoom: string) {
         return this.library.json(zoom).then((data) => {
             this.zoom = data.css;
             this.width = data.width;
             this.height = data.height;
-            this.setZoom(true);
+            return this.setZoom(true);
         });
     }
     private setZoom(flag?) {
@@ -84,6 +114,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
             }
             const zoom = (clientWidth - offset) / this.width;
             this.addZoom(zoom);
+            return Promise.resolve(zoom);
         }
     }
     private addZoom(zoom: number) {

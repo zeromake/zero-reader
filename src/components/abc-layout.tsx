@@ -35,6 +35,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
      * 被挂载的css
      */
     protected mountCss: string[] = [];
+    protected pageNum: number;
     protected library: any;
     protected observer: any;
     protected lozadOptions: {};
@@ -63,7 +64,13 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             addLinkCss(this.library.css(cssUrl), cssId);
         });
         this.container = await this.library.json(meta.container);
-        await this.setPage(0);
+        this.pageNum = this.container.length;
+        const pageHtml = await this.getPage(0);
+        return Promise.resolve({
+            pageHtml,
+            page: 0,
+        });
+        // await this.setPage(0);
     }
     protected bindObserver() {
         if (!this.observer) {
@@ -79,10 +86,13 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             this.setState({
                 pageHtml: text,
                 page: num,
-            }, () => {
-                this.bindObserver();
             });
         });
+    }
+    public componentDidUpdate(previousProps: IabcProps<AbcMeta>, previousState: AbcState, previousContext: any) {
+        if (this.state.pageHtml) {
+            setTimeout(() => this.bindObserver(), 1000);
+        }
     }
     private getPage(num: number) {
         const pageName = this.container[num]["data-page-url"];
