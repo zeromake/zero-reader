@@ -23,15 +23,15 @@ const isLoaded = function isLoaded_(element) {
     return element.getAttribute("data-loaded") === "true";
 };
 
-const onIntersection = (load) => (entries, observer) => {
+const onIntersection = (load, obj) => (entries, observer) => {
     entries.forEach((entry) => {
         if (entry.intersectionRatio > 0) {
-            observer.unobserve(entry.target);
-
-            if (!isLoaded(entry.target)) {
-                load(entry.target);
-                markAsLoaded(entry.target);
-            }
+        observer.unobserve(entry.target);
+        obj.elements = obj.elements.filter((i) => i !== entry.target);
+        if (!isLoaded(entry.target)) {
+            load(entry.target);
+            markAsLoaded(entry.target);
+        }
         }
     });
 };
@@ -40,21 +40,25 @@ export default function _(selector = ".lozad", options = {}) {
     const { rootMargin, threshold, load, target } = {...defaultConfig, ...options } as typeof defaultConfig;
     let observer;
 
+    const elements: Node[] = Array.prototype.slice.apply(target.querySelectorAll(selector));
+    const obj = {
+        elements,
+    };
     if ("IntersectionObserver" in window) {
-        observer = new IntersectionObserver(onIntersection(load), {
+        observer = new IntersectionObserver(onIntersection(load, obj), {
             rootMargin,
             threshold,
         });
     }
 
-    let elements: Node[] = Array.prototype.slice.apply(target.querySelectorAll(selector));
     return {
         observe() {
-            for (const element of elements) {
+            for (const element of obj.elements) {
                 if (isLoaded(element)) {
                     continue;
                 }
                 if (observer) {
+                    (element as Element).setAttribute("data-loaded", "false");
                     observer.observe(element);
                     continue;
                 }
@@ -63,19 +67,19 @@ export default function _(selector = ".lozad", options = {}) {
             }
         },
         triggerLoad(element) {
-        if (isLoaded(element)) {
-            return;
-        }
-        load(element);
-        markAsLoaded(element);
+            if (isLoaded(element)) {
+                return;
+            }
+            load(element);
+            markAsLoaded(element);
         },
         unobserve() {
-            for (const element of elements) {
+            for (const element of obj.elements) {
                 observer.unobserve(element);
             }
         },
         update() {
-            elements = Array.prototype.slice.apply(target.querySelectorAll(selector));
+            obj.elements = Array.prototype.slice.apply(target.querySelectorAll(selector));
             this.observe();
         },
     };

@@ -22,7 +22,6 @@ export default class Layout extends Component<any, any> {
     private cssMount: string[] = [];
     constructor(p: any, c: any) {
         super(p, c);
-        console.log(p);
         this.state = {
             theme: undefined,
             tocs: undefined,

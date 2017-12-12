@@ -4,6 +4,7 @@ import { h, render } from "react-import";
 // import "./assets/lazyload.js";
 // import { createElement as h } from "react";
 // import { render } from "react-dom";
+import "intersection-observer";
 import MainRouter from "./router";
 // import BookLayout from "./book-layout";
 import "animate.css";

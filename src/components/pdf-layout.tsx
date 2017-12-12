@@ -25,7 +25,6 @@ interface IBookState extends IabcState {
 }
 
 export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
-    private page: any;
     private zoom?: IZoom[];
     private width?: number;
     private height?: number;
@@ -34,34 +33,19 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
 
     constructor(props, content) {
         super(props, content);
+        console.log("props: ", props);
         this.state.offset = 20;
         this.load = false;
     }
 
     public resize = throttle(() => {
-        this.setZoom();
-    });
-
-    public scroll = throttle((event) => {
-        let res: Promise<void>;
-        let pageNum: number;
-        if (!this.load) {
-            this.load = true;
-            if (event.detail > 0) {
-                pageNum = this.state.page + 1;
-            } else if (event.detail < 0) {
-                pageNum = this.state.page - 1;
-            }
-            if (pageNum >= this.pageNum || pageNum < 0) {
-                res = Promise.resolve();
-            } else {
-                res = this.setPage(pageNum);
-            }
-            res.then(() => {
-                this.load = false;
-            });
+        const callback = () => this.setZoom().then((zoom: number) => this.setState({ zoom }));
+        if (typeof requestAnimationFrame !== "undefined") {
+            requestAnimationFrame(callback);
+        } else {
+            setTimeout(callback());
         }
-    }, 20);
+    }, 100);
     public componentDidMount() {
         this.lozadOptions = {
             ...this.lozadOptions,
@@ -73,29 +57,44 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                     this.setState({
                         pageHtml,
                         page,
+                        zoom,
                     });
                 });
                 window.addEventListener("resize", this.resize as any);
             }
         });
     }
+    private nextPage = () => {
+        this.setPage(this.state.page + 1);
+        this.page.scrollTo(0, 0);
+    }
 
+    private pageClick = (event: MouseEvent) => {
+        const page = this.page;
+        console.log("pageClick", event.clientX, event.clientY, page.clientWidth, page.clientHeight);
+    }
     protected  renderHeader() {
         const state = this.state;
         // const tocClass = styl.toc_layout + (state.theme ? " " + styl[state.theme] : "");
         return <BookToolsBar options={ { showToc: () => {this.setState({ toc_open: !state.toc_open }); } } }/>;
     }
     protected  renderFooter() {
-        return <BottomBar/>;
+        // return <BottomBar/>;
     }
     protected  renderContent() {
         const state = this.state;
-        console.log("render ", state);
-        return <div ref={((vdom: any) => this.page = findDOMNode(vdom))}><div
-                className={`${styl.pageHtml} w0 ${styl.view} ${styl[state.bg]}`}
-                dangerouslySetInnerHTML={{__html: state.pageHtml}}
-            >
-            </div></div>;
+        return <div
+                    onClick={this.pageClick}
+                    className={styl.pageHtml}
+                    >
+                <div
+                    className={`${styl.view} ${styl[state.bg]}`}
+                    dangerouslySetInnerHTML={{__html: state.pageHtml}}
+                    style={{ width: this.width * state.zoom }}
+                    >
+                </div>
+                {/* { state.page < this.pageNum ? <div onClick={ this.nextPage }>下一页</div> : null } */}
+            </div>;
     }
     private getZoom(zoom: string) {
         return this.library.json(zoom).then((data) => {

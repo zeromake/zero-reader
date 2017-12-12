@@ -1,4 +1,4 @@
-import { h, Component } from "zreact";
+import { h, Component, findDOMNode } from "zreact";
 import { addLinkCss, addStyle, removeHead } from "@/utils";
 import styl from "@/css/layout.styl";
 import { IAbcMeta, IAbcToc } from "../types/index";
@@ -10,6 +10,7 @@ interface IabcProps<AbcMeta> {
     url?: string;
     meta: AbcMeta;
     library: any;
+    page?: string;
     matches?: {
         [key: string]: string;
     };
@@ -40,6 +41,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     protected observer: any;
     protected lozadOptions: {};
     protected container: Icontainer[];
+    protected page: Element;
     // protected baseUrl: string;
     constructor(p: IabcProps<AbcMeta>, c: any) {
         super(p, c);
@@ -65,10 +67,11 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         });
         this.container = await this.library.json(meta.container);
         this.pageNum = this.container.length;
-        const pageHtml = await this.getPage(0);
+        const page = Number(this.props.page) || 0;
+        const pageHtml = await this.getPage(page);
         return Promise.resolve({
             pageHtml,
-            page: 0,
+            page,
         });
         // await this.setPage(0);
     }
@@ -91,7 +94,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     }
     public componentDidUpdate(previousProps: IabcProps<AbcMeta>, previousState: AbcState, previousContext: any) {
         if (this.state.pageHtml) {
-            setTimeout(() => this.bindObserver(), 1000);
+            this.bindObserver();
         }
     }
     private getPage(num: number) {
@@ -123,7 +126,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
      */
     protected abstract renderContent(): JSX.Element | JSX.Element[] | void;
     public render() {
-        return <div className={styl.content}>
+        return <div ref={((vdom: any) => this.page = findDOMNode(vdom))} className={styl.content}>
             { this.renderHeader() }
             { this.renderContent() }
             { this.renderFooter() }
