@@ -1,6 +1,6 @@
 import PdfLayout from "./pdf-layout";
 import EpubLayout from "./epub-layout";
-import { h, Component } from "zreact";
+import { h, Component } from "react-import";
 import { libraryData } from "@/http/index";
 import { IAbcMeta } from "../types/index";
 

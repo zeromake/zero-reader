@@ -1,13 +1,13 @@
-import { h, findDOMNode } from "react-import";
+import { h, findDOMNode, route } from "react-import";
 import AbcLayout, { IabcState } from "./abc-layout";
 import styl from "@/css/layout.styl";
 import BookToolsBar from "@/components/book-tools-bar";
 import BottomBar from "@/components/bottom-bar";
-import { addStyle } from "@/utils";
+import { addStyle, buildBlock } from "@/utils";
 import Toc from "@/components/toc";
-import Animate from "preact-animate";
 import throttle from "lodash.throttle";
 import { IPdfMeta } from "../types/index";
+import PdfContent from "./pdf-content";
 
 interface IZoom {
     select: string;
@@ -24,33 +24,36 @@ interface IBookState extends IabcState {
     zoom: number;
 }
 
+// const PdfContent = propsDiffComponent("div");
+
 export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     private zoom?: IZoom[];
     private width?: number;
     private height?: number;
     public tocs: any[];
-    private load: boolean;
+    protected isBlock: (x: number, y: number) => number;
 
     constructor(props, content) {
         super(props, content);
-        console.log("props: ", props);
-        this.state.offset = 20;
+        // console.log("props: ", props);
+        this.state.offset = 0;
         this.load = false;
     }
 
     public resize = throttle(() => {
-        const callback = () => this.setZoom().then((zoom: number) => this.setState({ zoom }));
+        const callback = () => this.setZoom().then((zoom: number) => {
+            if (zoom !== this.state.zoom) {
+                this.setState({ zoom });
+            }
+        });
         if (typeof requestAnimationFrame !== "undefined") {
             requestAnimationFrame(callback);
         } else {
             setTimeout(callback());
         }
     }, 100);
+
     public componentDidMount() {
-        this.lozadOptions = {
-            ...this.lozadOptions,
-            target: this.page || document,
-        };
         this.init().then(({ pageHtml, page }) => {
             if (this.props.meta.zoom) {
                 this.getZoom(this.props.meta.zoom).then((zoom: number) => {
@@ -58,41 +61,33 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                         pageHtml,
                         page,
                         zoom,
-                    });
+                    }, () => window.addEventListener("resize", this.resize as any));
                 });
-                window.addEventListener("resize", this.resize as any);
             }
         });
     }
-    private nextPage = () => {
-        this.setPage(this.state.page + 1);
-        this.page.scrollTo(0, 0);
-    }
-
-    private pageClick = (event: MouseEvent) => {
-        const page = this.page;
-        console.log("pageClick", event.clientX, event.clientY, page.clientWidth, page.clientHeight);
-    }
     protected  renderHeader() {
-        const state = this.state;
+        // const state = this.state;
         // const tocClass = styl.toc_layout + (state.theme ? " " + styl[state.theme] : "");
-        return <BookToolsBar options={ { showToc: () => {this.setState({ toc_open: !state.toc_open }); } } }/>;
+        // return <BookToolsBar options={ { showToc: () => {this.setState({ toc_open: !state.toc_open }); } } }/>;
     }
     protected  renderFooter() {
-        // return <BottomBar/>;
+        return <BottomBar data-show={this.state.barShow}/>;
     }
     protected  renderContent() {
         const state = this.state;
-        return <div
-                    onClick={this.pageClick}
-                    className={styl.pageHtml}
-                    >
-                <div
+        return <div className={styl.pageHtml}>
+                {/* <PdfContent
                     className={`${styl.view} ${styl[state.bg]}`}
                     dangerouslySetInnerHTML={{__html: state.pageHtml}}
-                    style={{ width: this.width * state.zoom }}
-                    >
-                </div>
+                    style={{ width: this.width * state.zoom }}>
+                </PdfContent>; */}
+                <PdfContent
+                    view={styl.view}
+                    bg={styl[state.bg]}
+                    pageHtml={state.pageHtml}
+                    width={this.width * state.zoom}
+                ></PdfContent>
                 {/* { state.page < this.pageNum ? <div onClick={ this.nextPage }>下一页</div> : null } */}
             </div>;
     }
@@ -107,12 +102,13 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     private setZoom(flag?) {
         if (this.page) {
             const clientWidth = this.page.clientWidth;
-            let offset = this.state.offset;
-            if (flag) {
-                offset += 15;
+            const clientHeight = this.page.clientHeight;
+            this.isBlock = buildBlock(clientWidth, clientHeight, 1 / 3);
+            const offset = this.state.offset;
+            const zoom = (clientHeight - offset) / this.height;
+            if (this.state.zoom !== zoom) {
+                this.addZoom(zoom);
             }
-            const zoom = (clientWidth - offset) / this.width;
-            this.addZoom(zoom);
             return Promise.resolve(zoom);
         }
     }

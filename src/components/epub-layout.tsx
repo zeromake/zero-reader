@@ -1,5 +1,5 @@
 import AbcLayout from "./abc-layout";
-import { findDOMNode, h } from "zreact";
+import { findDOMNode, h } from "react-import";
 import styl from "@/css/layout.styl";
 import BookToolsBar from "@/components/book-tools-bar";
 import BottomBar from "@/components/bottom-bar";

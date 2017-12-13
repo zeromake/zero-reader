@@ -8,6 +8,7 @@ declare module "preact-router" {
     const style: any;
     export const Link: any;
     export const Route: any;
+    export const route: (url: string, replace?: boolean) => boolean;
     export default style;
 }
 declare module "preact-animate" {
@@ -39,7 +40,7 @@ declare module "react-import" {
     //     Link,
     // };
     import { h, render, Component, findDOMNode } from "zreact";
-    import Router, { Route, Link } from "preact-router";
+    import Router, { Route, Link, route } from "preact-router";
     export {
         h,
         Component,
@@ -47,6 +48,7 @@ declare module "react-import" {
         render,
         Router,
         Route,
+        route,
         Link,
     };
 }

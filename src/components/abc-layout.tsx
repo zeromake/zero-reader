@@ -1,8 +1,9 @@
-import { h, Component, findDOMNode } from "zreact";
+import { h, Component, findDOMNode } from "react-import";
 import { addLinkCss, addStyle, removeHead } from "@/utils";
 import styl from "@/css/layout.styl";
 import { IAbcMeta, IAbcToc } from "../types/index";
 import lozad from "../assets/lozad";
+import Animate from "preact-animate";
 
 interface IabcProps<AbcMeta> {
     path: string;
@@ -28,6 +29,7 @@ export interface IabcState {
     pageHtml?: string;
     page?: number;
     bg: string;
+    barShow: boolean;
     // [key: string]: string;
 }
 
@@ -42,6 +44,8 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     protected lozadOptions: {};
     protected container: Icontainer[];
     protected page: Element;
+    protected load: boolean;
+    protected abstract isBlock: (x, y) => number;
     // protected baseUrl: string;
     constructor(p: IabcProps<AbcMeta>, c: any) {
         super(p, c);
@@ -56,9 +60,14 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         };
         this.state = {
             bg: "blue",
+            barShow: false,
         } as AbcState;
     }
     protected async init() {
+        this.lozadOptions = {
+            ...this.lozadOptions,
+            target: this.page || document,
+        };
         const meta = this.props.meta;
         meta.page_style.forEach((cssUrl: string, index: number) => {
             const cssId = `css_id_${index}`;
@@ -90,7 +99,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                 pageHtml: text,
                 page: num,
             });
-        });
+        }, () => this.page.scrollTo(0, 0));
     }
     public componentDidUpdate(previousProps: IabcProps<AbcMeta>, previousState: AbcState, previousContext: any) {
         if (this.state.pageHtml) {
@@ -125,11 +134,75 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
      * 渲染内容
      */
     protected abstract renderContent(): JSX.Element | JSX.Element[] | void;
+
+    protected nextPage() {
+        const page = this.state.page + 1;
+        if (page > this.pageNum) {
+            return;
+        }
+        this.setPage(page).then(() => this.load = false);
+        // this.page.scrollTo(0, 0);
+    }
+
+    protected previousPage() {
+        const page = this.state.page - 1;
+        if (page < 0) {
+            return;
+        }
+        this.setPage(page).then(() => this.load = false);
+        // this.page.scrollTo(0, 0);
+    }
+
+    private pageClick = (event: MouseEvent) => {
+        if (this.load) {
+            return;
+        }
+        const clickType = this.isBlock(event.clientX, event.clientY);
+        let flag = false;
+        if (this.state.barShow) {
+            this.setState({
+                barShow: false,
+            });
+            flag = true;
+        }
+        this.load = true;
+        if (clickType === 1) {
+            this.previousPage();
+        } else if (clickType === 2) {
+            this.nextPage();
+        } else if (clickType === 0) {
+            this.load = false;
+            if (!flag) {
+                const barShow = !this.state.barShow;
+                this.setState({
+                    barShow,
+                });
+            }
+        }
+
+    }
+
     public render() {
-        return <div ref={((vdom: any) => this.page = findDOMNode(vdom))} className={styl.content}>
-            { this.renderHeader() }
+        return <div  onClick={this.pageClick} ref={((vdom: any) => this.page = findDOMNode(vdom))} className={styl.content}>
+            <Animate
+                component={null}
+                transitionEnter={true}
+                transitionLeave={true}
+                showProp="data-show"
+                transitionName= {{ enter: "fadeInLeft", leave: "fadeOutDown" }}
+            >
+                { this.renderHeader() }
+            </Animate>
             { this.renderContent() }
-            { this.renderFooter() }
+            <Animate
+                component={null}
+                transitionEnter={true}
+                transitionLeave={true}
+                showProp="data-show"
+                transitionName= {{ enter: "fadeInUp", leave: "fadeOutDown" }}
+            >
+                { this.renderFooter() }
+            </Animate>
         </div>;
     }
 }

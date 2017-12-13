@@ -16,10 +16,11 @@ const bottomMenu = [
 
 export default class BottomBar extends Component<any, any> {
     public test(id, event) {
+        event.stopPropagation();
         console.log("-------", id);
     }
     public render() {
-        return <div className={styl.bottom_bar}>
+        return h("div", {className: styl.bottom_bar + " animated", style: this.props.style},
             <ul className={styl.menus}>
             {
                 bottomMenu.map((menu) => {
@@ -28,7 +29,7 @@ export default class BottomBar extends Component<any, any> {
                     </li>;
                 })
             }
-            </ul>
-        </div>;
+            </ul>,
+        );
     }
 }

@@ -1,3 +1,5 @@
+import { h, Component } from "react-import";
+
 export function addLinkCss(href, id) {
     const link = document.getElementById(id);
     if (link) {
@@ -28,4 +30,65 @@ export function addStyle(id: string, css: string) {
     newstyle.id = id;
     newstyle.innerHTML = css;
     document.head.appendChild(newstyle);
+}
+
+export function buildBlock(x: number, y: number, scaleX: number, scaleY?: number) {
+    scaleY = scaleY || scaleX;
+    const X = x * scaleX;
+    const X2 = X * 2;
+    const Y = y * scaleY;
+    const Y2 = Y * 2;
+    return function isBlock(clientX: number, clientY: number): number {
+        let type = 0;
+        if (clientX <= X) {
+            type = 1;
+        } else if (clientX >= X2) {
+            type = 2;
+        } else if (clientY <= Y) {
+            type = 1;
+        } else if (clientY >= Y2) {
+            type = 2;
+        }
+        return type;
+    };
+}
+
+export function shallowDiffers(a: any, b: any): boolean {
+    for (const i in a) {
+        if (!(i in b)) {
+            return true;
+        }
+    }
+    for (const i in b) {
+        if (i === "children") {
+            if (a.children !== b.children) {
+                const len = a.children.length;
+                if (len === b.children.length && len === 0) {
+                    continue;
+                } else {
+                    return true;
+                }
+            }
+        }
+        if (a[i] !== b[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export function propsDiffComponent(component: any, callback) {
+    class Content extends Component<any, any> {
+        public shouldComponentUpdate(props: any, state: any): boolean {
+            // props只要一个不同就返回true
+            const flag = shallowDiffers(this.props, props);
+            // console.log(flag, this.props, props);
+            return flag;
+        }
+        public render() {
+            const props = this.props;
+            return h(component, props);
+        }
+    }
+    return Content;
 }

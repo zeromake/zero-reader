@@ -1,4 +1,4 @@
-import { h, Component } from "zreact";
+import { h, Component } from "react-import";
 import styl from "@/css/toc.styl";
 import Animate from "preact-animate";
 import { IAbcToc, IEpubToc, IPdfToc } from "../types/index";
