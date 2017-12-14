@@ -1,56 +1,69 @@
 
 .toc_layout
-    padding-bottom 2.5rem
-    position fixed
-    top 0
-    left 0
-    width 240px
+    position absolute
+    top 1%
+    left 15%
+    width 70%
+    height 96%
     box-shadow 2px 2px 8px rgba(0,0,0,.2)
-    z-index 999
-    transition-duration 200ms
-    transition-timing-function ease
-    transition-property width
-    height 100%
+    z-index 10
+    background-color #404040
+
+@media screen and (max-width: 700px)
+    .toc_layout
+        left 10%
+        width 80%
+
+.toc_content
+    position absolute
+    top 2.5rem
+    right 1rem
+    bottom 1rem
+    left 1rem
+    overflow-y auto
+    // top 30
+    // position absolute
+    // overflow-y auto
+
+.toc_title
+    border-bottom 1px solid #cbcbcb
+    padding 0 1.15rem
+    height 2.5rem
+    width 100%
+    box-sizing border-box
+.toc_title p
+    display inline-block
+    color #FFF
+    height 100% 
+    text-align center
+    float left
+    font-size 1.25rem
+    line-height 2.5rem
+.toc_close
+    float right
+    margin-top 0.4rem
+    display inline-block
+    color rgba(255, 255, 255, 0.87)
+    fill currentcolor
+    height 1.7rem
+    width 1.7rem
+    box-sizing border-box
+
 .content
     background-color #404040
     overflow auto
     width 100%
     height 100%
-@media screen and (max-width: 379px)
-    .toc_layout
-        width 95%
 
-.toc_content
-    background-color #404040
-    height 100%
-    overflow-y: auto;
 
 .theme_white.book_layout
     background-color #FFF
-.title_text
-    float left
-    line-height 2rem
-    color #fff
-
-.close_book_toc
-    fill currentcolor
-    float right
-    width 20px
-    height 20px
-    color #fff
-    margin-top 4px
-    cursor pointer
-    display inline-block
-
-.book_toc_title
-    height 2rem
-    border-bottom 1px solid #cbcbcb
-    padding 0 1rem
 
 .pageHtml
     box-shadow inset 1px 0 0 hsla(0,0%,100%,.05)
 .view
-    margin: 0 auto;
+    position relative
+    margin 0 auto
 /*
 银河白    #FFFFFF    RGB(255, 255, 255)
 

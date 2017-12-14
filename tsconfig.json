@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+      "experimentalDecorators": true,
       "module": "esnext", // 目标代码模块方式
       "outDir": "build",
       "sourceMap": true,

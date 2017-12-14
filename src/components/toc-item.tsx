@@ -2,40 +2,45 @@ import { h, Component } from "react-import";
 import styl from "@/css/toc.styl";
 import Animate from "preact-animate";
 import { IAbcToc, IEpubToc, IPdfToc } from "../types/index";
+import { shallowDiffers } from "@/utils";
 
 interface ITocProps {
     toc: IAbcToc;
     onclick?: (tocs: IAbcToc) => void;
 }
-interface ITocState {
-    toc: IAbcToc;
-}
 
-export default class TocItem extends Component<ITocProps, ITocState> {
+export default class TocItem extends Component<ITocProps, IAbcToc> {
     public base;
-    constructor(p: ITocProps, c: ITocState) {
+    constructor(p: ITocProps, c: any) {
         super(p, c);
-        const toc: IAbcToc = { ...p.toc };
-        this.state = { toc } as ITocState;
+        this.state = { ...p.toc };
         this.itemClick = this.itemClick.bind(this);
         this.itemToggler = this.itemToggler.bind(this);
     }
-    public shouldComponentUpdate(nextProps: ITocProps, nextState: ITocState, nextContext: any): boolean {
-        return this.state.toc !== nextState.toc || this.state.toc.disable !== nextState.toc.disable;
+    public componentWillReceiveProps(props: ITocProps, context: any) {
+        this.state = { ...props.toc };
     }
-    private itemClick() {
+
+    public shouldComponentUpdate(nextProps: ITocProps, nextState: IAbcToc, nextContext: any): boolean {
+        const flag = shallowDiffers(this.state, nextState);
+        return flag;
+    }
+
+    private itemClick(event) {
+        event.stopPropagation();
         if (this.props.onclick) {
-            this.props.onclick(this.state.toc);
+            this.props.onclick(this.state);
         }
     }
-    private itemToggler() {
-        this.setState((state: ITocState) => {
-            state.toc.disable = !state.toc.disable;
+    private itemToggler(event) {
+        event.stopPropagation();
+        this.setState((state: IAbcToc) => {
+            state.disable = !state.disable;
         });
     }
     public render(props: any, state: any): any {
         // const propsClick = this.props.onclick;
-        const toc = this.state.toc;
+        const toc = this.state;
         return <div className={ styl.tocItem }>
             {
                 toc.children ? (
@@ -51,10 +56,10 @@ export default class TocItem extends Component<ITocProps, ITocState> {
                     transitionEnter={true}
                     transitionLeave={true}
                     transitionName = {{
-                        enter: "fadeInRight",
-                        leave: "fadeOutRight",
+                        enter: "fadeInDown",
+                        leave: "fadeOutUp",
                     }}>
-                <div  data-show={!toc.disable} className={ styl.tocItems + " animated"}>
+                <div data-show={toc.disable} className={ styl.tocItems + " animated"}>
                 {
                     toc.children.map((item: IAbcToc) => <TocItem onclick={props.onclick} toc={item}/>)
                 }

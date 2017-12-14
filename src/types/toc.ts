@@ -8,6 +8,10 @@ export interface IAbcToc {
      */
     text: string;
     /**
+     * page在containe中的下标
+     */
+    index: number;
+    /**
      * page的序号
      */
     page: number;
@@ -56,10 +60,6 @@ export interface IPdfToc extends IAbcToc {
      * 原始类名
      */
     class: string;
-    /**
-     * page在containe中的下标
-     */
-    index: number;
     /**
      * pdf2htmlEx的目录锚点座标
      */

@@ -101,6 +101,7 @@ class Epub2Json(object):
         self.container_count = 1
         self.guide = []
         self.temp_dir = tempfile.mkdtemp()
+        self.container_page_dict = None
         if self.compress:
             self.tar_file = tar_open(self.dist + '.tar.zstd', 'w:zstd')
 
@@ -586,6 +587,7 @@ class Epub2Json(object):
         """
         if not self.toc_zip_path:
             return
+        self.container_page_dict = { container_name : page for container_name, page in self.container}
         with epub_file.open(self.toc_zip_path, 'r') as toc_file:
             tree = etree.parse(toc_file)
             nav_map = tree.find('//xmlns:navMap', namespaces={'xmlns': NAMESPACES['DAISY']})
@@ -613,10 +615,11 @@ class Epub2Json(object):
                 toc_info['children'].append(self.handle_toc_item(item, level + 1))
             elif item.tag == NAV_CONTENT:
                 href_name = item.get('src')
-                page, hash_str, query_str = self.handle_href(href_name)
+                page, hash_str, query_str = self.handle_href(zip_join(self.toc_dir_path, href_name))
                 if page is not None:
                     toc_info['page'] = page
                     new_href = '%s/%s%d.html' % (self.page_dir, self.page_join, page)
+                    toc_info['index'] = page - 1
                     toc_info['page_url'] = new_href
                 else:
                     toc_info['src'] = href_name

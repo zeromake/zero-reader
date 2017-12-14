@@ -4,6 +4,7 @@ import styl from "@/css/layout.styl";
 import { IAbcMeta, IAbcToc } from "../types/index";
 import lozad from "../assets/lozad";
 import Animate from "preact-animate";
+import Toc from "./toc";
 
 interface IabcProps<AbcMeta> {
     path: string;
@@ -30,6 +31,7 @@ export interface IabcState {
     page?: number;
     bg: string;
     barShow: boolean;
+    tocShow: boolean;
     // [key: string]: string;
 }
 
@@ -45,6 +47,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     protected container: Icontainer[];
     protected page: Element;
     protected load: boolean;
+    protected tocs: IAbcToc[];
     protected abstract isBlock: (x, y) => number;
     // protected baseUrl: string;
     constructor(p: IabcProps<AbcMeta>, c: any) {
@@ -61,6 +64,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         this.state = {
             bg: "blue",
             barShow: false,
+            tocShow: false,
         } as AbcState;
     }
     protected async init() {
@@ -93,13 +97,31 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             this.observer.update();
         }
     }
-    protected setPage(num: number) {
+    protected setPage(num: number, obj: any = {}) {
+        if (this.load) {
+            return;
+        }
+        this.load = true;
+        console.log("setPage", this.load);
         return this.getPage(num).then((text) => {
-            this.setState({
-                pageHtml: text,
-                page: num,
+            return new Promise<void>((resolve, reject) => {
+                this.setState({
+                    pageHtml: text,
+                    page: num,
+                    ...obj,
+                }, () => {
+                    try {
+                        if (this.page && this.page.scrollTo) {
+                            this.page.scrollTo(0, 0);
+                        }
+                        resolve();
+                    } finally {
+                        this.load = false;
+                    }
+                    console.log("setPaged", this.load);
+                });
             });
-        }, () => this.page.scrollTo(0, 0));
+        });
     }
     public componentDidUpdate(previousProps: IabcProps<AbcMeta>, previousState: AbcState, previousContext: any) {
         if (this.state.pageHtml) {
@@ -110,8 +132,8 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         const pageName = this.container[num]["data-page-url"];
         return this.library.text(pageName);
     }
-    protected getToc(tocName: string) {
-        return this.library.json(tocName);
+    protected getToc() {
+        return this.library.json(this.props.meta.toc);
     }
     public componentWillUnmount() {
         if (this.mountCss.length > 0) {
@@ -138,49 +160,60 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     protected nextPage() {
         const page = this.state.page + 1;
         if (page > this.pageNum) {
+            this.load = false;
             return;
         }
-        this.setPage(page).then(() => this.load = false);
-        // this.page.scrollTo(0, 0);
+        this.setPage(page).then(() => {
+            this.page.scrollTo(0, 0);
+            this.load = false;
+        });
     }
 
     protected previousPage() {
         const page = this.state.page - 1;
         if (page < 0) {
+            this.load = false;
             return;
         }
-        this.setPage(page).then(() => this.load = false);
-        // this.page.scrollTo(0, 0);
+        this.setPage(page).then(() => {
+            this.page.scrollTo(0, 0);
+            this.load = false;
+        });
     }
 
     private pageClick = (event: MouseEvent) => {
+        console.log("pageClick", this.load);
         if (this.load) {
             return;
         }
-        const clickType = this.isBlock(event.clientX, event.clientY);
-        let flag = false;
-        if (this.state.barShow) {
-            this.setState({
-                barShow: false,
-            });
-            flag = true;
+        if (this.state.tocShow || this.state.barShow) {
+            if (this.state.tocShow) {
+                this.setState({
+                    tocShow: false,
+                });
+            }
+            if (this.state.barShow) {
+                this.setState({
+                    barShow: false,
+                });
+            }
+            return;
         }
-        this.load = true;
+        const clickType = this.isBlock(event.clientX, event.clientY);
         if (clickType === 1) {
             this.previousPage();
         } else if (clickType === 2) {
             this.nextPage();
         } else if (clickType === 0) {
-            this.load = false;
-            if (!flag) {
-                const barShow = !this.state.barShow;
-                this.setState({
-                    barShow,
-                });
-            }
+            const barShow = !this.state.barShow;
+            this.setState({
+                barShow,
+            });
         }
 
     }
+
+    protected abstract tocClick(toc: IAbcToc): void;
 
     public render() {
         return <div  onClick={this.pageClick} ref={((vdom: any) => this.page = findDOMNode(vdom))} className={styl.content}>
@@ -189,9 +222,29 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                 transitionEnter={true}
                 transitionLeave={true}
                 showProp="data-show"
-                transitionName= {{ enter: "fadeInLeft", leave: "fadeOutDown" }}
+                transitionName= {{ enter: "fadeInDown", leave: "fadeOutUp" }}
             >
                 { this.renderHeader() }
+            </Animate>
+            <Animate
+                component={null}
+                transitionEnter={true}
+                transitionLeave={true}
+                showProp="data-show"
+                transitionName= {{ enter: "fadeInLeft", leave: "fadeOutLeft" }}
+            >
+                { this.tocs ? <div className={`${styl.toc_layout} animated`} data-show={this.state.tocShow} onClick={(event) => event.stopPropagation()}>
+                    <div className={styl.toc_title}>
+                        <p>目录</p>
+                        <svg viewBox="0 0 24 24" class={styl.toc_close} onClick={() => this.setState({tocShow: false})}>
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+                            <path d="M0 0h24v24H0z" fill="none"></path>
+                        </svg>
+                    </div>
+                    <div className={styl.toc_content}>
+                        <Toc tocs={this.tocs} onclick={this.tocClick}/>
+                    </div>
+                </div> : null }
             </Animate>
             { this.renderContent() }
             <Animate

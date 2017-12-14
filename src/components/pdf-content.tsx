@@ -13,9 +13,8 @@ export default class PdfContent extends Component<any, any> {
     public render() {
         const props = this.props;
         return <div
-            className={`${props.view} ${props.bg}`}
-            dangerouslySetInnerHTML={{__html: props.pageHtml}}
-            style={{ width: props.width }}>
+            className={`${props.bg}`}
+            dangerouslySetInnerHTML={{__html: props.pageHtml}}>
         </div>;
     }
 }

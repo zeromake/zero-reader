@@ -5,6 +5,11 @@ import BookToolsBar from "@/components/book-tools-bar";
 import BottomBar from "@/components/bottom-bar";
 
 export default class EpubLayout extends AbcLayout<any, any> {
+    protected isBlock;
+
+    protected tocClick(toc) {
+
+    }
     protected  renderHeader() {
         const state = this.state;
         // const tocClass = styl.toc_layout + (state.theme ? " " + styl[state.theme] : "");

@@ -20,7 +20,7 @@ export default class BottomBar extends Component<any, any> {
         console.log("-------", id);
     }
     public render() {
-        return h("div", {className: styl.bottom_bar + " animated", style: this.props.style},
+        return h("div", {className: `${styl.bottom_bar} ${styl.animated}`, style: this.props.style},
             <ul className={styl.menus}>
             {
                 bottomMenu.map((menu) => {

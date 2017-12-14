@@ -2,11 +2,11 @@ import { h, findDOMNode, route } from "react-import";
 import AbcLayout, { IabcState } from "./abc-layout";
 import styl from "@/css/layout.styl";
 import BookToolsBar from "@/components/book-tools-bar";
-import BottomBar from "@/components/bottom-bar";
+import BottomBar from "./pdf-bottom-bar";
 import { addStyle, buildBlock } from "@/utils";
 import Toc from "@/components/toc";
 import throttle from "lodash.throttle";
-import { IPdfMeta } from "../types/index";
+import { IPdfMeta, IAbcToc } from "../types/index";
 import PdfContent from "./pdf-content";
 
 interface IZoom {
@@ -38,6 +38,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         // console.log("props: ", props);
         this.state.offset = 0;
         this.load = false;
+        this.tocClick = this.tocClick.bind(this);
     }
 
     public resize = throttle(() => {
@@ -61,18 +62,50 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                         pageHtml,
                         page,
                         zoom,
-                    }, () => window.addEventListener("resize", this.resize as any));
+                    }, () => {
+                        window.addEventListener("resize", this.resize as any);
+                        this.resize();
+                    });
                 });
             }
         });
+    }
+    protected tocClick(toc: IAbcToc) {
+        if (this.load || this.state.page === toc.index) {
+            return;
+        }
+        if (toc.index >= 0) {
+            this.setPage(toc.index, { tocShow: false });
+        }
+    }
+
+    private bottomBarClick = (id: number, event: MouseEvent) => {
+        event.stopPropagation();
+        if (id === 1) {
+            if (this.tocs) {
+                this.setState({
+                    barShow: !this.state.barShow,
+                    tocShow: !this.state.tocShow,
+                });
+            } else {
+                this.getToc().then((tocs) => {
+                    this.tocs = tocs;
+                    this.setState({
+                        barShow: !this.state.barShow,
+                        tocShow: !this.state.tocShow,
+                    });
+                });
+            }
+        }
     }
     protected  renderHeader() {
         // const state = this.state;
         // const tocClass = styl.toc_layout + (state.theme ? " " + styl[state.theme] : "");
         // return <BookToolsBar options={ { showToc: () => {this.setState({ toc_open: !state.toc_open }); } } }/>;
     }
+
     protected  renderFooter() {
-        return <BottomBar data-show={this.state.barShow}/>;
+        return <BottomBar data-show={this.state.barShow} click={this.bottomBarClick}/>;
     }
     protected  renderContent() {
         const state = this.state;
@@ -82,12 +115,16 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                     dangerouslySetInnerHTML={{__html: state.pageHtml}}
                     style={{ width: this.width * state.zoom }}>
                 </PdfContent>; */}
-                <PdfContent
-                    view={styl.view}
-                    bg={styl[state.bg]}
-                    pageHtml={state.pageHtml}
-                    width={this.width * state.zoom}
-                ></PdfContent>
+                <div
+                    className={styl.view}
+                    style={{ width: this.width * state.zoom }}
+                    >
+                    <PdfContent
+                        bg={styl[state.bg]}
+                        pageHtml={state.pageHtml}
+                        // width={this.width * state.zoom}
+                    ></PdfContent>
+                </div>
                 {/* { state.page < this.pageNum ? <div onClick={ this.nextPage }>下一页</div> : null } */}
             </div>;
     }
@@ -96,16 +133,15 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
             this.zoom = data.css;
             this.width = data.width;
             this.height = data.height;
-            return this.setZoom(true);
+            return this.setZoom();
         });
     }
-    private setZoom(flag?) {
+    private setZoom() {
         if (this.page) {
             const clientWidth = this.page.clientWidth;
             const clientHeight = this.page.clientHeight;
             this.isBlock = buildBlock(clientWidth, clientHeight, 1 / 3);
-            const offset = this.state.offset;
-            const zoom = (clientHeight - offset) / this.height;
+            const zoom = (clientWidth) / this.width;
             if (this.state.zoom !== zoom) {
                 this.addZoom(zoom);
             }
