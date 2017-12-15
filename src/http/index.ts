@@ -1,31 +1,111 @@
 
 const json = (res: Response) => res.json();
 const text = (res: Response) => res.text();
-/**
- * 获取json对象
- * @param url
- */
-export function get_json(url: string) {
-    return fetch(url).then(json);
-}
-/**
- * 获取文本
- * @param url
- */
-export function get_text(url: string) {
-    return fetch(url).then(text);
-}
+
+const cache = (timeOut: number, max: number = 10) => {
+    let cacheMap: {[name: string]: any} = {};
+    let hist = 0;
+    let miss = 0;
+    let length = 0;
+    let keySet = {};
+    let offset = 0;
+    let promotionNum = 0;
+    return {
+        get(key: string) {
+            const value = cacheMap[key];
+            const nowDate = new Date().getTime();
+            if (value) {
+                if ((nowDate - value.lastDate) < timeOut) {
+                    hist += 1;
+                    this.promotion(key);
+                    return value.value;
+                }
+            }
+            miss += 1;
+        },
+        add(key: string, value: any) {
+            let index: number;
+            if (!(key in cacheMap)) {
+                if (length === max) {
+                    offset += 1;
+                    let oldKey = keySet[offset];
+                    while (!oldKey) {
+                        offset += 1;
+                        oldKey = keySet[offset];
+                    }
+                    keySet[offset] = null;
+                    cacheMap[oldKey] = null;
+                } else {
+                    length += 1;
+                }
+                index = length + offset + promotionNum;
+                keySet[index] = key;
+                cacheMap[key] = {
+                    value,
+                    index,
+                    lastDate: new Date().getTime(),
+                };
+            } else {
+                this.promotion(key);
+                cacheMap[key].lastDate = new Date().getTime();
+                cacheMap[key].value = value;
+            }
+        },
+        clear() {
+            hist = 0;
+            miss = 0;
+            length = 0;
+            offset = 0;
+            keySet = {};
+            cacheMap = {};
+        },
+        info() {
+            return {hist, miss, length, offset, promotionNum, keySet};
+        },
+        promotion(key: string) {
+            const oldValue = cacheMap[key];
+            const oldIndex = oldValue.index;
+            let newIndex = promotionNum + length + offset;
+            if (newIndex === oldIndex) {
+                return;
+            }
+            newIndex += 1;
+            promotionNum += 1;
+            keySet[oldIndex] = null;
+            keySet[newIndex] = key;
+            cacheMap[key].index = newIndex;
+        },
+        remove(key: string) {
+            const oldValue = cacheMap[key];
+            const oldIndex = oldValue.index;
+            keySet[oldIndex] = null;
+            cacheMap[key] = null;
+            length -= 1;
+        },
+    };
+};
 
 export function libraryData(sha: string) {
+    const cacheData = cache(18000000, 5);
     return {
-        get(url: string) {
-            return fetch(url);
+        get(url: string, callback) {
+            const cacheValue = cacheData.get(url);
+            if (cacheValue) {
+                console.log(cacheData.info());
+                return Promise.resolve(cacheValue);
+            } else {
+                return fetch(url).then(callback).then((value: any) => {
+                    cacheData.add(url, value);
+                    console.log(cacheData.info());
+                    return Promise.resolve(value);
+                });
+            }
         },
         json(url: string) {
-            return this.get(`/library/${sha}/${url}`).then(json);
+            return this.get(`/library/${sha}/${url}`, json);
         },
         text(url: string) {
-            return this.get(`/library/${sha}/${url}`).then(text);
+            return this.get(`/library/${sha}/${url}`, text);
         },
         css(url: string) {
             return `/library/${sha}/${url}`;
