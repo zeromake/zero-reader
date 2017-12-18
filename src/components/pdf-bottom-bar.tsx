@@ -8,7 +8,7 @@ const bottomMenu = [
     {icon: "fa-gear", title: "设置", id: 4},
 ];
 const BottomBar = function render(props) {
-        return <div className={`${styl.bottom_bar} animated`} style={this.props.style} onClick={(event) => event.stopPropagation()}>
+        return <div className={`${styl.bottom_bar} animated`} onClick={(event) => event.stopPropagation()}>
             <ul className={styl.menus}>
             {
                 bottomMenu.map((menu) => {

@@ -2,12 +2,20 @@
 const json = (res: Response) => res.json();
 const text = (res: Response) => res.text();
 
+function createObject() {
+    if (Object.create) {
+        return Object.create(null);
+    } else {
+        return {};
+    }
+}
+
 const cache = (timeOut: number, max: number = 10) => {
-    let cacheMap: {[name: string]: any} = {};
+    let cacheMap: {[name: string]: any} = createObject();
     let hist = 0;
     let miss = 0;
     let length = 0;
-    let keySet = {};
+    let keySet = createObject();
     let offset = 0;
     let promotionNum = 0;
     return {
@@ -56,8 +64,8 @@ const cache = (timeOut: number, max: number = 10) => {
             miss = 0;
             length = 0;
             offset = 0;
-            keySet = {};
-            cacheMap = {};
+            keySet = createObject();
+            cacheMap = createObject();
         },
         info() {
             return {hist, miss, length, offset, promotionNum, keySet};
@@ -81,6 +89,9 @@ const cache = (timeOut: number, max: number = 10) => {
             delete keySet[oldIndex];
             delete cacheMap[key];
             length -= 1;
+        },
+        has(key: string) {
+            return key in cacheMap;
         },
     };
 };

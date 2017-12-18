@@ -75,7 +75,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
             return;
         }
         if (toc.index >= 0) {
-            delete this.clickState['tocShow']
+            delete this.clickState.tocShow;
             this.setPage(toc.index, { tocShow: false });
         }
     }
@@ -83,10 +83,10 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     private bottomBarClick = (id: number, event: MouseEvent) => {
         event.stopPropagation();
         if (id === 1) {
-            delete this.clickState['barShow']
+            delete this.clickState.barShow;
             const obj = {
-                barShow: false
-            }
+                barShow: false,
+            };
             // this.clickState['tocShow'] = false;
             if (this.tocs) {
                 this.tocToggler(true, obj);
@@ -110,11 +110,6 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     protected  renderContent() {
         const state = this.state;
         return <div className={styl.pageHtml}>
-                {/* <PdfContent
-                    className={`${styl.view} ${styl[state.bg]}`}
-                    dangerouslySetInnerHTML={{__html: state.pageHtml}}
-                    style={{ width: this.width * state.zoom }}>
-                </PdfContent>; */}
                 <div
                     className={styl.view}
                     style={{ width: this.width * state.zoom }}
@@ -122,10 +117,8 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                     <PdfContent
                         bg={styl[state.bg]}
                         pageHtml={state.pageHtml}
-                        // width={this.width * state.zoom}
                     ></PdfContent>
                 </div>
-                {/* { state.page < this.pageNum ? <div onClick={ this.nextPage }>下一页</div> : null } */}
             </div>;
     }
     private getZoom(zoom: string) {

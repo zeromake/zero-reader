@@ -118,7 +118,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                             this.bscroll.scrollTo(0, 0, 375);
                             // this.page.scroll(0, 0);
                         } else {
-                            console.log("page no has scroll: ", this.page.scroll)
+                            console.log("page no has scroll: ", this.page.scroll);
                         }
                         resolve();
                     } finally {
@@ -131,15 +131,15 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     public componentDidUpdate(previousProps: IabcProps<AbcMeta>, previousState: AbcState, previousContext: any) {
         if (this.state.pageHtml) {
             this.bindObserver();
-            if (this.page && !this.bscroll) {
-                import("better-scroll").then((BScroll: any) => {
-                    BScroll = BScroll.default || BScroll;
-                    this.bscroll = new BScroll(this.page, {
-                        click: true,
-                        scrollbar: true,
-                    });
-                });
-            }
+            // if (this.page && !this.bscroll) {
+            //     import("better-scroll").then((BScroll: any) => {
+            //         BScroll = BScroll.default || BScroll;
+            //         this.bscroll = new BScroll(this.page, {
+            //             click: true,
+            //             scrollbar: true,
+            //         });
+            //     });
+            // }
         }
     }
     private getPage(num: number) {
@@ -177,7 +177,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             this.load = false;
             return;
         }
-        return this.setPage(page)
+        return this.setPage(page);
     }
 
     protected previousPage() {
@@ -186,7 +186,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             this.load = false;
             return;
         }
-        return this.setPage(page)
+        return this.setPage(page);
     }
 
     private pageClick = (event: MouseEvent) => {
@@ -214,7 +214,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             this.nextPage();
         } else if (clickType === 0) {
             this.isClickPropagation = true;
-            this.clickState["barShow"] = false;
+            this.clickState.tocShow = false;
             this.setState({
                 barShow: true,
             });
@@ -224,9 +224,9 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
 
     protected tocToggler = (show: boolean, obj: {} = {}) => {
         if (show) {
-            this.clickState["tocShow"] = false;
-        }else {
-            delete this.clickState["tocShow"]
+            this.clickState.tocShow = false;
+        } else {
+            delete this.clickState.tocShow;
         }
         this.setState({
             tocShow: show,

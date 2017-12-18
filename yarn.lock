@@ -3129,9 +3129,9 @@ postcss@^6.0.0, postcss@^6.0.1, postcss@^6.0.14:
     source-map "^0.6.1"
     supports-color "^4.4.0"
 
-preact-animate@^1.3.0:
-  version "1.3.0"
-  resolved "http://registry.npm.taobao.org/preact-animate/download/preact-animate-1.3.0.tgz#7fcb0d3c534c7acf225d682790aeb29a9344230f"
+preact-animate@^1.4.0:
+  version "1.4.0"
+  resolved "http://registry.npm.taobao.org/preact-animate/download/preact-animate-1.4.0.tgz#dafe9c4ea50e38db4d181646f19c4e26da13e0e2"
 
 preact-router@^2.6.0:
   version "2.6.0"

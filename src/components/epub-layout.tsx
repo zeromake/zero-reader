@@ -1,8 +1,8 @@
 import AbcLayout from "./abc-layout";
 import { findDOMNode, h } from "react-import";
 import styl from "@/css/layout.styl";
-import BookToolsBar from "@/components/book-tools-bar";
-import BottomBar from "@/components/bottom-bar";
+import BookToolsBar from "./book-tools-bar";
+import BottomBar from "./bottom-bar";
 
 export default class EpubLayout extends AbcLayout<any, any> {
     protected isBlock;
