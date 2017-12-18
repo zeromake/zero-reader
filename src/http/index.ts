@@ -86,7 +86,7 @@ const cache = (timeOut: number, max: number = 10) => {
 };
 
 export function libraryData(sha: string) {
-    const cacheData = cache(18000000, 5);
+    const cacheData = cache(18000000, 20);
     return {
         get(url: string, callback) {
             const cacheValue = cacheData.get(url);

@@ -5,7 +5,7 @@
   "main": "build/build.js",
   "repository": "https://github.com/zeromake/zero-reader",
   "author": "zeromake <a390720046@gmail.com>",
-  "license": "MIT",
+  "license": "GPL",
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack --config build/webpack.config.js",
     "rollup": "rollup -c rollup.config.js",
