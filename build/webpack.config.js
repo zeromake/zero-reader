@@ -2,7 +2,6 @@ const webpack = require('webpack')
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require("extract-text-webpack-plugin")
-const es3ifyPlugin = require('es3ify-webpack-plugin');
 const pkg = require("../package.json")
 
 const isProd = process.env.NODE_ENV === 'production'

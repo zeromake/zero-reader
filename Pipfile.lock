@@ -1,0 +1,92 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "1bf9b067f0208f4ad6664c9d7fc447dfc423cd0ed882bcf241003c5fb262f1c4"
+        },
+        "host-environment-markers": {
+            "implementation_name": "cpython",
+            "implementation_version": "3.6.3",
+            "os_name": "posix",
+            "platform_machine": "x86_64",
+            "platform_python_implementation": "CPython",
+            "platform_release": "4.14.4-1-ARCH",
+            "platform_system": "Linux",
+            "platform_version": "#1 SMP PREEMPT Tue Dec 5 19:10:06 UTC 2017",
+            "python_full_version": "3.6.3",
+            "python_version": "3.6",
+            "sys_platform": "linux"
+        },
+        "pipfile-spec": 6,
+        "requires": {},
+        "sources": [
+            {
+                "name": "doubanio",
+                "url": "https://pypi.doubanio.com/simple/",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "aiofiles": {
+            "hashes": [],
+            "version": "==0.3.2"
+        },
+        "aiosqlite3": {
+            "hashes": [],
+            "version": "==0.1.1"
+        },
+        "argparse": {
+            "hashes": [],
+            "version": "==1.4.0"
+        },
+        "certifi": {
+            "hashes": [],
+            "version": "==2017.11.5"
+        },
+        "chardet": {
+            "hashes": [],
+            "version": "==3.0.4"
+        },
+        "httptools": {
+            "hashes": [],
+            "version": "==0.0.9"
+        },
+        "idna": {
+            "hashes": [],
+            "version": "==2.6"
+        },
+        "lxml": {
+            "hashes": [],
+            "version": "==4.1.1"
+        },
+        "pypdf2": {
+            "hashes": [],
+            "version": "==1.26.0"
+        },
+        "requests": {
+            "hashes": [],
+            "version": "==2.18.4"
+        },
+        "sanic": {
+            "hashes": [],
+            "version": "==0.6.0"
+        },
+        "ujson": {
+            "hashes": [],
+            "version": "==1.35"
+        },
+        "urllib3": {
+            "hashes": [],
+            "version": "==1.22"
+        },
+        "uvloop": {
+            "hashes": [],
+            "version": "==0.9.1"
+        },
+        "websockets": {
+            "hashes": [],
+            "version": "==4.0.1"
+        }
+    },
+    "develop": {}
+}

@@ -262,12 +262,14 @@ class Epub2Json(object):
         # page_re = re.compile()
         container_data = []
         for container_name, container_num in self.container:
-            link_ids = list(self.toc_link[container_num])
-            container_data.append({
-                'ids': link_ids,
+            data = {
                 'data-page-url': container_name,
                 'index': container_num
-            })
+            }
+            if container_num in self.toc_link:
+                link_ids = list(self.toc_link[container_num])
+                data['ids'] = link_ids
+            container_data.append(data)
         self.save_tar_json(self.container_file, container_data)
 
     def load_items(self, tree):
@@ -422,7 +424,8 @@ class Epub2Json(object):
         for link in links:
             link_set.add(link)
         # if len(link_set) > 0:
-        self.toc_link[container_count] = link_set
+        if len(link_set) > 0:
+            self.toc_link[container_count] = link_set
         return self.save_temp_xml(xml, page_name)
         # return etree.ElementTree(xml).write(
         #     os.path.join(self.dist, self.page_dir, page_name),

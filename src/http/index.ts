@@ -33,8 +33,8 @@ const cache = (timeOut: number, max: number = 10) => {
                         offset += 1;
                         oldKey = keySet[offset];
                     }
-                    keySet[offset] = null;
-                    cacheMap[oldKey] = null;
+                    delete keySet[offset];
+                    delete cacheMap[oldKey];
                 } else {
                     length += 1;
                 }
@@ -71,15 +71,15 @@ const cache = (timeOut: number, max: number = 10) => {
             }
             newIndex += 1;
             promotionNum += 1;
-            keySet[oldIndex] = null;
+            delete keySet[oldIndex];
             keySet[newIndex] = key;
             cacheMap[key].index = newIndex;
         },
         remove(key: string) {
             const oldValue = cacheMap[key];
             const oldIndex = oldValue.index;
-            keySet[oldIndex] = null;
-            cacheMap[key] = null;
+            delete keySet[oldIndex];
+            delete cacheMap[key];
             length -= 1;
         },
     };
@@ -91,12 +91,12 @@ export function libraryData(sha: string) {
         get(url: string, callback) {
             const cacheValue = cacheData.get(url);
             if (cacheValue) {
-                console.log(cacheData.info());
+                // console.log(cacheData.info());
                 return Promise.resolve(cacheValue);
             } else {
                 return fetch(url).then(callback).then((value: any) => {
                     cacheData.add(url, value);
-                    console.log(cacheData.info());
+                    // console.log(cacheData.info());
                     return Promise.resolve(value);
                 });
             }

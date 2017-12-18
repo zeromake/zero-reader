@@ -9,6 +9,7 @@ import re
 import os
 import json
 import shutil
+import tempfile
 import zipfile
 import platform
 import subprocess
@@ -172,24 +173,27 @@ class Pdf2Json(object):
         if sysstr == 'Linux':
             subprocess.call(["chmod", "+x", pdf2html[1]])
             subprocess.call(["chmod", "+x", 'bin/pdf2htmlEX'])
+        temp_name = tempfile.mktemp()
+        shutil.copyfile(self.pdf_name, temp_name)
+        exec_str = " ".join([
+            pdf2html[1],
+            '--embed-css', '0',
+            '--embed-font', '0',
+            '--embed-image', '0',
+            '--embed-javascript', '0',
+            '--embed-outline', '0',
+            '--outline-filename', self.toc,
+            '--split-page', '1',
+            '--css-filename', self.css,
+            '--page-filename', self.page,
+            '--space-as-offset', '1',
+            '--data-dir', self.share,
+            '--dest-dir', self.out,
+            temp_name,
+            'index.html'
+        ])
         popen_obj = subprocess.Popen(
-            " ".join([
-                pdf2html[1],
-                '--embed-css', '0',
-                '--embed-font', '0',
-                '--embed-image', '0',
-                '--embed-javascript', '0',
-                '--embed-outline', '0',
-                '--outline-filename', self.toc,
-                '--split-page', '1',
-                '--css-filename', self.css,
-                '--page-filename', self.page,
-                '--space-as-offset', '1',
-                '--data-dir', self.share,
-                '--dest-dir', self.out,
-                self.pdf_name,
-                'index.html'
-            ]),
+            exec_str,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             shell=True
@@ -201,6 +205,11 @@ class Pdf2Json(object):
         old_line = b''
         add_set = {int('9' * i) for i in range(1, 5)}
         state = 1
+        # while True:
+        #     line = popen_obj.stdout.readline()
+        #     print(line)
+        #     if not line:
+        #         break
         while True:
             line = popen_obj.stdout.read(read_num)
             if not line:
@@ -230,6 +239,15 @@ class Pdf2Json(object):
                     if task_progress in add_set:
                         read_num += 1
                     logger.debug('progress: %d/%d' % (task_progress, task_count))
+                else:
+                    flag = False
+                    read_num = 1
+                    offset = 0
+                    offset_start = False
+                    old_line = b''
+                    
+
+        os.remove(temp_name)
         with file_open(os.path.join(self.out, 'exec.lock'), 'w') as file_:
             file_.write(str(state))
 

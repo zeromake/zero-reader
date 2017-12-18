@@ -17,7 +17,8 @@ declare const process: any;
 declare const require: (modul: string) => any;
 
 render(<MainRouter/>, document.getElementById("app"));
-// if (process.env.NODE_ENV !== "production") {
-//     const { initDevTools } = require("zreact/devtools");
-//     initDevTools();
-// }
+if (process.env.NODE_ENV !== "production") {
+    import("zreact/devtools").then(({ initDevTools }) => {
+        initDevTools();
+    });
+}

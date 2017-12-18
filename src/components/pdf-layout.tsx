@@ -75,6 +75,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
             return;
         }
         if (toc.index >= 0) {
+            delete this.clickState['tocShow']
             this.setPage(toc.index, { tocShow: false });
         }
     }
@@ -82,18 +83,17 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     private bottomBarClick = (id: number, event: MouseEvent) => {
         event.stopPropagation();
         if (id === 1) {
+            delete this.clickState['barShow']
+            const obj = {
+                barShow: false
+            }
+            // this.clickState['tocShow'] = false;
             if (this.tocs) {
-                this.setState({
-                    barShow: !this.state.barShow,
-                    tocShow: !this.state.tocShow,
-                });
+                this.tocToggler(true, obj);
             } else {
                 this.getToc().then((tocs) => {
                     this.tocs = tocs;
-                    this.setState({
-                        barShow: !this.state.barShow,
-                        tocShow: !this.state.tocShow,
-                    });
+                    this.tocToggler(true, obj);
                 });
             }
         }

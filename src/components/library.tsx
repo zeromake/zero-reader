@@ -19,7 +19,7 @@ export default class Library extends Component<any, any> {
         const props = this.props;
         const state = this.state;
         return (
-            <div className={styl.library}>
+            <div className={styl.library + " animated"}>
                 {
                     state.library.map((book) => {
                         const href = `/library/${book.sha}/`;

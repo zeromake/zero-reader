@@ -48,12 +48,16 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     protected page: Element;
     protected load: boolean;
     protected tocs: IAbcToc[];
+    protected isClickPropagation: boolean;
+    protected clickState: {[name: string]: any};
     protected abstract isBlock: (x, y) => number;
+    protected bscroll: any;
     // protected baseUrl: string;
     constructor(p: IabcProps<AbcMeta>, c: any) {
         super(p, c);
         // this.baseUrl = `/library/${p.meta.sha}/`;
         this.library = p.library;
+        this.clickState = {};
         this.lozadOptions = {
             load: (element) => {
                 if (element.getAttribute("data-src")) {
@@ -102,7 +106,6 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             return;
         }
         this.load = true;
-        console.log("setPage", this.load);
         return this.getPage(num).then((text) => {
             return new Promise<void>((resolve, reject) => {
                 this.setState({
@@ -111,14 +114,16 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                     ...obj,
                 }, () => {
                     try {
-                        if (this.page && this.page.scrollTo) {
-                            this.page.scrollTo(0, 0);
+                        if (this.page && this.bscroll) {
+                            this.bscroll.scrollTo(0, 0, 375);
+                            // this.page.scroll(0, 0);
+                        } else {
+                            console.log("page no has scroll: ", this.page.scroll)
                         }
                         resolve();
                     } finally {
                         this.load = false;
                     }
-                    console.log("setPaged", this.load);
                 });
             });
         });
@@ -126,6 +131,15 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     public componentDidUpdate(previousProps: IabcProps<AbcMeta>, previousState: AbcState, previousContext: any) {
         if (this.state.pageHtml) {
             this.bindObserver();
+            if (this.page && !this.bscroll) {
+                import("better-scroll").then((BScroll: any) => {
+                    BScroll = BScroll.default || BScroll;
+                    this.bscroll = new BScroll(this.page, {
+                        click: true,
+                        scrollbar: true,
+                    });
+                });
+            }
         }
     }
     private getPage(num: number) {
@@ -163,10 +177,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             this.load = false;
             return;
         }
-        this.setPage(page).then(() => {
-            this.page.scrollTo(0, 0);
-            this.load = false;
-        });
+        return this.setPage(page)
     }
 
     protected previousPage() {
@@ -175,29 +186,26 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             this.load = false;
             return;
         }
-        this.setPage(page).then(() => {
-            this.page.scrollTo(0, 0);
-            this.load = false;
-        });
+        return this.setPage(page)
     }
 
     private pageClick = (event: MouseEvent) => {
-        console.log("pageClick", this.load);
         if (this.load) {
             return;
         }
-        if (this.state.tocShow || this.state.barShow) {
-            if (this.state.tocShow) {
-                this.setState({
-                    tocShow: false,
-                });
+        if (this.isClickPropagation) {
+            let flag = false;
+            for (const name in this.clickState) {
+                flag = true;
+                break;
             }
-            if (this.state.barShow) {
-                this.setState({
-                    barShow: false,
+            this.isClickPropagation = false;
+            if (flag) {
+                this.setState(this.clickState as any, () => {
+                    this.clickState = {};
                 });
+                return;
             }
-            return;
         }
         const clickType = this.isBlock(event.clientX, event.clientY);
         if (clickType === 1) {
@@ -205,18 +213,31 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         } else if (clickType === 2) {
             this.nextPage();
         } else if (clickType === 0) {
-            const barShow = !this.state.barShow;
+            this.isClickPropagation = true;
+            this.clickState["barShow"] = false;
             this.setState({
-                barShow,
+                barShow: true,
             });
         }
 
     }
 
+    protected tocToggler = (show: boolean, obj: {} = {}) => {
+        if (show) {
+            this.clickState["tocShow"] = false;
+        }else {
+            delete this.clickState["tocShow"]
+        }
+        this.setState({
+            tocShow: show,
+            ...obj,
+        });
+    }
+
     protected abstract tocClick(toc: IAbcToc): void;
 
     public render() {
-        return <div  onClick={this.pageClick} ref={((vdom: any) => this.page = findDOMNode(vdom))} className={styl.content}>
+        return <div  onClick={this.pageClick} ref={((vdom: any) => this.page = findDOMNode(vdom))} className={styl.content + " animated"}>
             <Animate
                 component={null}
                 transitionEnter={true}
@@ -236,7 +257,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                 { this.tocs ? <div className={`${styl.toc_layout} animated`} data-show={this.state.tocShow} onClick={(event) => event.stopPropagation()}>
                     <div className={styl.toc_title}>
                         <p>目录</p>
-                        <svg viewBox="0 0 24 24" class={styl.toc_close} onClick={() => this.setState({tocShow: false})}>
+                        <svg viewBox="0 0 24 24" class={styl.toc_close} onClick={() => this.tocToggler(false)}>
                             <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
                             <path d="M0 0h24v24H0z" fill="none"></path>
                         </svg>

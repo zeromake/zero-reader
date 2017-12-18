@@ -52,3 +52,8 @@ declare module "react-import" {
         Link,
     };
 }
+
+declare module "better-scroll" {
+    import BScroll from "better-scroll/index";
+    export default BScroll;
+}

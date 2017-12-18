@@ -83,7 +83,12 @@ def add_args():
 
 if __name__ == '__main__':
     args = add_args()
-    options = args.__dict__
+    raw_options = args.__dict__
+    options = {}
+    for key, value in raw_options.items():
+        if isinstance(value, str):
+            value = value.encode("utf-8", 'surrogateescape').decode('utf-8')
+        options[key] = value
     file_name = options['file']
     options['css'] = 'style.css'
     options['compress'] = bool(options['compress'])
