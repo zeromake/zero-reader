@@ -78,6 +78,7 @@ const config = {
             inject: true
         }),
         new ExtractTextPlugin("css/common.[chunkhash].css"),
+        // new webpack.HotModuleReplacementPlugin(),
         // new es3ifyPlugin()
     ],
     devServer: {
@@ -85,6 +86,7 @@ const config = {
         host: '0.0.0.0',
         port: 8089,
         inline: true,
+        // hot: true,
         historyApiFallback: true
     },
     module: {

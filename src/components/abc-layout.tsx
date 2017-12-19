@@ -114,9 +114,9 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                     ...obj,
                 }, () => {
                     try {
-                        if (this.page && this.bscroll) {
-                            this.bscroll.scrollTo(0, 0, 375);
-                            // this.page.scroll(0, 0);
+                        if (this.page && this.page.scroll) {
+                            // this.bscroll.scrollTo(0, 0, 375);
+                            this.page.scroll(0, 0);
                         } else {
                             console.log("page no has scroll: ", this.page.scroll);
                         }
@@ -214,7 +214,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             this.nextPage();
         } else if (clickType === 0) {
             this.isClickPropagation = true;
-            this.clickState.tocShow = false;
+            this.clickState.barShow = false;
             this.setState({
                 barShow: true,
             });

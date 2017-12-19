@@ -60,16 +60,6 @@ export function shallowDiffers(a: any, b: any): boolean {
         }
     }
     for (const i in b) {
-        if (i === "children") {
-            if (a.children !== b.children) {
-                const len = a.children.length;
-                if (len === b.children.length && len === 0) {
-                    continue;
-                } else {
-                    return true;
-                }
-            }
-        }
         if (a[i] !== b[i]) {
             return true;
         }
@@ -77,17 +67,16 @@ export function shallowDiffers(a: any, b: any): boolean {
     return false;
 }
 
-export function propsDiffComponent(component: any, callback) {
+export function propsDiffComponent(render: (props: any) => any) {
     class Content extends Component<any, any> {
         public shouldComponentUpdate(props: any, state: any): boolean {
             // props只要一个不同就返回true
             const flag = shallowDiffers(this.props, props);
-            // console.log(flag, this.props, props);
             return flag;
         }
         public render() {
             const props = this.props;
-            return h(component, props);
+            return render(props);
         }
     }
     return Content;

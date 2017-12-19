@@ -25,7 +25,7 @@
     "preact-router": "^2.6.0",
     "screenfull": "^3.3.2",
     "unfetch": "^3.0.0",
-    "zreact": "^0.2.2"
+    "zreact": "^0.3.0"
   },
   "devDependencies": {
     "@types/better-scroll": "^1.4.0",
