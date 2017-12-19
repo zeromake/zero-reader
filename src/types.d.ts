@@ -39,12 +39,13 @@ declare module "react-import" {
     //     Route,
     //     Link,
     // };
-    import { h, render, Component, findDOMNode } from "zreact";
+    import { h, render, Component, findDOMNode, cloneElement } from "zreact";
     import Router, { Route, Link, route } from "preact-router";
     export {
         h,
         Component,
         findDOMNode,
+        cloneElement,
         render,
         Router,
         Route,

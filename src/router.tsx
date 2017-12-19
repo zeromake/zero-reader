@@ -6,16 +6,16 @@ import { h, Router, Route } from "react-import";
 import Animate from "preact-animate";
 
 const MainRouter = () => (
-    <Animate
+    <Router>
+        <Animate
                 component={null}
                 transitionEnter={true}
                 transitionLeave={true}
                 transitionName= {{ enter: "fadeInLeft", leave: "fadeOutLeft" }}
             >
-        <Router>
-                <Route path="/" component={Library} />
-                <Route component={BookLayout} path="/library/:sha/"/>
-        </Router>
-    </Animate>
+                <Route key="1" component={Library}  path="/"/>
+                <Route key="2" component={BookLayout} path="/library/:sha/"/>
+        </Animate>
+    </Router>
 );
 export default MainRouter;

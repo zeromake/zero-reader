@@ -37,5 +37,6 @@ export default class BookLayout extends Component<any, any> {
                 return h(selectLayout, { meta: this.state.meta, library: this.library, ...this.props });
             }
         }
+        return <div>loading</div>;
     }
 }
