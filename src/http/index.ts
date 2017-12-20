@@ -10,7 +10,7 @@ function createObject() {
     }
 }
 
-const cache = (timeOut: number, max: number = 10) => {
+const cache = (max: number = 10) => {
     let cacheMap: {[name: string]: any} = createObject();
     let hist = 0;
     let miss = 0;
@@ -21,13 +21,10 @@ const cache = (timeOut: number, max: number = 10) => {
     return {
         get(key: string) {
             const value = cacheMap[key];
-            const nowDate = new Date().getTime();
             if (value) {
-                if ((nowDate - value.lastDate) < timeOut) {
-                    hist += 1;
-                    this.promotion(key);
-                    return value.value;
-                }
+                hist += 1;
+                this.promotion(key);
+                return value.value;
             }
             miss += 1;
         },
@@ -51,11 +48,9 @@ const cache = (timeOut: number, max: number = 10) => {
                 cacheMap[key] = {
                     value,
                     index,
-                    lastDate: new Date().getTime(),
                 };
             } else {
                 this.promotion(key);
-                cacheMap[key].lastDate = new Date().getTime();
                 cacheMap[key].value = value;
             }
         },
@@ -97,7 +92,7 @@ const cache = (timeOut: number, max: number = 10) => {
 };
 
 export function libraryData(sha: string) {
-    const cacheData = cache(18000000, 20);
+    const cacheData = cache(20);
     return {
         get(url: string, callback) {
             const cacheValue = cacheData.get(url);
@@ -123,6 +118,12 @@ export function libraryData(sha: string) {
         },
         image(url: string) {
             return this.css(url);
+        },
+        has(url: string) {
+            return cacheData.has(url);
+        },
+        syncGet(url: string) {
+            return cacheData.get(url);
         },
     };
 }

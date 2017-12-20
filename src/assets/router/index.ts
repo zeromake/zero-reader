@@ -236,7 +236,10 @@ class Router extends Component<any, any> {
     }
 
     public handleChildren(children, url, invoke) {
-        const newChildren = [];
+        const newChildren: any[] = [];
+        if (children == null) {
+            return newChildren;
+        }
         for (let vnode of children) {
             if (vnode.nodeName === Route) {
                 return this.getMatchingChildren(children, url, invoke);

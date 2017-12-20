@@ -496,12 +496,12 @@ caniuse-api@^1.5.2:
     lodash.uniq "^4.5.0"
 
 caniuse-db@^1.0.30000529, caniuse-db@^1.0.30000634, caniuse-db@^1.0.30000639:
-  version "1.0.30000783"
-  resolved "http://registry.npm.taobao.org/caniuse-db/download/caniuse-db-1.0.30000783.tgz#16b30d47266a4f515cc69ae0316b670c9603cdbe"
+  version "1.0.30000784"
+  resolved "http://registry.npm.taobao.org/caniuse-db/download/caniuse-db-1.0.30000784.tgz#1be95012d9489c7719074f81aee57dbdffe6361b"
 
 caniuse-lite@^1.0.30000780, caniuse-lite@^1.0.30000783:
-  version "1.0.30000783"
-  resolved "http://registry.npm.taobao.org/caniuse-lite/download/caniuse-lite-1.0.30000783.tgz#9b5499fb1b503d2345d12aa6b8612852f4276ffd"
+  version "1.0.30000784"
+  resolved "http://registry.npm.taobao.org/caniuse-lite/download/caniuse-lite-1.0.30000784.tgz#129ced74e9a1280a441880b6cd2bce30ef59e6c0"
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -1101,8 +1101,8 @@ ejs@^2.5.6:
   resolved "http://registry.npm.taobao.org/ejs/download/ejs-2.5.7.tgz#cc872c168880ae3c7189762fd5ffc00896c9518a"
 
 electron-to-chromium@^1.2.7, electron-to-chromium@^1.3.28:
-  version "1.3.28"
-  resolved "http://registry.npm.taobao.org/electron-to-chromium/download/electron-to-chromium-1.3.28.tgz#8dd4e6458086644e9f9f0a1cf32e2a1f9dffd9ee"
+  version "1.3.29"
+  resolved "http://registry.npm.taobao.org/electron-to-chromium/download/electron-to-chromium-1.3.29.tgz#7a58236b95468c3e7660091348522d65d7736b36"
 
 elliptic@^6.0.0:
   version "6.4.0"
@@ -3129,9 +3129,9 @@ postcss@^6.0.0, postcss@^6.0.1, postcss@^6.0.14:
     source-map "^0.6.1"
     supports-color "^4.4.0"
 
-preact-animate@^1.4.0:
-  version "1.4.0"
-  resolved "http://registry.npm.taobao.org/preact-animate/download/preact-animate-1.4.0.tgz#dafe9c4ea50e38db4d181646f19c4e26da13e0e2"
+preact-animate@^1.5.1:
+  version "1.5.1"
+  resolved "http://registry.npm.taobao.org/preact-animate/download/preact-animate-1.5.1.tgz#55c887c443b008e10062661ce549b960ab40fb07"
 
 preact-router@^2.6.0:
   version "2.6.0"
@@ -4453,6 +4453,6 @@ yargs@~3.10.0:
     decamelize "^1.0.0"
     window-size "0.1.0"
 
-zreact@^0.3.0:
-  version "0.3.0"
-  resolved "http://registry.npm.taobao.org/zreact/download/zreact-0.3.0.tgz#a1618efd11de4925c7ad3b6ee612abf550cf5f25"
+zreact@^0.3.1:
+  version "0.3.1"
+  resolved "http://registry.npm.taobao.org/zreact/download/zreact-0.3.1.tgz#d092c0edcae0c75e5c0ce2de854b05ffa7db9cbf"
