@@ -83,17 +83,19 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     private bottomBarClick = (id: number, event: MouseEvent) => {
         event.stopPropagation();
         if (id === 1) {
-            delete this.clickState.barShow;
-            const obj = {
-                barShow: false,
-            };
+            // delete this.clickState.barShow;
+            // const obj = {
+            //     barShow: false,
+            // };
             // this.clickState['tocShow'] = false;
             if (this.tocs) {
-                this.tocToggler(true, obj);
+                this.barToggler(false);
+                this.tocToggler(true);
             } else {
                 this.getToc().then((tocs) => {
                     this.tocs = tocs;
-                    this.tocToggler(true, obj);
+                    this.barToggler(false);
+                    this.tocToggler(true);
                 });
             }
         }

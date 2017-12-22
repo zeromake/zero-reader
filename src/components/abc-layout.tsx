@@ -216,15 +216,16 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             this.nextPage();
         } else if (clickType === 0) {
             this.isClickPropagation = true;
-            this.clickState.barShow = false;
-            this.setState({
-                barShow: true,
-            });
+            this.barToggler(true);
+            // this.clickState.barShow = false;
+            // this.setState({
+            //     barShow: true,
+            // });
         }
 
     }
 
-    protected tocToggler = (show: boolean, obj: {} = {}) => {
+    protected tocToggler = (show: boolean) => {
         if (show) {
             this.clickState.tocShow = false;
         } else {
@@ -232,7 +233,17 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         }
         this.setState({
             tocShow: show,
-            ...obj,
+        });
+    }
+
+    protected barToggler = (show: boolean) => {
+        if (show) {
+            this.clickState.barShow = false;
+        } else {
+            delete this.clickState.barShow;
+        }
+        this.setState({
+            barShow: show,
         });
     }
 
@@ -267,7 +278,11 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                 transitionLeave={true}
                 showProp="data-show"
             >
-                { this.renderHeader() }
+                { h(filterPropsComponent, {
+                    "key": "header",
+                    "transitionName": { enter: "fadeInDown", leave: "fadeOutUp" },
+                    "data-show": this.state.barShow,
+                    }, this.renderHeader()) }
                 { h(filterPropsComponent, {
                         "key": "toc",
                         "data-show": this.state.tocShow,

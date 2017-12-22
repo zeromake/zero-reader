@@ -91,8 +91,9 @@ const cache = (max: number = 10) => {
     };
 };
 
+const cacheData = cache(20);
+
 export function libraryData(sha: string) {
-    const cacheData = cache(20);
     return {
         get(url: string, callback) {
             const cacheValue = cacheData.get(url);
