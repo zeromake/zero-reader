@@ -7,14 +7,9 @@ import Animate from "preact-animate";
 
 const MainRouter = () => (
     <Router>
-        <Animate
-                component={null}
-                transitionEnter={true}
-                transitionLeave={true}
-                transitionName= {{ enter: "fadeInLeft", leave: "fadeOutLeft" }}
-            >
-                <Route key="1" component={Library}  path="/"/>
-                <Route key="2" component={BookLayout} path="/library/:sha/"/>
+        <Animate transitionEnter={true} transitionLeave={true} transitionName={null}>
+            <Route key="1" component={Library}  path="/" transitionName={{ enter: "fadeInLeft", leave: "fadeOutLeft" }}/>
+            <Route key="2" component={BookLayout} path="/library/:sha/" transitionName={{ enter: "fadeInRight", leave: "fadeOutRight" }}/>
         </Animate>
     </Router>
 );

@@ -1,5 +1,5 @@
-import { h, Component, findDOMNode } from "react-import";
-import { addLinkCss, addStyle, removeHead } from "@/utils";
+import { h, Component, findDOMNode, route } from "react-import";
+import { addLinkCss, addStyle, removeHead, filterPropsComponent } from "@/utils";
 import styl from "@/css/layout.styl";
 import { IAbcMeta, IAbcToc } from "../types/index";
 import lozad from "../assets/lozad";
@@ -114,14 +114,16 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                     ...obj,
                 }, () => {
                     try {
-                        if (this.page && this.page.scroll) {
+                        if (this.page && "scrollTop" in this.page) {
                             // this.bscroll.scrollTo(0, 0, 375);
-                            this.page.scroll(0, 0);
+                            this.page.scrollTop = 0;
+                            // this.page.scroll(0, 0);
                         } else {
-                            console.log("page no has scroll: ", this.page.scroll);
+                            console.log("page no has scroll: ");
                         }
                         resolve();
                     } finally {
+                        route(`${location.pathname}?page=${num}`, true);
                         this.load = false;
                     }
                 });
@@ -161,19 +163,19 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     /**
      * 渲染头部
      */
-    protected abstract renderHeader(): JSX.Element | JSX.Element[] | void;
+    protected abstract renderHeader(): JSX.Element | JSX.Element[];
     /**
      * 渲染尾部
      */
-    protected abstract renderFooter(): JSX.Element | JSX.Element[] | void;
+    protected abstract renderFooter(): JSX.Element | JSX.Element[];
     /**
      * 渲染内容
      */
-    protected abstract renderContent(): JSX.Element | JSX.Element[] | void;
+    protected abstract renderContent(): JSX.Element | JSX.Element[];
 
     protected nextPage() {
         const page = this.state.page + 1;
-        if (page > this.pageNum) {
+        if (page >= this.pageNum) {
             this.load = false;
             return;
         }
@@ -236,47 +238,49 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
 
     protected abstract tocClick(toc: IAbcToc): void;
 
+    protected renderToc() {
+        return <div
+                className={`${styl.toc_layout} animated`}
+                onClick={(event) => event.stopPropagation()}>
+                <div className={styl.toc_title}>
+                    <p>目录</p>
+                    <svg viewBox="0 0 24 24" class={styl.toc_close} onClick={() => this.tocToggler(false)}>
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+                        <path d="M0 0h24v24H0z" fill="none"></path>
+                    </svg>
+                </div>
+                <div className={styl.toc_content}>
+                    {this.tocs ? <Toc tocs={this.tocs} onclick={this.tocClick}/> : null}
+                </div>
+            </div>;
+    }
+
     public render() {
-        return <div  onClick={this.pageClick} ref={((vdom: any) => this.page = findDOMNode(vdom))} className={styl.content + " animated"}>
-            <Animate
-                component={null}
+        return <Animate
+                component="div"
+                componentProps={{
+                    onClick: this.pageClick,
+                    ref: ((vdom: any) => this.page = findDOMNode(vdom)),
+                    className: styl.content,
+                }}
                 transitionEnter={true}
                 transitionLeave={true}
                 showProp="data-show"
-                transitionName= {{ enter: "fadeInDown", leave: "fadeOutUp" }}
             >
                 { this.renderHeader() }
-            </Animate>
-            <Animate
-                component={null}
-                transitionEnter={true}
-                transitionLeave={true}
-                showProp="data-show"
-                transitionName= {{ enter: "fadeInLeft", leave: "fadeOutLeft" }}
-            >
-                { this.tocs ? <div className={`${styl.toc_layout} animated`} data-show={this.state.tocShow} onClick={(event) => event.stopPropagation()}>
-                    <div className={styl.toc_title}>
-                        <p>目录</p>
-                        <svg viewBox="0 0 24 24" class={styl.toc_close} onClick={() => this.tocToggler(false)}>
-                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
-                            <path d="M0 0h24v24H0z" fill="none"></path>
-                        </svg>
-                    </div>
-                    <div className={styl.toc_content}>
-                        <Toc tocs={this.tocs} onclick={this.tocClick}/>
-                    </div>
-                </div> : null }
-            </Animate>
-            { this.renderContent() }
-            <Animate
-                component={null}
-                transitionEnter={true}
-                transitionLeave={true}
-                showProp="data-show"
-                transitionName= {{ enter: "fadeInUp", leave: "fadeOutDown" }}
-            >
-                { this.renderFooter() }
-            </Animate>
-        </div>;
+                { h(filterPropsComponent, {
+                        "key": "toc",
+                        "data-show": this.state.tocShow,
+                        "transitionName": { enter: "fadeInLeft", leave: "fadeOutLeft" },
+                        },
+                        this.renderToc(),
+                    ) }
+                { h(filterPropsComponent, { "key": "content", "data-show": true}, this.renderContent()) }
+                { h(filterPropsComponent, {
+                    "key": "footer",
+                    "transitionName": { enter: "fadeInUp", leave: "fadeOutDown" },
+                    "data-show": this.state.barShow,
+                    }, this.renderFooter()) }
+            </Animate>;
     }
 }

@@ -1,9 +1,9 @@
-import { h, findDOMNode, route } from "react-import";
+import { h, findDOMNode } from "react-import";
 import AbcLayout, { IabcState } from "./abc-layout";
 import styl from "@/css/layout.styl";
 import BookToolsBar from "@/components/book-tools-bar";
 import BottomBar from "./pdf-bottom-bar";
-import { addStyle, buildBlock } from "@/utils";
+import { addStyle, buildBlock, filterPropsComponent } from "@/utils";
 import Toc from "@/components/toc";
 import throttle from "lodash.throttle";
 import { IPdfMeta, IAbcToc } from "../types/index";
@@ -99,13 +99,14 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         }
     }
     protected  renderHeader() {
+        return null;
         // const state = this.state;
         // const tocClass = styl.toc_layout + (state.theme ? " " + styl[state.theme] : "");
         // return <BookToolsBar options={ { showToc: () => {this.setState({ toc_open: !state.toc_open }); } } }/>;
     }
 
     protected  renderFooter() {
-        return <BottomBar data-show={this.state.barShow} click={this.bottomBarClick}/>;
+        return <BottomBar click={this.bottomBarClick}/>;
     }
     protected  renderContent() {
         const state = this.state;
@@ -139,6 +140,9 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                 this.addZoom(zoom);
             }
             return Promise.resolve(zoom);
+        } else {
+            this.addZoom(1);
+            return Promise.resolve(1);
         }
     }
     private addZoom(zoom: number) {

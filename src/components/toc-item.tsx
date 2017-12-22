@@ -49,7 +49,7 @@ export default class TocItem extends Component<ITocProps, IAbcToc> {
                     </i>
                 </div>) : null
             }
-            <a className={styl.toc_text} href={"#" + toc.page} onClick={this.itemClick}>{toc.text}</a>
+            <a className={styl.toc_text} title={String(toc.page)} onClick={this.itemClick}>{toc.text}</a>
             { toc.children ? <Animate
                     showProp="data-show"
                     component={null}

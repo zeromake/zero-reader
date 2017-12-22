@@ -63,6 +63,7 @@ const config = {
         alias: {
             // 'zreact': resolve('../node_modules/zreact/dist/zreact.esm.js'),
             'preact': 'zreact',
+            // 'zreact': 'preact',
             'react-import': resolve('../src/import/zreact-import.ts'),
             '@': resolve('../src')
         },

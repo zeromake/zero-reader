@@ -1,5 +1,5 @@
 import { h, render, Component, findDOMNode, cloneElement } from "zreact";
-import Router, { Route, Link } from "../assets/router/index";
+import Router, { Route, Link, route } from "../assets/router/index";
 
 export {
     h,
@@ -9,5 +9,6 @@ export {
     render,
     Router,
     Route,
+    route,
     Link,
 };

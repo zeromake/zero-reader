@@ -81,3 +81,7 @@ export function propsDiffComponent(render: (props: any) => any) {
     }
     return Content;
 }
+
+export function filterPropsComponent(props) {
+    return props.children && props.children[0];
+}

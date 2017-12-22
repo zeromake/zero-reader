@@ -3,6 +3,7 @@ import EpubLayout from "./epub-layout";
 import { h, Component } from "react-import";
 import { libraryData } from "@/http/index";
 import { IAbcMeta } from "../types/index";
+import styl from "@/css/layout.styl";
 
 const bookLayout = {
     pdf: PdfLayout,
@@ -31,11 +32,14 @@ export default class BookLayout extends Component<any, any> {
         });
     }
     public render(): any {
+        let layout: any = "测试";
         if (this.state.layoutType) {
             const selectLayout: any = bookLayout[this.state.layoutType];
             if (selectLayout) {
-                return h(selectLayout, { meta: this.state.meta, library: this.library, ...this.props });
+                layout = h(selectLayout, { meta: this.state.meta, library: this.library, ...this.props });
             }
         }
+        // return <h1>loading</h1>;
+        return <div className={`animated ${styl.animate_content}`}>{layout}</div>;
     }
 }
