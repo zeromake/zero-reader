@@ -278,24 +278,26 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                 transitionLeave={true}
                 showProp="data-show"
             >
-                { h(filterPropsComponent, {
+                {[
+                    h(filterPropsComponent, {
                     "key": "header",
                     "transitionName": { enter: "fadeInDown", leave: "fadeOutUp" },
                     "data-show": this.state.barShow,
-                    }, this.renderHeader()) }
-                { h(filterPropsComponent, {
+                    }, this.renderHeader()),
+                    h(filterPropsComponent, {
                         "key": "toc",
                         "data-show": this.state.tocShow,
                         "transitionName": { enter: "fadeInLeft", leave: "fadeOutLeft" },
                         },
                         this.renderToc(),
-                    ) }
-                { h(filterPropsComponent, { "key": "content", "data-show": true}, this.renderContent()) }
-                { h(filterPropsComponent, {
-                    "key": "footer",
-                    "transitionName": { enter: "fadeInUp", leave: "fadeOutDown" },
-                    "data-show": this.state.barShow,
-                    }, this.renderFooter()) }
+                    ),
+                    h(filterPropsComponent, { "key": "content", "data-show": true}, this.renderContent()),
+                    h(filterPropsComponent, {
+                        "key": "footer",
+                        "transitionName": { enter: "fadeInUp", leave: "fadeOutDown" },
+                        "data-show": this.state.barShow,
+                    }, this.renderFooter()),
+                ]}
             </Animate>;
     }
 }
