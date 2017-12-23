@@ -61,9 +61,20 @@ const config = {
     },
     resolve: {
         alias: {
-            // 'zreact': resolve('../node_modules/zreact/dist/zreact.esm.js'),
-            'preact': 'zreact',
+            // preact
             // 'zreact': 'preact',
+            // 'module-react': resolve('../src/import/module-preact.ts'),
+            // 'react-import': resolve('../src/import/preact-import.ts'),
+
+            // react
+            // 'zreact': resolve('../src/import/module-react.ts'),
+            // 'preact': resolve('../src/import/module-react.ts'),
+            // 'module-react': resolve('../src/import/module-react.ts'),
+            // 'react-import': resolve('../src/import/react-import.ts'),
+
+            // zreact
+            'preact': 'zreact',
+            'module-react': resolve('../src/import/module-zreact.ts'),
             'react-import': resolve('../src/import/zreact-import.ts'),
             '@': resolve('../src')
         },

@@ -115,7 +115,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         return <div className={styl.pageHtml}>
                 <div
                     className={styl.view}
-                    style={{ width: this.width * state.zoom }}
+                    style={{ width: this.width * state.zoom || 0 }}
                     >
                     <PdfContent
                         bg={styl[state.bg]}

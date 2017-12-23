@@ -13,7 +13,7 @@ const BottomBar = function render(props) {
             {
                 bottomMenu.map((menu) => {
                     const click = (event) => props.click(menu.id, event);
-                    return <li className={styl.menu}>
+                    return <li className={styl.menu} key={String(menu.id)}>
                         <i className={"fa " + menu.icon + " " + styl.icon} onClick={click} title={menu.title}></i>
                     </li>;
                 })

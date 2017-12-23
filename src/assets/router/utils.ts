@@ -1,5 +1,9 @@
 const EMPTY = {};
 
+export function findProps(vnode) {
+    return vnode.attributes || vnode.props;
+}
+
 export function assign(obj, props) {
     for (const i in props) {
         obj[i] = props[i];
@@ -58,10 +62,11 @@ export function pathRankSort(a, b) {
 }
 
 // filter out VNodes without attributes (which are unrankeable), and add `index`/`rank` properties to be used in sorting.
-export function prepareVNodeForRanking(vnode, index) {
-    vnode.index = index;
-    vnode.rank = rankChild(vnode);
-    return vnode.attributes;
+export function prepareVNodeForRanking(vnode, index, callbak) {
+    // vnode.index = index;
+    // vnode.rank = rankChild(vnode);
+    callbak(vnode, index, rank)
+    return vnode.attributes || vnode.props;
 }
 
 export function segmentize(url) {
@@ -76,6 +81,11 @@ export function rank(path) {
     return segmentize(path).map(rankSegment).join("");
 }
 
-function rankChild(vnode) {
-    return vnode.attributes.default ? 0 : rank(vnode.attributes.path);
+export function rankChild(vnode) {
+    const props = findProps(vnode);
+    return props.default ? 0 : rank(props.path);
+}
+
+export function findChildren(vnode) {
+    return vnode.children || (vnode.props && vnode.props.children);
 }

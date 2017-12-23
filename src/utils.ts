@@ -1,4 +1,4 @@
-import { h, Component } from "react-import";
+import { h, Component, Children } from "react-import";
 
 export function addLinkCss(href, id) {
     const link = document.getElementById(id);
@@ -83,5 +83,9 @@ export function propsDiffComponent(render: (props: any) => any) {
 }
 
 export function filterPropsComponent(props) {
-    return props.children && props.children[0];
+    let vnode: any = "";
+    if (props.children) {
+        vnode = Children.only(props.children)
+    }
+    return vnode;
 }

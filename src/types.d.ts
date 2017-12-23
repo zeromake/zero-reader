@@ -25,6 +25,18 @@ declare module "screenfull" {
     export default screenfull;
 }
 
+declare module "module-react" {
+    import { h, render, Component, findDOMNode, cloneElement, Children } from "zreact";
+    export {
+        h,
+        Component,
+        findDOMNode,
+        cloneElement,
+        Children,
+        render,
+    };
+}
+
 declare module "react-import" {
     // import { createElement as h, Component } from "react";
     // import { render, findDOMNode } from "react-dom";
@@ -39,13 +51,14 @@ declare module "react-import" {
     //     Route,
     //     Link,
     // };
-    import { h, render, Component, findDOMNode, cloneElement } from "zreact";
+    import { h, render, Component, findDOMNode, cloneElement, Children} from "zreact";
     import Router, { Route, Link, route } from "preact-router";
     export {
         h,
         Component,
         findDOMNode,
         cloneElement,
+        Children,
         render,
         Router,
         Route,

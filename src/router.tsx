@@ -1,7 +1,5 @@
 import BookLayout from "./components/book-layout";
 import Library from "./components/library";
-// import { createElement as h } from "react";
-// import { BrowserRouter as Router, Route} from "react-router-dom";
 import { h, Router, Route } from "react-import";
 import Animate from "preact-animate";
 

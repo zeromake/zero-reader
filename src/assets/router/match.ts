@@ -1,4 +1,4 @@
-import { h, Component } from "zreact";
+import { h, Component } from "module-react";
 import { subscribers, getCurrentUrl, Link as StaticLink } from "./index";
 
 export class Match extends Component<any, any> {

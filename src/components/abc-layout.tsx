@@ -255,7 +255,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                 onClick={(event) => event.stopPropagation()}>
                 <div className={styl.toc_title}>
                     <p>目录</p>
-                    <svg viewBox="0 0 24 24" class={styl.toc_close} onClick={() => this.tocToggler(false)}>
+                    <svg viewBox="0 0 24 24" className={styl.toc_close} onClick={() => this.tocToggler(false)}>
                         <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
                         <path d="M0 0h24v24H0z" fill="none"></path>
                     </svg>
@@ -267,6 +267,8 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     }
 
     public render() {
+        // <div onClick={this.pageClick} ref={((vdom: any) => this.page = findDOMNode(vdom))} className={styl.content}>
+        
         return <Animate
                 component="div"
                 componentProps={{
@@ -298,6 +300,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                         "data-show": this.state.barShow,
                     }, this.renderFooter()),
                 ]}
-            </Animate>;
+            {/* </div>; */}
+        </Animate>;
     }
 }

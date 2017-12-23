@@ -1,5 +1,5 @@
-import { cloneElement, h, Component } from "zreact";
-import { exec, prepareVNodeForRanking, assign, pathRankSort } from "./utils";
+import { cloneElement, h, Component, Children } from "module-react";
+import { exec, assign, pathRankSort, findProps, rankChild, findChildren } from "./utils";
 
 let customHistory = null;
 
@@ -236,19 +236,21 @@ class Router extends Component<any, any> {
     }
 
     public handleChildren(children, url, invoke) {
+        children = Children.toArray(children)
         const newChildren: any[] = [];
         if (children == null) {
             return newChildren;
         }
         for (let vnode of children) {
-            if (vnode.nodeName === Route) {
+            if (vnode.nodeName === Route || vnode.type === Route) {
                 return this.getMatchingChildren(children, url, invoke);
             } else {
-                if (vnode.children && vnode.children.length > 0) {
+                const vnodeChildren = findChildren(vnode)
+                if (vnodeChildren && vnodeChildren.length > 0) {
                     vnode = cloneElement(
                         vnode,
                         {},
-                        this.handleChildren(vnode.children, url, invoke),
+                        this.handleChildren(vnodeChildren, url, invoke),
                     );
                 }
                 if (vnode) {
@@ -260,25 +262,32 @@ class Router extends Component<any, any> {
     }
 
     public getMatchingChildren(children, url, invoke) {
-        return children
-            .filter(prepareVNodeForRanking)
-            .sort(pathRankSort)
-            .map((vnode) => {
-                const matches = exec(url, vnode.attributes.path, vnode.attributes);
-                if (matches) {
-                    if (invoke !== false) {
-                        const newProps = { url, matches };
-                        assign(newProps, matches);
-                        delete (newProps as any).ref;
-                        delete (newProps as any).key;
-                        return cloneElement(vnode, newProps);
-                    }
-                    return vnode;
+        const rankArr = [];
+        children.forEach((vnode, index) => {
+            const props = findProps(vnode);
+            if (props) {
+                rankArr.push({ index, rank: rankChild(vnode), vnode });
+            }
+        });
+        return rankArr.sort(pathRankSort).map(({ vnode }) => {
+            const props = findProps(vnode);
+            const matches = exec(url, props.path, props);
+            if (matches) {
+                if (invoke !== false) {
+                    const newProps = { url, matches };
+                    assign(newProps, matches);
+                    delete (newProps as any).ref;
+                    delete (newProps as any).key;
+                    return cloneElement(vnode, newProps);
                 }
-            }).filter(Boolean);
+                return vnode;
+            }
+        }).filter(Boolean);
     }
 
-    public render({ children, onChange }, { url }) {
+    public render() {
+        const { url } = this.state;
+        const { children, onChange } = this.props;
         const active = this.handleChildren(children, url, true);
 
         const current = active[0] || null;
