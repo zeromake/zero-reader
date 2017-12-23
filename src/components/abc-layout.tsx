@@ -72,6 +72,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         } as AbcState;
     }
     protected async init() {
+        this.page = findDOMNode(this);
         this.lozadOptions = {
             ...this.lozadOptions,
             target: this.page || document,
@@ -268,12 +269,12 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
 
     public render() {
         // <div onClick={this.pageClick} ref={((vdom: any) => this.page = findDOMNode(vdom))} className={styl.content}>
-        
+
         return <Animate
                 component="div"
                 componentProps={{
                     onClick: this.pageClick,
-                    ref: ((vdom: any) => this.page = findDOMNode(vdom)),
+                    // ref: ((vdom: any) => this.page = findDOMNode(vdom)),
                     className: styl.content,
                 }}
                 transitionEnter={true}

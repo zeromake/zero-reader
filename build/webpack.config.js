@@ -67,15 +67,17 @@ const config = {
             // 'react-import': resolve('../src/import/preact-import.ts'),
 
             // react
-            // 'zreact': resolve('../src/import/module-react.ts'),
-            // 'preact': resolve('../src/import/module-react.ts'),
-            // 'module-react': resolve('../src/import/module-react.ts'),
-            // 'react-import': resolve('../src/import/react-import.ts'),
+            'zreact': resolve('../src/import/module-react.ts'),
+            'preact': resolve('../src/import/module-react.ts'),
+            'module-react': resolve('../src/import/module-react.ts'),
+            'react-import': resolve('../src/import/react-import.ts'),
+            'preact-animate': 'preact-animate/dist/react-animate',
 
             // zreact
-            'preact': 'zreact',
-            'module-react': resolve('../src/import/module-zreact.ts'),
-            'react-import': resolve('../src/import/zreact-import.ts'),
+            // 'preact': 'zreact',
+            // 'module-react': resolve('../src/import/module-zreact.ts'),
+            // 'react-import': resolve('../src/import/zreact-import.ts'),
+
             '@': resolve('../src')
         },
         extensions: ['.js', '.ts', '.tsx']

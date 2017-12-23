@@ -21,11 +21,11 @@
     "lozad": "^1.0.9",
     "mobx": "^3.4.1",
     "mobx-preact": "^1.1.0",
-    "preact-animate": "^2.3.0",
+    "preact-animate": "^2.4.0",
     "preact-router": "^2.6.0",
     "screenfull": "^3.3.2",
     "unfetch": "^3.0.0",
-    "zreact": "^0.3.3"
+    "zreact": "^1.0.0"
   },
   "devDependencies": {
     "@types/better-scroll": "^1.4.0",

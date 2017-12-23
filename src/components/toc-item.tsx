@@ -38,8 +38,9 @@ export default class TocItem extends Component<ITocProps, IAbcToc> {
             state.disable = !state.disable;
         });
     }
-    public render(props: any, state: any): any {
+    public render(): any {
         // const propsClick = this.props.onclick;
+        const props = this.props;
         const toc = this.state;
         return <div className={ styl.tocItem }>
             {
@@ -50,8 +51,6 @@ export default class TocItem extends Component<ITocProps, IAbcToc> {
                 </div>) : null
             }
             <a className={styl.toc_text} title={String(toc.page)} onClick={this.itemClick}>{toc.text}</a>
-            
-           
             { toc.children ? <Animate
                     showProp="data-show"
                     component={null}
@@ -60,12 +59,12 @@ export default class TocItem extends Component<ITocProps, IAbcToc> {
                     transitionName = {{
                         enter: "fadeInDown",
                         leave: "fadeOutUp",
-                    }}> 
+                    }}>
                 <div data-show={toc.disable} className={ styl.tocItems + " animated"}>
                 {
                     toc.children.map((item: IAbcToc) => <TocItem onclick={props.onclick} key={item.text} toc={item}/>)
                 }
-                </div> </Animate>: null }
+                </div> </Animate> : null }
         </div>;
     }
 }

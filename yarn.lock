@@ -3203,9 +3203,9 @@ postcss@^6.0.0, postcss@^6.0.1, postcss@^6.0.14:
     source-map "^0.6.1"
     supports-color "^4.4.0"
 
-preact-animate@^2.3.0:
-  version "2.3.0"
-  resolved "http://registry.npm.taobao.org/preact-animate/download/preact-animate-2.3.0.tgz#dc39f16da592d4787bc47cc1aa3f36af55be3818"
+preact-animate@^2.4.0:
+  version "2.4.0"
+  resolved "http://registry.npm.taobao.org/preact-animate/download/preact-animate-2.4.0.tgz#0d289a8631aa59b5fc38d3a64c20cdb84a43a775"
 
 preact-router@^2.6.0:
   version "2.6.0"
@@ -4608,6 +4608,6 @@ yargs@~3.10.0:
     decamelize "^1.0.0"
     window-size "0.1.0"
 
-zreact@^0.3.3:
-  version "0.3.3"
-  resolved "http://registry.npm.taobao.org/zreact/download/zreact-0.3.3.tgz#7107d87d5d2d9254465df1cb67d1c135b232a85c"
+zreact@^1.0.0:
+  version "1.0.0"
+  resolved "http://registry.npm.taobao.org/zreact/download/zreact-1.0.0.tgz#2c0db3e344b5a6d30ba99a6754f74e7c55c7454a"

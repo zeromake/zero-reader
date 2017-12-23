@@ -11,12 +11,12 @@ import "font-awesome/css/font-awesome.min.css";
 declare const process: any;
 
 render(<MainRouter/>, document.getElementById("app"));
-if (process.env.NODE_ENV !== "production") {
-    import("zreact/devtools").then(({ initDevTools }) => {
-        try {
-            initDevTools();
-        } catch (e) {
+// if (process.env.NODE_ENV !== "production") {
+//     import("zreact/devtools").then(({ initDevTools }) => {
+//         try {
+//             initDevTools();
+//         } catch (e) {
 
-        }
-    });
-}
+//         }
+//     });
+// }
