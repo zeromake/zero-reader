@@ -49,6 +49,23 @@ const strftime = function(date) {
 }
 
 const outPath = resolve('../dist');
+const zreactAlias = {
+    'preact': 'zreact',
+    'module-react': resolve('../src/import/module-zreact.ts'),
+    'react-import': resolve('../src/import/zreact-import.ts'),
+}
+const reactAlias = {
+    'zreact': resolve('../src/import/module-react.ts'),
+    'preact': resolve('../src/import/module-react.ts'),
+    'module-react': resolve('../src/import/module-react.ts'),
+    'react-import': resolve('../src/import/react-import.ts'),
+    'preact-animate': 'preact-animate/dist/react-animate',
+}
+const preactAlias = {
+    'zreact': 'preact',
+    'module-react': resolve('../src/import/module-preact.ts'),
+    'react-import': resolve('../src/import/preact-import.ts'),
+}
 const config = {
     devtool: isProd ? false : "#source-map",
     entry: {
@@ -60,26 +77,9 @@ const config = {
         filename: '[name]-[hash].js'
     },
     resolve: {
-        alias: {
-            // preact
-            // 'zreact': 'preact',
-            // 'module-react': resolve('../src/import/module-preact.ts'),
-            // 'react-import': resolve('../src/import/preact-import.ts'),
-
-            // react
-            'zreact': resolve('../src/import/module-react.ts'),
-            'preact': resolve('../src/import/module-react.ts'),
-            'module-react': resolve('../src/import/module-react.ts'),
-            'react-import': resolve('../src/import/react-import.ts'),
-            'preact-animate': 'preact-animate/dist/react-animate',
-
-            // zreact
-            // 'preact': 'zreact',
-            // 'module-react': resolve('../src/import/module-zreact.ts'),
-            // 'react-import': resolve('../src/import/zreact-import.ts'),
-
+        alias: Object.assign({
             '@': resolve('../src')
-        },
+        }, zreactAlias),
         extensions: ['.js', '.ts', '.tsx']
     },
     plugins: [
@@ -197,11 +197,11 @@ if (isProd) {
             }
         })
     )
-    // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-    // config.plugins.push(
-    //     new BundleAnalyzerPlugin({
-    //         analyzerPort: 9999
-    //     })
-    // )
+    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+    config.plugins.push(
+        new BundleAnalyzerPlugin({
+            analyzerPort: 9999
+        })
+    )
 }
 module.exports = config;
