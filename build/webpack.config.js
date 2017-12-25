@@ -5,6 +5,7 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin")
 const pkg = require("../package.json")
 
 const isProd = process.env.NODE_ENV === 'production'
+const isCordova = process.env.platform === "cordova"
 const resolve = file => path.resolve(__dirname, file)
 
 const fullZero= function(date, funName) {
@@ -48,7 +49,7 @@ const strftime = function(date) {
     return date_str
 }
 
-const outPath = resolve('../dist');
+const outPath = isCordova ? resolve('../www') : resolve('../dist');
 const zreactAlias = {
     'preact': 'zreact',
     'module-react': resolve('../src/import/module-zreact.ts'),
@@ -73,7 +74,7 @@ const config = {
     },
     output: {
         path: outPath,
-        publicPath: '/',
+        publicPath: isCordova ? '' : '/',
         filename: '[name]-[hash].js'
     },
     resolve: {
@@ -118,8 +119,8 @@ const config = {
                         {
                             loader: "css-loader",
                             options: {
-                                sourceMap: true,
-                                modules: !isProd,
+                                sourceMap: !isProd,
+                                modules: true,
                             }
                         },
                         {
@@ -197,11 +198,11 @@ if (isProd) {
             }
         })
     )
-    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-    config.plugins.push(
-        new BundleAnalyzerPlugin({
-            analyzerPort: 9999
-        })
-    )
+    // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+    // config.plugins.push(
+    //     new BundleAnalyzerPlugin({
+    //         analyzerPort: 9999
+    //     })
+    // )
 }
 module.exports = config;

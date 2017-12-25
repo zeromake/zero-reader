@@ -1,5 +1,6 @@
 {
   "name": "zero-reader",
+  "displayName": "zero-reader",
   "version": "0.1.0",
   "description": "pdf,epub web reader",
   "main": "build/build.js",
@@ -7,6 +8,8 @@
   "author": "zeromake <a390720046@gmail.com>",
   "license": "(ISC OR GPL-3.0)",
   "scripts": {
+    "cordova-init": "cordova prepare",
+    "cordova-build": "cross-env NODE_ENV=production platform=cordova webpack --colors --config build/webpack.config.js",
     "build": "cross-env NODE_ENV=production webpack --colors --config build/webpack.config.js",
     "rollup": "rollup -c rollup.config.js",
     "dev": "webpack-dev-server --colors --config build/webpack.config.js"
@@ -14,6 +17,10 @@
   "dependencies": {
     "animate.css": "^3.5.2",
     "better-scroll": "^1.6.0",
+    "cordova-android": "7.0.0",
+    "cordova-browser": "5.0.2",
+    "cordova-ios": "4.5.4",
+    "cordova-plugin-file": "^5.0.0",
     "es6-promise": "^4.1.1",
     "font-awesome": "^4.7.0",
     "hotkeys-js": "^2.0.7",
@@ -26,7 +33,7 @@
     "preact-router": "^2.6.0",
     "screenfull": "^3.3.2",
     "unfetch": "^3.0.0",
-    "zreact": "^1.0.1"
+    "zreact": "^1.0.2"
   },
   "devDependencies": {
     "@types/better-scroll": "^1.4.0",
@@ -56,5 +63,16 @@
     "webpack": "^3.8.1",
     "webpack-bundle-analyzer": "^2.9.1",
     "webpack-dev-server": "^2.9.4"
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-file": {}
+    },
+    "platforms": [
+      "ios",
+      "android",
+      "browser"
+    ]
   }
 }

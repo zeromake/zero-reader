@@ -12,3 +12,8 @@ node_modules/
 /bin/lib/*
 /bin/pdf2htmlEX.sh
 /bin/pdf2htmlEX
+
+# Cordova
+/www/
+/platforms/
+/plugins/

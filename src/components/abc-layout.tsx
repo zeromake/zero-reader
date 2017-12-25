@@ -53,14 +53,31 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     protected abstract isBlock: (x, y) => number;
     protected bscroll: any;
     protected selection: boolean;
+    protected hotkey: {[keyName: string]: (event?) => void};
     // protected baseUrl: string;
     constructor(p: IabcProps<AbcMeta>, c: any) {
         super(p, c);
         // this.baseUrl = `/library/${p.meta.sha}/`;
         this.library = p.library;
         this.clickState = {};
-        this.previousPage = this.previousPage.bind(this)
-        this.nextPage = this.nextPage.bind(this)
+        this.previousPage = this.previousPage.bind(this);
+        this.nextPage = this.nextPage.bind(this);
+        this.hotkey = {
+            "left, h": this.previousPage,
+            "right, l": this.nextPage,
+            "shift + g": (event) => {
+                if (event.key === "G") {
+                    this.setPage(this.pageNum - 1);
+                }
+            },
+            "g": (event) => {
+                if (event.key === "G") {
+                    this.setPage(this.pageNum - 1);
+                } else {
+                    this.setPage(0);
+                }
+            },
+        };
         this.state = {
             bg: "blue",
             barShow: false,
@@ -69,20 +86,14 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     }
     protected async init() {
         this.page = findDOMNode(this);
-        hotkeys("left, h", this.previousPage);
-        hotkeys("right, l", this.nextPage);
-        hotkeys("shift + g", (event) => {
-            if (event.key === "G") {
-                this.setPage(this.pageNum - 1);
+        for (const key in this.hotkey) {
+            if (key) {
+                const callback = this.hotkey[key];
+                if (callback) {
+                    hotkeys(key, callback);
+                }
             }
-        });
-        hotkeys("g", (event) => {
-            if (event.key === "G") {
-                this.setPage(this.pageNum - 1);
-            } else {
-                this.setPage(0);
-            }
-        });
+        }
         this.lozadOptions = {
             ...this.lozadOptions,
             target: this.page || document,
@@ -140,7 +151,15 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         return this.library.json(this.props.meta.toc);
     }
     public componentWillUnmount() {
-        hotkeys.unbind("left, right, h, l, shift + g, g");
+        const keys = [];
+        for (const key in this.hotkey) {
+            if (key) {
+                keys.push(key);
+            }
+        }
+        if (keys.length > 0) {
+            hotkeys.unbind(keys.join(", "));
+        }
         if (this.mountCss.length > 0) {
             let cssId = this.mountCss.pop();
             while (cssId) {
@@ -152,15 +171,15 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     /**
      * 渲染头部
      */
-    protected abstract renderHeader(): JSX.Element | JSX.Element[] | string;
+    protected abstract renderHeader(): JSX.Element | string | Array<JSX.Element|string>;
     /**
      * 渲染尾部
      */
-    protected abstract renderFooter(): JSX.Element | JSX.Element[] | string;
+    protected abstract renderFooter(): JSX.Element | string | Array<JSX.Element|string>;
     /**
      * 渲染内容
      */
-    protected abstract renderContent(): JSX.Element | JSX.Element[] | string;
+    protected abstract renderContent(): JSX.Element | string | Array<JSX.Element|string>;
 
     protected nextPage() {
         const page = this.state.page + 1;
