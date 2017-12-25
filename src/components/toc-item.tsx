@@ -5,7 +5,9 @@ import { IAbcToc, IEpubToc, IPdfToc } from "../types/index";
 import { shallowDiffers } from "@/utils";
 
 interface ITocProps {
+    key: string;
     toc: IAbcToc;
+    level: number;
     onclick?: (tocs: IAbcToc) => void;
 }
 
@@ -18,7 +20,9 @@ export default class TocItem extends Component<ITocProps, IAbcToc> {
         this.itemToggler = this.itemToggler.bind(this);
     }
     public componentWillReceiveProps(props: ITocProps, context: any) {
-        this.state = { ...props.toc };
+        this.setState({
+            ...props.toc
+        });
     }
 
     public shouldComponentUpdate(nextProps: ITocProps, nextState: IAbcToc, nextContext: any): boolean {
@@ -34,8 +38,8 @@ export default class TocItem extends Component<ITocProps, IAbcToc> {
     }
     private itemToggler(event) {
         event.stopPropagation();
-        this.setState((state: IAbcToc) => {
-            state.disable = !state.disable;
+        this.setState({
+            disable: !this.state.disable,
         });
     }
     public render(): any {
@@ -62,7 +66,17 @@ export default class TocItem extends Component<ITocProps, IAbcToc> {
                     }}>
                 <div data-show={toc.disable} className={ styl.tocItems + " animated"}>
                 {
-                    toc.children.map((item: IAbcToc) => <TocItem onclick={props.onclick} key={item.text} toc={item}/>)
+                    toc.children.map((item: IAbcToc, index: number) => (
+                        h(
+                            TocItem,
+                            {
+                                onclick: props.onclick,
+                                key: `${props.level}_${index}_${item.index}`,
+                                toc: item,
+                                level: props.level + 1,
+                            }
+                        )
+                    ))
                 }
                 </div> </Animate> : null }
         </div>;

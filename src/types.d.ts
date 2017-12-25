@@ -25,6 +25,11 @@ declare module "screenfull" {
     export default screenfull;
 }
 
+declare module "preact" {
+    import * as zreact from "zreact";
+    export = zreact;
+}
+
 declare module "module-react" {
     import { h, render, Component, findDOMNode, cloneElement, Children } from "zreact";
     export {
@@ -51,7 +56,7 @@ declare module "react-import" {
     //     Route,
     //     Link,
     // };
-    import { h, render, Component, findDOMNode, cloneElement, Children} from "zreact";
+    import { h, render, Component, findDOMNode, cloneElement, Children } from "zreact";
     import Router, { Route, Link, route } from "preact-router";
     export {
         h,
@@ -70,4 +75,9 @@ declare module "react-import" {
 declare module "better-scroll" {
     import BScroll from "better-scroll/index";
     export default BScroll;
+}
+
+declare module "hotkeys-js" {
+    const hotkeys: any;
+    export default hotkeys;
 }

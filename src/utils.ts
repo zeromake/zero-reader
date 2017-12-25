@@ -38,7 +38,7 @@ export function buildBlock(x: number, y: number, scaleX: number, scaleY?: number
     const X2 = X * 2;
     const Y = y * scaleY;
     const Y2 = Y * 2;
-    return function isBlock(clientX: number, clientY: number): number {
+    function isBlock(clientX: number, clientY: number): number {
         let type = 0;
         if (clientX <= X) {
             type = 1;
@@ -51,6 +51,8 @@ export function buildBlock(x: number, y: number, scaleX: number, scaleY?: number
         }
         return type;
     };
+    (isBlock as any).height = y;
+    return isBlock;
 }
 
 export function shallowDiffers(a: any, b: any): boolean {

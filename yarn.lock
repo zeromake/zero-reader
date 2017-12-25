@@ -10,6 +10,21 @@
   version "4.14.91"
   resolved "http://registry.npm.taobao.org/@types/lodash/download/@types/lodash-4.14.91.tgz#794611b28056d16b5436059c6d800b39d573cd3a"
 
+"@types/node@*":
+  version "8.5.2"
+  resolved "http://registry.npm.taobao.org/@types/node/download/@types/node-8.5.2.tgz#83b8103fa9a2c2e83d78f701a9aa7c9539739aa5"
+
+"@types/react-dom@^16.0.3":
+  version "16.0.3"
+  resolved "http://registry.npm.taobao.org/@types/react-dom/download/@types/react-dom-16.0.3.tgz#8accad7eabdab4cca3e1a56f5ccb57de2da0ff64"
+  dependencies:
+    "@types/node" "*"
+    "@types/react" "*"
+
+"@types/react@*", "@types/react@^16.0.31":
+  version "16.0.31"
+  resolved "http://registry.npm.taobao.org/@types/react/download/@types/react-16.0.31.tgz#5285da62f3ac62b797f6d0729a1d6181f3180c3e"
+
 abbrev@1:
   version "1.1.1"
   resolved "http://registry.npm.taobao.org/abbrev/download/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
@@ -1759,6 +1774,10 @@ hoist-non-react-statics@^2.3.0, hoist-non-react-statics@^2.3.1:
 hosted-git-info@^2.1.4:
   version "2.5.0"
   resolved "http://registry.npm.taobao.org/hosted-git-info/download/hosted-git-info-2.5.0.tgz#6d60e34b3abbc8313062c3b798ef8d901a07af3c"
+
+hotkeys-js@^2.0.7:
+  version "2.0.7"
+  resolved "http://registry.npm.taobao.org/hotkeys-js/download/hotkeys-js-2.0.7.tgz#187f56a8da2896d83ca4935e9e34f9121b3312cc"
 
 hpack.js@^2.1.6:
   version "2.1.6"
@@ -4608,6 +4627,6 @@ yargs@~3.10.0:
     decamelize "^1.0.0"
     window-size "0.1.0"
 
-zreact@^1.0.0:
-  version "1.0.0"
-  resolved "http://registry.npm.taobao.org/zreact/download/zreact-1.0.0.tgz#2c0db3e344b5a6d30ba99a6754f74e7c55c7454a"
+zreact@^1.0.1:
+  version "1.0.1"
+  resolved "http://registry.npm.taobao.org/zreact/download/zreact-1.0.1.tgz#0c09948008c2012080bb51322aae81510b04300a"

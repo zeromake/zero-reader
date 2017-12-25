@@ -7,8 +7,16 @@ const Toc = (props: any, content: any) => {
     return (
         <div className={styl.tocView + (theme ? " " + styl[theme] : "")}>
             {
-                props.tocs.map((toc) => {
-                    return <TocItem key={toc.text} onclick={props.onclick} toc={toc}/>;
+                props.tocs.map((toc, index: number) => {
+                    return h(
+                        TocItem,
+                        {
+                            key: `0_${index}_${toc.index}`,
+                            onclick: props.onclick,
+                            toc,
+                            level: 1
+                        }
+                    );
                 })
             }
         </div>

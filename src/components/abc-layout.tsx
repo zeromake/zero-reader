@@ -2,9 +2,9 @@ import { h, Component, findDOMNode, route } from "react-import";
 import { addLinkCss, addStyle, removeHead, filterPropsComponent } from "@/utils";
 import styl from "@/css/layout.styl";
 import { IAbcMeta, IAbcToc } from "../types/index";
-import lozad from "../assets/lozad";
 import Animate from "preact-animate";
 import Toc from "./toc";
+import hotkeys from "hotkeys-js";
 
 interface IabcProps<AbcMeta> {
     path: string;
@@ -52,19 +52,15 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     protected clickState: {[name: string]: any};
     protected abstract isBlock: (x, y) => number;
     protected bscroll: any;
+    protected selection: boolean;
     // protected baseUrl: string;
     constructor(p: IabcProps<AbcMeta>, c: any) {
         super(p, c);
         // this.baseUrl = `/library/${p.meta.sha}/`;
         this.library = p.library;
         this.clickState = {};
-        this.lozadOptions = {
-            load: (element) => {
-                if (element.getAttribute("data-src")) {
-                    element.src = this.library.image(element.getAttribute("data-src"));
-                }
-            },
-        };
+        this.previousPage = this.previousPage.bind(this)
+        this.nextPage = this.nextPage.bind(this)
         this.state = {
             bg: "blue",
             barShow: false,
@@ -73,6 +69,20 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     }
     protected async init() {
         this.page = findDOMNode(this);
+        hotkeys("left, h", this.previousPage);
+        hotkeys("right, l", this.nextPage);
+        hotkeys("shift + g", (event) => {
+            if (event.key === "G") {
+                this.setPage(this.pageNum - 1);
+            }
+        });
+        hotkeys("g", (event) => {
+            if (event.key === "G") {
+                this.setPage(this.pageNum - 1);
+            } else {
+                this.setPage(0);
+            }
+        });
         this.lozadOptions = {
             ...this.lozadOptions,
             target: this.page || document,
@@ -92,15 +102,6 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             page,
         });
         // await this.setPage(0);
-    }
-    protected bindObserver() {
-        if (!this.observer) {
-            this.observer = lozad(".lozad", this.lozadOptions);
-            this.observer.observe();
-        } else {
-            this.observer.unobserve();
-            this.observer.update();
-        }
     }
     protected setPage(num: number, obj: any = {}) {
         if (this.load) {
@@ -131,20 +132,6 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             });
         });
     }
-    public componentDidUpdate(previousProps: IabcProps<AbcMeta>, previousState: AbcState, previousContext: any) {
-        if (this.state.pageHtml) {
-            this.bindObserver();
-            // if (this.page && !this.bscroll) {
-            //     import("better-scroll").then((BScroll: any) => {
-            //         BScroll = BScroll.default || BScroll;
-            //         this.bscroll = new BScroll(this.page, {
-            //             click: true,
-            //             scrollbar: true,
-            //         });
-            //     });
-            // }
-        }
-    }
     private getPage(num: number) {
         const pageName = this.container[num]["data-page-url"];
         return this.library.text(pageName);
@@ -153,6 +140,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         return this.library.json(this.props.meta.toc);
     }
     public componentWillUnmount() {
+        hotkeys.unbind("left, right, h, l, shift + g, g");
         if (this.mountCss.length > 0) {
             let cssId = this.mountCss.pop();
             while (cssId) {
@@ -164,15 +152,15 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     /**
      * 渲染头部
      */
-    protected abstract renderHeader(): JSX.Element | JSX.Element[];
+    protected abstract renderHeader(): JSX.Element | JSX.Element[] | string;
     /**
      * 渲染尾部
      */
-    protected abstract renderFooter(): JSX.Element | JSX.Element[];
+    protected abstract renderFooter(): JSX.Element | JSX.Element[] | string;
     /**
      * 渲染内容
      */
-    protected abstract renderContent(): JSX.Element | JSX.Element[];
+    protected abstract renderContent(): JSX.Element | JSX.Element[] | string;
 
     protected nextPage() {
         const page = this.state.page + 1;
@@ -193,6 +181,20 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     }
 
     private pageClick = (event: MouseEvent) => {
+        const selectionObj =  document.getSelection();
+        const selection = selectionObj.toString();
+        if (!this.selection) {
+            if (selection && selection !== "") {
+                this.selection = true;
+                return;
+            }
+        } else {
+            this.selection = false;
+            if (selection && selection !== "") {
+                selectionObj.removeAllRanges();
+            }
+            return;
+        }
         if (this.load) {
             return;
         }
@@ -255,7 +257,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                 className={`${styl.toc_layout} animated`}
                 onClick={(event) => event.stopPropagation()}>
                 <div className={styl.toc_title}>
-                    <p>目录</p>
+                    <p>{["目录"]}</p>
                     <svg viewBox="0 0 24 24" className={styl.toc_close} onClick={() => this.tocToggler(false)}>
                         <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
                         <path d="M0 0h24v24H0z" fill="none"></path>

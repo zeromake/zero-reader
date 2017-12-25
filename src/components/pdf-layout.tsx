@@ -8,6 +8,7 @@ import Toc from "@/components/toc";
 import throttle from "lodash.throttle";
 import { IPdfMeta, IAbcToc } from "../types/index";
 import PdfContent from "./pdf-content";
+import hotkeys from "hotkeys-js";
 
 interface IZoom {
     select: string;
@@ -55,6 +56,26 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     }, 100);
 
     public componentDidMount() {
+        hotkeys("up, j", () => {
+            const height = (this.isBlock as any).height;
+            const scrollTop = this.page.scrollTop;
+            if (scrollTop > 0) {
+                this.page.scrollTop = scrollTop > height ? scrollTop - height : 0;
+            }
+        })
+        hotkeys("down, k", () => {
+            const scrollTop = this.page.scrollTop;
+            const height = (this.isBlock as any).height;
+            const pageHeight = this.height * this.state.zoom;
+            const bottom = pageHeight - height
+            if (scrollTop < bottom) {
+                if (scrollTop + height >= pageHeight) {
+                    this.page.scrollTop = bottom;
+                } else {
+                    this.page.scrollTop = scrollTop + height;
+                }
+            }
+        })
         this.init().then(({ pageHtml, page }) => {
             if (this.props.meta.zoom) {
                 this.getZoom(this.props.meta.zoom).then((zoom: number) => {
@@ -69,6 +90,10 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                 });
             }
         });
+    }
+    public componentWillUnmount() {
+        super.componentWillUnmount();
+        hotkeys.unbind('up, j, down, k');
     }
     protected tocClick(toc: IAbcToc) {
         if (this.load || this.state.page === toc.index) {
@@ -117,10 +142,14 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                     className={styl.view}
                     style={{ width: this.width * state.zoom || 0 }}
                     >
-                    <PdfContent
-                        bg={styl[state.bg]}
-                        pageHtml={state.pageHtml}
-                    ></PdfContent>
+                    {h(
+                        PdfContent,
+                        {
+                            bg: styl[state.bg],
+                            pageHtml: state.pageHtml,
+                            library: this.library,
+                        }
+                    )}
                 </div>
             </div>;
     }
