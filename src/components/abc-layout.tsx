@@ -1,4 +1,4 @@
-import { h, Component, findDOMNode, route } from "react-import";
+import { h, Component, findDOMNode, route, getCurrentUrl } from "react-import";
 import { addLinkCss, addStyle, removeHead, filterPropsComponent } from "@/utils";
 import styl from "@/css/layout.styl";
 import { IAbcMeta, IAbcToc } from "../types/index";
@@ -13,6 +13,7 @@ interface IabcProps<AbcMeta> {
     meta: AbcMeta;
     library: any;
     page?: string;
+    history?: any;
     matches?: {
         [key: string]: string;
     };
@@ -77,6 +78,19 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                     this.setPage(0);
                 }
             },
+            "m": () => {
+                this.barToggler(!this.state.barShow);
+            },
+            "space": (event) => {
+                if (this.tocs) {
+                    this.tocToggler(!this.state.tocShow);
+                } else {
+                    this.getToc().then((tocs) => {
+                        this.tocs = tocs;
+                        this.tocToggler(true);
+                    });
+                }
+            },
         };
         this.state = {
             bg: "blue",
@@ -90,7 +104,10 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             if (key) {
                 const callback = this.hotkey[key];
                 if (callback) {
-                    hotkeys(key, callback);
+                    hotkeys(key, (event) => {
+                        event.preventDefault();
+                        callback(event);
+                    });
                 }
             }
         }
@@ -136,7 +153,15 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                         }
                         resolve();
                     } finally {
-                        route(`${location.pathname}?page=${num}`, true);
+                        if (this.props.history) {
+                            route(`${this.props.history.location.pathname}?page=${num}`, true);
+                        } else {
+                            let currentUrl = getCurrentUrl();
+                            if (currentUrl.indexOf("?") !== -1) {
+                                currentUrl = currentUrl.split("?")[0];
+                            }
+                            route(`${currentUrl}?page=${num}`, true);
+                        }
                         this.load = false;
                     }
                 });

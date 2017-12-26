@@ -49,6 +49,9 @@ const strftime = function(date) {
     return date_str
 }
 
+const serverIp = '192.168.16.11'
+const serverPort = 8089
+
 const outPath = isCordova ? resolve('../www') : resolve('../dist');
 const zreactAlias = {
     'preact': 'zreact',
@@ -98,14 +101,24 @@ const config = {
     ],
     devServer: {
         contentBase: outPath,
-        host: '0.0.0.0',
-        port: 8089,
+        host: serverIp,
+        port: serverPort,
         inline: true,
         // hot: true,
         historyApiFallback: true
     },
     module: {
         rules: [
+            {
+                test: /\.svg$/,
+                include: resolve('../src/assets/icons'),
+                use: {
+                    loader: 'svg-sprite-loader',
+                    options: {
+                        symbolId: 'icon-[name]'
+                    }
+                }
+            },
             {
 
                 test: /\.tsx?$/,
@@ -161,7 +174,7 @@ const config = {
                 })
             },
             {
-                test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+                test: /\.(png|jpe?g|gif)(\?.*)?$/,
                 use: {
                     loader: 'url-loader',
                     options: {
@@ -171,7 +184,8 @@ const config = {
                 }
             },
             {
-                test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
+                test: /\.(woff2?|eot|ttf|otf|svg)(\?.*)?$/,
+                exclude: resolve('../src/assets/icons'),
                 use: {
                     loader: 'url-loader',
                     options: {
@@ -187,22 +201,32 @@ if (isProd) {
     config.plugins.push(
         new webpack.DefinePlugin({
             'process.env': {
-                NODE_ENV: '"production"'
+                NODE_ENV: '"production"',
+                platform: JSON.stringify(process.env.platform)
             }
         })
     )
     config.plugins.push(
         new webpack.optimize.UglifyJsPlugin({
             compress: {
-                warnings: false
+                warnings: false,
             }
         })
     )
-    // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-    // config.plugins.push(
-    //     new BundleAnalyzerPlugin({
-    //         analyzerPort: 9999
-    //     })
-    // )
+    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+    config.plugins.push(
+        new BundleAnalyzerPlugin({
+            analyzerPort: 9999
+        })
+    )
+} else {
+    config.plugins.push(
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: '"dev"',
+                platform: JSON.stringify(process.env.platform)
+            }
+        })
+    )
 }
 module.exports = config;

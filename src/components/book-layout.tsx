@@ -44,7 +44,7 @@ export default class BookLayout extends Component<any, any> {
         if (this.state.layoutType) {
             const selectLayout: any = bookLayout[this.state.layoutType];
             if (selectLayout) {
-                layout = h(selectLayout, { meta: this.state.meta, library: this.library, ...this.props });
+                layout = h(selectLayout, { ...this.props, meta: this.state.meta, library: this.library });
             }
         }
         // return <h1>loading</h1>;

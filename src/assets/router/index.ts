@@ -236,7 +236,7 @@ class Router extends Component<any, any> {
     }
 
     public handleChildren(children, url, invoke) {
-        children = Children.toArray(children)
+        children = Children.toArray(children);
         const newChildren: any[] = [];
         if (children == null) {
             return newChildren;
@@ -245,7 +245,7 @@ class Router extends Component<any, any> {
             if (vnode.nodeName === Route || vnode.type === Route) {
                 return this.getMatchingChildren(children, url, invoke);
             } else {
-                const vnodeChildren = findChildren(vnode)
+                const vnodeChildren = findChildren(vnode);
                 if (vnodeChildren && vnodeChildren.length > 0) {
                     vnode = cloneElement(
                         vnode,
@@ -274,7 +274,7 @@ class Router extends Component<any, any> {
             const matches = exec(url, props.path, props);
             if (matches) {
                 if (invoke !== false) {
-                    const newProps = { url, matches };
+                    const newProps = { url, matches, history: customHistory };
                     assign(newProps, matches);
                     delete (newProps as any).ref;
                     delete (newProps as any).key;

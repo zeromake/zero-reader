@@ -1,6 +1,25 @@
+let baseUrl = "";
+
+if (process.env.platform === "cordova" && process.env.NODE_ENV !== "production") {
+    baseUrl = location.origin;
+}
+if (process.env.platform === "cordova" && process.env.NODE_ENV === "production") {
+    baseUrl = localStorage.getItem("baseUrl");
+    if (!baseUrl || baseUrl === "") {
+        baseUrl = prompt("填写服务器地址", "http://");
+        localStorage.setItem("baseUrl", baseUrl);
+    }
+}
 
 const json = (res: Response) => res.json();
 const text = (res: Response) => res.text();
+
+export function get_json(url: string) {
+    if (baseUrl && baseUrl !== "") {
+        url = baseUrl + url;
+    }
+    return fetch(url).then(json);
+}
 
 function createObject() {
     if (Object.create) {
@@ -96,6 +115,9 @@ const cacheData = cache(20);
 export function libraryData(sha: string) {
     return {
         get(url: string, callback) {
+            if (baseUrl && baseUrl !== "") {
+                url = baseUrl + url;
+            }
             const cacheValue = cacheData.get(url);
             if (cacheValue) {
                 // console.log(cacheData.info());
@@ -115,7 +137,7 @@ export function libraryData(sha: string) {
             return this.get(`/library/${sha}/${url}`, text);
         },
         css(url: string) {
-            return `/library/${sha}/${url}`;
+            return `${baseUrl}/library/${sha}/${url}`;
         },
         image(url: string) {
             return this.css(url);

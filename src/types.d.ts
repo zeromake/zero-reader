@@ -9,6 +9,7 @@ declare module "preact-router" {
     export const Link: any;
     export const Route: any;
     export const route: (url: string, replace?: boolean) => boolean;
+    export const getCurrentUrl: () => string;
     export default style;
 }
 declare module "preact-animate" {
@@ -57,7 +58,7 @@ declare module "react-import" {
     //     Link,
     // };
     import { h, render, Component, findDOMNode, cloneElement, Children } from "zreact";
-    import Router, { Route, Link, route } from "preact-router";
+    import Router, { Route, Link, route, getCurrentUrl } from "preact-router";
     export {
         h,
         Component,
@@ -69,6 +70,7 @@ declare module "react-import" {
         Route,
         route,
         Link,
+        getCurrentUrl,
     };
 }
 
@@ -81,3 +83,7 @@ declare module "hotkeys-js" {
     const hotkeys: any;
     export default hotkeys;
 }
+
+declare const process: any;
+
+declare const require: (name: string) => { default: any };

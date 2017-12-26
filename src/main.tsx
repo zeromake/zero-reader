@@ -6,7 +6,8 @@ import MainRouter from "./router";
 import "animate.css";
 import "./css/main.styl";
 import "./css/base.css";
-import "font-awesome/css/font-awesome.min.css";
+import "./assets/icons";
+// import "font-awesome/css/font-awesome.min.css";
 
 declare const process: any;
 

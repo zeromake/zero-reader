@@ -1,7 +1,6 @@
 import { h, findDOMNode } from "react-import";
 import AbcLayout, { IabcState } from "./abc-layout";
 import styl from "@/css/layout.styl";
-import BookToolsBar from "@/components/book-tools-bar";
 import BottomBar from "./pdf-bottom-bar";
 import { addStyle, buildBlock, filterPropsComponent } from "@/utils";
 import Toc from "@/components/toc";
@@ -9,6 +8,7 @@ import throttle from "lodash.throttle";
 import { IPdfMeta, IAbcToc } from "../types/index";
 import PdfContent from "./pdf-content";
 import hotkeys from "hotkeys-js";
+import TopBar from "./top-bar";
 
 interface IZoom {
     select: string;
@@ -56,18 +56,18 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     }, 100);
 
     public componentDidMount() {
-        hotkeys("up, j", () => {
+        this.hotkey["up, j"] = () => {
             const height = (this.isBlock as any).height;
             const scrollTop = this.page.scrollTop;
             if (scrollTop > 0) {
                 this.page.scrollTop = scrollTop > height ? scrollTop - height : 0;
             }
-        })
-        hotkeys("down, k", () => {
+        };
+        this.hotkey["down, k"] = () => {
             const scrollTop = this.page.scrollTop;
             const height = (this.isBlock as any).height;
             const pageHeight = this.height * this.state.zoom;
-            const bottom = pageHeight - height
+            const bottom = pageHeight - height;
             if (scrollTop < bottom) {
                 if (scrollTop + height >= pageHeight) {
                     this.page.scrollTop = bottom;
@@ -75,7 +75,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                     this.page.scrollTop = scrollTop + height;
                 }
             }
-        })
+        };
         this.init().then(({ pageHtml, page }) => {
             if (this.props.meta.zoom) {
                 this.getZoom(this.props.meta.zoom).then((zoom: number) => {
@@ -93,7 +93,6 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     }
     public componentWillUnmount() {
         super.componentWillUnmount();
-        hotkeys.unbind('up, j, down, k');
     }
     protected tocClick(toc: IAbcToc) {
         if (this.load || this.state.page === toc.index) {
@@ -126,10 +125,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         }
     }
     protected  renderHeader() {
-        return null;
-        // const state = this.state;
-        // const tocClass = styl.toc_layout + (state.theme ? " " + styl[state.theme] : "");
-        // return <BookToolsBar options={ { showToc: () => {this.setState({ toc_open: !state.toc_open }); } } }/>;
+        return <TopBar title={this.props.meta.title}/>;
     }
 
     protected  renderFooter() {
@@ -148,7 +144,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                             bg: styl[state.bg],
                             pageHtml: state.pageHtml,
                             library: this.library,
-                        }
+                        },
                     )}
                 </div>
             </div>;
