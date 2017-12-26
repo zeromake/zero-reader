@@ -315,8 +315,8 @@ bcrypt-pbkdf@^1.0.0:
     tweetnacl "^0.14.3"
 
 better-scroll@^1.6.0:
-  version "1.6.2"
-  resolved "http://registry.npm.taobao.org/better-scroll/download/better-scroll-1.6.2.tgz#ccc13d2663a2b05c488da5d1e4424213be4a3887"
+  version "1.6.3"
+  resolved "http://registry.npm.taobao.org/better-scroll/download/better-scroll-1.6.3.tgz#70dc5ae36d9b333b974065e7f2a86ce39a495e8f"
   dependencies:
     babel-runtime "^6.0.0"
 
@@ -849,9 +849,9 @@ cordova-ios@4.5.4:
     xcode "^0.9.0"
     xml-escape "^1.1.0"
 
-cordova-plugin-file@^5.0.0:
-  version "5.0.0"
-  resolved "http://registry.npm.taobao.org/cordova-plugin-file/download/cordova-plugin-file-5.0.0.tgz#d397682321669c000be8c71f8ef4438aae8f925d"
+cordova-plugin-file@^6.0.0:
+  version "6.0.0"
+  resolved "http://registry.npm.taobao.org/cordova-plugin-file/download/cordova-plugin-file-6.0.0.tgz#9ae08ddbbc0cf33ea06ec303d5ebc55698d760aa"
 
 cordova-registry-mapper@^1.1.8:
   version "1.1.15"
@@ -3412,9 +3412,9 @@ postcss@^6.0.0, postcss@^6.0.1, postcss@^6.0.14:
     source-map "^0.6.1"
     supports-color "^4.4.0"
 
-preact-animate@^2.4.0:
-  version "2.4.0"
-  resolved "http://registry.npm.taobao.org/preact-animate/download/preact-animate-2.4.0.tgz#0d289a8631aa59b5fc38d3a64c20cdb84a43a775"
+preact-animate@^2.5.0:
+  version "2.5.0"
+  resolved "http://registry.npm.taobao.org/preact-animate/download/preact-animate-2.5.0.tgz#b1ec718c7438e6f8d66fce55d3acd86bf5f3a38a"
 
 preact-router@^2.6.0:
   version "2.6.0"
