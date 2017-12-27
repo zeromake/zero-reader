@@ -15,12 +15,16 @@ import logging
 import posixpath
 import requests
 import tempfile
+import platform
+import subprocess
+import asyncio
+from functools import partial
 
 from lxml import etree
 from PyPDF2 import PdfFileReader
 from PyPDF2.generic import IndirectObject, TextStringObject
-from .compress.zstd_tar import ZstdTar
-
+import zipfile
+# from .compress.zstd_tar import ZstdTar
 import tarfile
 
 try:
@@ -264,8 +268,11 @@ def add_path_to_tar(tar_file, input_path, output_path):
     通过文件路径把文件添加到tar
     """
     with file_open(input_path, 'rb') as input_file:
-        info = tar_file.gettarinfo(input_path, output_path)
-        tar_file.addfile(info, input_file)
+        if hasattr(tar_file, 'write'):
+            tar_file.write(input_path, output_path)
+        else:
+            info = tar_file.gettarinfo(input_path, output_path)
+            tar_file.addfile(info, input_file)
 
 
 def add_zipfile_to_tar(tar_file, zip_file, zip_path, output_path):
@@ -318,11 +325,14 @@ def add_xml_tree_to_tar(tar_file, tree, output_path):
     os.remove(temp)
     return res
 
-def tar_open(name, mode='r:zstd'):
+def tar_open(name, mode, file_type='zip'):
     """
     打开tar文件
     """
-    return tarfile.open(name, mode)
+    if file_type == 'zip':
+        return zipfile.ZipFile(name, mode)
+    else:
+        return tarfile.open(name, mode)
 
 class TempTar():
     def __init__(self, tar_file, temp, output_path, *args, **k):
@@ -351,3 +361,8 @@ def open_temp_file(tar_file, output_path, *args, **k):
     temp = tempfile.mktemp()
     temp_file = TempTar(tar_file, temp, output_path, *args, **k)
     return temp_file
+
+PNGBIN = {
+    'Windows': 'bin/pngquant.exe',
+    'Linux': 'bin/pngquant'
+}

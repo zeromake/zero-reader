@@ -6,12 +6,14 @@ import MainRouter from "./router";
 import "animate.css";
 import "./css/main.styl";
 import "./css/base.css";
-import "./assets/icons";
+
+import "./assets/icons/index";
+
+render(<MainRouter/>, document.getElementById("app"));
 // import "font-awesome/css/font-awesome.min.css";
 
 declare const process: any;
 
-render(<MainRouter/>, document.getElementById("app"));
 // if (process.env.NODE_ENV !== "production") {
 //     import("zreact/devtools").then(({ initDevTools }) => {
 //         try {

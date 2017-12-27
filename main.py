@@ -6,6 +6,9 @@
 """
 import os
 import argparse
+import asyncio
+
+from web_app import app
 
 from converts.pdf2json import Pdf2Json
 from converts.epub2json import Epub2Json
@@ -17,11 +20,25 @@ def add_args():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '-w',
+        '--web',
+        type=int,
+        help='run web',
+        default=0
+    )
+    parser.add_argument(
+        '-p',
+        '--png',
+        type=int,
+        help='png is compress',
+        default=0
+    )
+    parser.add_argument(
         '-c',
         '--compress',
         type=int,
         help='book out dir is tar.zstd',
-        default=1
+        default=0
     )
     parser.add_argument(
         '-f',
@@ -44,34 +61,6 @@ def add_args():
         default="library"
     )
     parser.add_argument(
-        '-p',
-        '--page',
-        type=str,
-        help='page file name',
-        default="page-.html"
-    )
-    parser.add_argument(
-        '-j',
-        '--join',
-        type=str,
-        help='json file dir',
-        default="pages"
-    )
-    parser.add_argument(
-        '-s',
-        '--share',
-        type=str,
-        help='pdf2htmlEX share dir',
-        default="bin/data"
-    )
-    parser.add_argument(
-        '-t',
-        '--toc',
-        type=str,
-        help='toc filename',
-        default="toc.html"
-    )
-    parser.add_argument(
         '-m',
         '--meta',
         type=str,
@@ -80,11 +69,18 @@ def add_args():
     )
     return parser.parse_args()
 
-
-if __name__ == '__main__':
+def main():
+    """
+    主函数
+    """
     args = add_args()
     raw_options = args.__dict__
-    options = {}
+    options = {
+        'toc': "toc.html",
+        'share': "bin/data",
+        'join': "pages",
+        'page': "page-.html"
+    }
     for key, value in raw_options.items():
         if isinstance(value, str):
             value = value.encode("utf-8", 'surrogateescape').decode('utf-8')
@@ -95,13 +91,21 @@ if __name__ == '__main__':
 
     if not os.path.exists(options['dist']):
         os.makedirs(options['dist'])
-
-    if file_name.endswith('.epub'):
-        epub_converts = Epub2Json(options)
-        epub_converts.run()
-        # print('dont converts epub')
-    elif file_name.endswith('.pdf'):
-        pdf_converts = Pdf2Json(options)
-        pdf_converts.run()
+    loop = asyncio.get_event_loop()
+    if options['web'] == 1:
+        app.run()
     else:
-        logger.error('only support book on epub, pdf!')
+        convert = None
+        if file_name.endswith('.epub'):
+            convert = Epub2Json
+        elif file_name.endswith('.pdf'):
+            convert = Pdf2Json
+        if convert is None:
+            logger.error('only support book on epub, pdf!')
+        else:
+            converts = convert(options, loop)
+            loop.run_until_complete(converts.run())
+            logger.debug("meta: %s", converts.meta_data)
+
+if __name__ == '__main__':
+    main()

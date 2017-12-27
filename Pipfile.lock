@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1bf9b067f0208f4ad6664c9d7fc447dfc423cd0ed882bcf241003c5fb262f1c4"
+            "sha256": "4348e7ecb4731662aac5f61b248b2962e549aae2e0dec7cbee520b86babe323c"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -9,9 +9,9 @@
             "os_name": "posix",
             "platform_machine": "x86_64",
             "platform_python_implementation": "CPython",
-            "platform_release": "4.14.4-1-ARCH",
+            "platform_release": "4.13.16-2-MANJARO",
             "platform_system": "Linux",
-            "platform_version": "#1 SMP PREEMPT Tue Dec 5 19:10:06 UTC 2017",
+            "platform_version": "#1 SMP PREEMPT Fri Nov 24 12:49:10 UTC 2017",
             "python_full_version": "3.6.3",
             "python_version": "3.6",
             "sys_platform": "linux"
@@ -47,9 +47,17 @@
             "hashes": [],
             "version": "==3.0.4"
         },
+        "graphql-core": {
+            "hashes": [],
+            "version": "==2.0"
+        },
+        "graphql-server-core": {
+            "hashes": [],
+            "version": "==1.0.dev20170322001"
+        },
         "httptools": {
             "hashes": [],
-            "version": "==0.0.9"
+            "version": "==0.0.10"
         },
         "idna": {
             "hashes": [],
@@ -59,17 +67,45 @@
             "hashes": [],
             "version": "==4.1.1"
         },
+        "promise": {
+            "hashes": [],
+            "version": "==2.1"
+        },
         "pypdf2": {
             "hashes": [],
             "version": "==1.26.0"
+        },
+        "pytest-runner": {
+            "hashes": [],
+            "version": "==3.0"
         },
         "requests": {
             "hashes": [],
             "version": "==2.18.4"
         },
+        "rx": {
+            "hashes": [],
+            "version": "==1.6.0"
+        },
         "sanic": {
             "hashes": [],
-            "version": "==0.6.0"
+            "version": "==0.7.0"
+        },
+        "sanic-graphql": {
+            "hashes": [],
+            "version": "==1.1.0"
+        },
+        "six": {
+            "hashes": [],
+            "version": "==1.11.0"
+        },
+        "sqlalchemy": {
+            "hashes": [],
+            "version": "==1.1.15"
+        },
+        "typing": {
+            "hashes": [],
+            "version": "==3.6.2"
         },
         "ujson": {
             "hashes": [],

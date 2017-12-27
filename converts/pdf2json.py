@@ -13,9 +13,12 @@ import tempfile
 import zipfile
 import platform
 import subprocess
+
+import asyncio
 import binascii
 from lxml import etree
 from .utils import (
+    PNGBIN,
     deep_tree,
     read_meta_pdf,
     read_meta_opf,
@@ -35,10 +38,15 @@ class Pdf2Json(object):
     """
     转换
     """
-    def __init__(self, options):
+    def __init__(self, options, loop=None):
         """
         初始化
         """
+
+        self.sysstr = platform.system()
+        self.pngbin = PNGBIN.get(self.sysstr)
+        self._loop = loop or asyncio.get_event_loop()
+        self.is_png_compress = options['png'] == 1
         self.pdf_name = options['file']
         self.sha = file_sha256(self.pdf_name)
         self.abs_url = '/library/' + self.sha + '/'
@@ -51,7 +59,7 @@ class Pdf2Json(object):
         self.share = options['share']
         self.toc = options['toc']
         self.meta = options['meta']
-        self.content_class = 'html_content' 
+        self.content_class = 'html_content'
 
         self.meta_file = 'meta.json'
         self.pages = None
@@ -60,30 +68,31 @@ class Pdf2Json(object):
         self.font_join = 'font'
         self.zoom = 'zoom.json'
         self.page_css = []
+        self.meta_data = None
 
-    def run(self):
+    async def run(self):
         """
         执行处理
         """
         if os.path.exists(self.dist):
             print('book sha256: %s is exist' % self.dist)
             return
-        self.mkdir()
-        self.exec_pdf()
-        self.container_to_json(
+        await self.mkdir()
+        await self.exec_pdf()
+        await self.container_to_json(
             os.path.join(self.out, 'index.html'),
             os.path.join(self.dist, 'container.json'),
             self.copy_page
         )
-        self.toc_to_json(
+        await self.toc_to_json(
             os.path.join(self.out, self.toc),
             os.path.join(self.dist, 'toc.json')
         )
-        self.css_copy()
-        self.read_meta()
+        await self.css_copy()
+        await self.read_meta()
         # self.deldir()
 
-    def read_meta(self):
+    async def read_meta(self):
         """
         分发读取
         """
@@ -113,20 +122,21 @@ class Pdf2Json(object):
         if os.path.exists(os.path.join(self.dist, cover_url)):
             meta['cover'] = cover_url
         save_json(os.path.join(self.dist, self.meta_file), meta)
-        db_name = os.path.join('library', 'db.json')
-        db_data = []
-        if os.path.exists(db_name):
-            db_data = read_json(db_name)
-            # with open(db_name, 'r', encoding='utf8') as fd:
-            #     db_data = json.load(fd)
-        sha_set = set([row['sha']for row in db_data])
-        if self.sha not in sha_set:
-            db_data.append(meta)
-        save_json(db_name, db_data)
+        # db_name = os.path.join('library', 'db.json')
+        # db_data = []
+        # if os.path.exists(db_name):
+        #     db_data = read_json(db_name)
+        #     # with open(db_name, 'r', encoding='utf8') as fd:
+        #     #     db_data = json.load(fd)
+        # sha_set = set([row['sha']for row in db_data])
+        # if self.sha not in sha_set:
+        #     db_data.append(meta)
+        # save_json(db_name, db_data)
+        self.meta_data = meta
         # with open(db_name, 'w', encoding='utf8') as fd:
         #     json.dump(db_data, fd, ensure_ascii=False, indent="  ")
 
-    def mkdir(self):
+    async def mkdir(self):
         """
         创建文件夹
         """
@@ -148,7 +158,7 @@ class Pdf2Json(object):
         """
         shutil.rmtree(self.out)
 
-    def exec_pdf(self):
+    async def exec_pdf(self):
         """
         转换
         """
@@ -163,8 +173,7 @@ class Pdf2Json(object):
             "Windows": ('bin/pdf2htmlEX-win32.zip', 'bin/pdf2htmlEX.exe'),
             "Linux": ('bin/pdf2htmlEX-linux-x64.zip', 'bin/pdf2htmlEX.sh')
         }
-        sysstr = platform.system()
-        pdf2html = pdf2html_dict.get(sysstr)
+        pdf2html = pdf2html_dict.get(self.sysstr)
         if pdf2html:
             if not os.path.exists(pdf2html[1]):
                 self.extract_zip(pdf2html[0])
@@ -177,6 +186,10 @@ class Pdf2Json(object):
         shutil.copyfile(self.pdf_name, temp_name)
         exec_str = " ".join([
             pdf2html[1],
+            '--font-format', 'woff',
+            '--bg-format', 'png',
+            '--optimize-text', '1',
+            '--space-as-offset', '1',
             '--embed-css', '0',
             '--embed-font', '0',
             '--embed-image', '0',
@@ -186,7 +199,6 @@ class Pdf2Json(object):
             '--split-page', '1',
             '--css-filename', self.css,
             '--page-filename', self.page,
-            '--space-as-offset', '1',
             '--data-dir', self.share,
             '--dest-dir', self.out,
             temp_name,
@@ -245,8 +257,6 @@ class Pdf2Json(object):
                     offset = 0
                     offset_start = False
                     old_line = b''
-                    
-
         os.remove(temp_name)
         with file_open(os.path.join(self.out, 'exec.lock'), 'w') as file_:
             file_.write(str(state))
@@ -259,7 +269,7 @@ class Pdf2Json(object):
             for file_name in file_.namelist():
                 file_.extract(file_name, "bin/")
 
-    def toc_to_json(self, toc_html_name, toc_json_name, is_try=False):
+    async def toc_to_json(self, toc_html_name, toc_json_name, is_try=False):
         """
         把html的toc转为json
         """
@@ -278,7 +288,7 @@ class Pdf2Json(object):
                     raise error
                 file_.seek(0)
                 self.toc_del_zero(toc_html_name)
-                return self.toc_to_json(toc_html_name, toc_json_name, True)
+                return await self.toc_to_json(toc_html_name, toc_json_name, True)
             toc = []
 
             def callback_toc(item, level):
@@ -332,7 +342,7 @@ class Pdf2Json(object):
         with file_open(toc_html_name, 'wb') as file_:
             file_.write(buffer)
 
-    def container_to_json(self, container_name, json_name, callback=None):
+    async def container_to_json(self, container_name, json_name, callback=None):
         """
         转换内容页
         """
@@ -365,7 +375,7 @@ class Pdf2Json(object):
                 item['index'] = index
                 containers.append(item)
                 if callback:
-                    callback(item)
+                    await callback(item)
                 last_class = row.get('class')
                 index += 1
         if json_name:
@@ -375,7 +385,7 @@ class Pdf2Json(object):
         self.containers = containers
         self.pages = page_id_to_index
 
-    def copy_page(self, page):
+    async def copy_page(self, page):
         """
         拷贝page的html，并做好预处理
         """
@@ -397,10 +407,21 @@ class Pdf2Json(object):
                 parent = img.getparent()
                 div = etree.Element('div')
                 val = img.get('src')
-                shutil.copyfile(
-                    os.path.join(input_dir, val),
-                    os.path.join(out_dir, join_dir, val)
-                )
+                input_path = os.path.join(input_dir, val)
+                # logger.debug("pngquant : %s", input_path)
+                if self.is_png_compress and self.pngbin:
+                    process = await asyncio.create_subprocess_exec(
+                        self.pngbin,
+                        input_path,
+                        '-o', os.path.join(out_dir, join_dir, val),
+                        loop=self._loop
+                    )
+                    await process.wait()
+                else:
+                    shutil.copyfile(
+                        os.path.join(input_dir, val),
+                        os.path.join(out_dir, join_dir, val)
+                    )
                 old_class = img.get('class')
                 tmp = 'lozad'
                 if old_class:
@@ -432,7 +453,7 @@ class Pdf2Json(object):
                 method='html'
             )
 
-    def css_copy(self):
+    async def css_copy(self):
         """
         css 拷贝
         """

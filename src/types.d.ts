@@ -58,7 +58,7 @@ declare module "react-import" {
     //     Link,
     // };
     import { h, render, Component, findDOMNode, cloneElement, Children } from "zreact";
-    import Router, { Route, Link, route, getCurrentUrl } from "preact-router";
+    import Router, { Route, Link, route } from "preact-router";
     export {
         h,
         Component,
@@ -70,7 +70,6 @@ declare module "react-import" {
         Route,
         route,
         Link,
-        getCurrentUrl,
     };
 }
 

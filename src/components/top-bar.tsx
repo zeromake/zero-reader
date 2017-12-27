@@ -6,13 +6,13 @@ import { propsDiffComponent } from "@/utils";
 const TopBar = propsDiffComponent((props) => {
     return <div className={`${styl.top_bar} animated`} onClick={(event: MouseEvent) => event.stopPropagation()}>
         <div className={styl.left_content}>
-            <SvgIcon className={styl.icon} name="icon-back"/>
+            { h(SvgIcon, {className: styl.icon, name: "icon-back"}) }
         </div>
         <div className={styl.middle_content}>
             <h2>{`《${props.title}》`}</h2>
         </div>
         <div className={styl.right_content}>
-            <SvgIcon className={styl.icon} name="icon-more"/>
+            { h(SvgIcon, {className: styl.icon, name: "icon-more"}) }
         </div>
     </div>;
 });

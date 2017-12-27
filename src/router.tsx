@@ -12,7 +12,7 @@ if (process.env.platform === "cordova") {
 
 const MainRouter = () => (
     <Router history={history}>
-        <Animate component="div" componentProps={{className: "main", style: "width: 100%; height: 100%;"}} transitionEnter={true} transitionLeave={true} transitionName={null}>
+        <Animate component="div" componentProps={{className: "main"}} transitionEnter={true} transitionLeave={true} transitionName={null}>
             <Route key="1" component={Library}  path="/" transitionName={{ enter: "fadeInLeft", leave: "fadeOutLeft" }}/>
             <Route key="2" component={BookLayout} path="/library/:sha/" transitionName={{ enter: "fadeInRight", leave: "fadeOutRight" }}/>
         </Animate>

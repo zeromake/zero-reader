@@ -22,7 +22,7 @@ const BottomBar = function render(props) {
                 bottomMenu.map((menu) => {
                     const click = (event) => props.click(menu.id, event);
                     return <li className={styl.menu} key={String(menu.id)}>
-                        <SvgIcon className={styl.icon} name={menu.icon} onClick={click} title={menu.title}/>
+                        { h(SvgIcon, {className: styl.icon, name: menu.icon, onClick: click, title: menu.title}) }
                     </li>;
                 })
             }

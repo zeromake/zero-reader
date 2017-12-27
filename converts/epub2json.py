@@ -9,6 +9,7 @@ import os
 import zipfile
 import posixpath
 import tempfile
+import asyncio
 from lxml import etree
 from .utils import (
     file_sha256,
@@ -42,10 +43,13 @@ class Epub2Json(object):
     转换为json
     """
     meta_info_path = 'META-INF/container.xml'
-    def __init__(self, options):
+    def __init__(self, options, loop=None):
         """
         初始化配置
         """
+        # loop
+        self._loop = loop or asyncio.get_event_loop()
+
         self.options = options
         # epub 文件
         self.file_name = options['file']
@@ -102,10 +106,13 @@ class Epub2Json(object):
         self.guide = []
         self.temp_dir = tempfile.mkdtemp()
         self.container_page_dict = None
+        self.file_set = set()
         if self.compress:
-            self.tar_file = tar_open(self.dist + '.tar.zstd', 'w:zstd')
+            self.tar_file = tar_open(self.dist + '.zip', 'w')
+        
+        self.meta_data = None
 
-    def run(self):
+    async def run(self):
         """
         创建zip文件对象
         """
@@ -118,10 +125,10 @@ class Epub2Json(object):
                 compression=zipfile.ZIP_DEFLATED,
                 allowZip64=True
             ) as epub_file:
-                self.load_meta_info(epub_file)
-                self.load_opf(epub_file)
-                self.save_container()
-                self.save_toc(epub_file)
+                await self.load_meta_info(epub_file)
+                await self.load_opf(epub_file)
+                await self.save_container()
+                await self.save_toc(epub_file)
         except zipfile.BadZipfile:
             raise Exception(0, 'Bad Zip file')
         except zipfile.LargeZipFile:
@@ -135,6 +142,11 @@ class Epub2Json(object):
         """
         保存zip中的文件到tar或文件系统
         """
+        if zip_path in self.file_set:
+            logger.warn("has file: %s", zip_path)
+            return
+        else:
+            self.file_set.add(zip_path)
         if self.compress:
             add_zipfile_to_tar(self.tar_file, zip_file, zip_path, output_path)
         else:
@@ -178,7 +190,6 @@ class Epub2Json(object):
         else:
             output_path = os.path.join(self.dist, output_path)
             return file_open(output_path, *args, **k)
-        
 
     def mkdirs(self):
         """
@@ -195,7 +206,7 @@ class Epub2Json(object):
             if not os.path.exists(row):
                 os.makedirs(row)
 
-    def load_meta_info(self, epub_file):
+    async def load_meta_info(self, epub_file):
         """
         读取根文件
         """
@@ -209,7 +220,7 @@ class Epub2Json(object):
                     self.opf_file = root_file.get('full-path')
                     self.opf_dir = posixpath.dirname(self.opf_file)
 
-    def load_opf(self, epub_file):
+    async def load_opf(self, epub_file):
         """
         读取opf文件
         """
@@ -253,8 +264,9 @@ class Epub2Json(object):
         douban_meta['sha'] = self.sha
         douban_meta['file_name'] = get_file_path_name(self.file_name)
         self.save_tar_json(self.meta_path, douban_meta)
+        self.meta_data = douban_meta
 
-    def save_container(self):
+    async def save_container(self):
         """
         保存内容清单
         """
@@ -313,9 +325,12 @@ class Epub2Json(object):
             if href_name not in self.tcontainer:
                 href_path = zip_join(self.opf_dir, href_name)
                 href_dir = get_file_path_dir(href_path)
-                self.copy_html(epub_file, href_path, href_dir, self.container_count)
-                self.page_map[href_path] = self.container_count
-                self.container_count += 1
+                try:
+                    self.copy_html(epub_file, href_path, href_dir, self.container_count)
+                    self.page_map[href_path] = self.container_count
+                    self.container_count += 1
+                except KeyError:
+                    logger.warn("guide -> %s not in epub", href_path)
 
     def split_container(self, epub_file):
         """
@@ -584,7 +599,7 @@ class Epub2Json(object):
                 return old_page_name
         return None
 
-    def save_toc(self, epub_file):
+    async def save_toc(self, epub_file):
         """
         处理并保存toc
         """

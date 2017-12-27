@@ -24,15 +24,15 @@ export default class Library extends Component<any, any> {
                 {
                     state.library.map((book) => {
                         const href = `/library/${book.sha}/`;
+                        const title = book.title || book.file_name;
                         return (
                             <div key={book.sha} className={styl.center_book}>
-
-                                <Link href={href} to={href} title={book.title}>
+                                <Link href={href} to={href} title={title}>
                                     <div className={styl.book_image}>
-                                        <img src={book.cover ? `/library/${book.sha}/${book.cover}` : null} alt={book.title} title={book.title}/>
+                                        <img src={book.cover ? `/library/${book.sha}/${book.cover}` : null} alt={title} title={title}/>
                                     </div>
                                 </Link>
-                                <span className={styl.book_title} title={book.title}>{book.title}</span>
+                                <span className={styl.book_title} title={title}>{title}</span>
                             </div>
                         );
                     })

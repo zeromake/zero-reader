@@ -10,9 +10,11 @@ name = "doubanio"
 requests = "*"
 lxml = "*"
 argparse = "*"
-"PyPDF2" = "*"
-Sanic = "*"
+"pypdf2" = "*"
+sanic = "*"
 "aiosqlite3" = "*"
+sanic-graphql = "*"
+sqlalchemy = "*"
 
 
 [dev-packages]

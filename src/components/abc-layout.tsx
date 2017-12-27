@@ -1,4 +1,4 @@
-import { h, Component, findDOMNode, route, getCurrentUrl } from "react-import";
+import { h, Component, findDOMNode, route } from "react-import";
 import { addLinkCss, addStyle, removeHead, filterPropsComponent } from "@/utils";
 import styl from "@/css/layout.styl";
 import { IAbcMeta, IAbcToc } from "../types/index";
@@ -155,12 +155,6 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                     } finally {
                         if (this.props.history) {
                             route(`${this.props.history.location.pathname}?page=${num}`, true);
-                        } else {
-                            let currentUrl = getCurrentUrl();
-                            if (currentUrl.indexOf("?") !== -1) {
-                                currentUrl = currentUrl.split("?")[0];
-                            }
-                            route(`${currentUrl}?page=${num}`, true);
                         }
                         this.load = false;
                     }

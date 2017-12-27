@@ -83,7 +83,7 @@ const config = {
     resolve: {
         alias: Object.assign({
             '@': resolve('../src')
-        }, zreactAlias),
+        }, reactAlias),
         extensions: ['.js', '.ts', '.tsx']
     },
     plugins: [

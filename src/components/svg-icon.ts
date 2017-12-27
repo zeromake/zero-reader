@@ -7,7 +7,7 @@ const SvgIcon = propsDiffComponent((props) => {
     delete newProps.name;
     delete newProps.children;
     newProps.className = newProps.className ? `svg_icon ${newProps.className}` : "svg_icon";
-    return h("svg", newProps, h("use", {"xlink:href": `#${name}`}));
+    return h("svg", newProps, h("use", {xlinkHref: `#${name}`}));
 });
 
 export default SvgIcon;

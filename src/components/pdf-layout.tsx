@@ -125,11 +125,12 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         }
     }
     protected  renderHeader() {
-        return <TopBar title={this.props.meta.title}/>;
+        const meta = this.props.meta;
+        return h(TopBar, {title: meta.title || meta.file_name});
     }
 
     protected  renderFooter() {
-        return <BottomBar click={this.bottomBarClick}/>;
+        return h(BottomBar, {click: this.bottomBarClick});
     }
     protected  renderContent() {
         const state = this.state;
