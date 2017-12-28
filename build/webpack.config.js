@@ -49,7 +49,7 @@ const strftime = function(date) {
     return date_str
 }
 
-const serverIp = '192.168.16.11'
+const serverIp = '127.0.0.1'
 const serverPort = 8089
 
 const outPath = isCordova ? resolve('../www') : resolve('../dist');
@@ -83,7 +83,7 @@ const config = {
     resolve: {
         alias: Object.assign({
             '@': resolve('../src')
-        }, reactAlias),
+        }, zreactAlias),
         extensions: ['.js', '.ts', '.tsx']
     },
     plugins: [

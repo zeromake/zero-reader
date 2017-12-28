@@ -7,9 +7,10 @@ import "animate.css";
 import "./css/main.styl";
 import "./css/base.css";
 
-import "./assets/icons/index";
+import("./assets/icons/index").then(() => {
+    render(<MainRouter/>, document.getElementById("app"));
+});
 
-render(<MainRouter/>, document.getElementById("app"));
 // import "font-awesome/css/font-awesome.min.css";
 
 declare const process: any;

@@ -1,3 +1,5 @@
+svg_icon_size = 2rem
+
 .top_bar
     transition padding 375ms ease-in-out
     box-sizing border-box
@@ -7,25 +9,49 @@
     margin 0 auto
     background-color rgba(0,0,0, 0.9)
     position absolute
-    padding 1.2rem 0
+    padding 1.2rem 1.2rem
     z-index 1
 
-.left_content
-    padding-left 1.2rem
+.left_content, .middle_content, .right_content
     float left
 
 .middle_content
-    position absolute
-    height 2rem
-    left 3.2rem
-    right 3.2rem
-    width calc(100% - 6.4rem)
+    width 100%
+    height svg_icon_size
+
+.middle_wrap
     color #FFF
     text-align center
+    margin: 0 svg_icon_size 0 svg_icon_size
+
+.left_content
+    // padding-left 1.2rem
+    // width 2rem
+    height svg_icon_size
+    margin-left -100%
 
 .right_content
-    padding-right 1.2rem
-    float right
+    // padding-right 1.2rem
+    // width 2rem
+    height svg_icon_size
+    margin-left -(svg_icon_size)
+
+// .left_content
+//     padding-left 1.2rem
+//     float left
+
+// .middle_content
+//     position absolute
+//     height 2rem
+//     left 3.2rem
+//     right 3.2rem
+//     width calc(100% - 6.4rem)
+//     color #FFF
+//     text-align center
+
+// .right_content
+//     padding-right 1.2rem
+//     float right
 .icon
-    width 2rem
-    height 2rem
+    width svg_icon_size
+    height svg_icon_size
