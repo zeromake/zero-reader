@@ -5,10 +5,10 @@ import Animate from "preact-animate";
 // import AsyncRoute from "./assets/router/async-route";
 import createHashHistory from "history/createHashHistory";
 
-let history = null;
+let tmpHistory = null;
 if (process.env.platform === "cordova") {
     // const createHashHistory = require("history/createHashHistory").default;
-    history = createHashHistory();
+    tmpHistory = createHashHistory();
 }
 
 // const Library = () => import("./components/library").then((modul) => modul.default);
@@ -16,7 +16,7 @@ if (process.env.platform === "cordova") {
 // const BookLayout = () => import("./components/book-layout").then((modul) => modul.default);
 
 const MainRouter = () => (
-    <Router history={history}>
+    <Router history={tmpHistory}>
         <Animate component="div" componentProps={{className: "main"}} transitionEnter={true} transitionLeave={true} transitionName={null}>
             <Route
                 key="1"

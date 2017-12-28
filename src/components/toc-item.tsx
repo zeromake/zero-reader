@@ -21,7 +21,7 @@ export default class TocItem extends Component<ITocProps, IAbcToc> {
     }
     public componentWillReceiveProps(props: ITocProps, context: any) {
         this.setState({
-            ...props.toc
+            ...props.toc,
         });
     }
 
@@ -74,7 +74,7 @@ export default class TocItem extends Component<ITocProps, IAbcToc> {
                                 key: `${props.level}_${index}_${item.index}`,
                                 toc: item,
                                 level: props.level + 1,
-                            }
+                            },
                         )
                     ))
                 }

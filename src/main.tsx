@@ -11,7 +11,9 @@ import { initDevTools } from "zreact/devtools";
 
 render(<MainRouter/>, document.getElementById("app"));
 
-initDevTools();
+if (process.env.NODE_ENV !== "production") {
+    initDevTools();
+}
 // import "font-awesome/css/font-awesome.min.css";
 
 declare const process: any;

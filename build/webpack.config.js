@@ -88,10 +88,10 @@ const config = {
         modules: [path.resolve(__dirname, '../node_modules')],
         // 只采用 main 字段作为入口文件描述字段，以减少搜索步骤
         alias: Object.assign({
-            'zreact/devtools': isProd ? resolve('../src/import/devtools.ts') : 'zreact/devtools',
+            'zreact/devtools': isProd || isCordova ? resolve('../src/import/devtools.ts') : 'zreact/devtools',
             'history/createHashHistory': resolve(isCordova ? '../src/import/hash-history.ts': '../src/import/history.ts'),
             '@': resolve('../src')
-        }, reactAlias),
+        }, zreactAlias),
         extensions: ['.js', '.ts', '.tsx']
     },
     plugins: [
