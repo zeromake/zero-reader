@@ -1,8 +1,8 @@
 import { h, Component } from "react-import";
-import styl from "@/css/toc.styl";
+import styl from "../css/toc.styl";
 import Animate from "preact-animate";
 import { IAbcToc, IEpubToc, IPdfToc } from "../types/index";
-import { shallowDiffers } from "@/utils";
+import { shallowDiffers } from "../utils";
 
 interface ITocProps {
     key: string;

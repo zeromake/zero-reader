@@ -1,6 +1,6 @@
 import { h, Component } from "react-import";
-import styl from "@/css/toc.styl";
-import TocItem from "@/components/toc-item";
+import styl from "../css/toc.styl";
+import TocItem from "./toc-item";
 
 const Toc = (props: any, content: any) => {
     const theme = props.theme;
@@ -14,8 +14,8 @@ const Toc = (props: any, content: any) => {
                             key: `0_${index}_${toc.index}`,
                             onclick: props.onclick,
                             toc,
-                            level: 1
-                        }
+                            level: 1,
+                        },
                     );
                 })
             }

@@ -1,5 +1,5 @@
 import { h } from "react-import";
-import { propsDiffComponent } from "@/utils";
+import { propsDiffComponent } from "../utils";
 
 const SvgIcon = propsDiffComponent((props) => {
     const name = props.name;

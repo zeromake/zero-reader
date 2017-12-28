@@ -1,9 +1,9 @@
 import PdfLayout from "./pdf-layout";
 import EpubLayout from "./epub-layout";
 import { h, Component, Children } from "react-import";
-import { libraryData } from "@/http/index";
+import { libraryData } from "../http/index";
 import { IAbcMeta } from "../types/index";
-import styl from "@/css/layout.styl";
+import styl from "../css/layout.styl";
 
 const bookLayout = {
     pdf: PdfLayout,
