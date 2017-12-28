@@ -1,6 +1,5 @@
-const requireAll = function(requireContext) {
+var requireAll = function(requireContext) {
     return requireContext.keys().map(requireContext)
 }
-const req = require.context('.', false, /\.svg$/)
+var req = require.context('.', false, /\.svg$/)
 requireAll(req)
-export default ""

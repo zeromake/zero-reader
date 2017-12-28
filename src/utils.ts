@@ -50,8 +50,9 @@ export function buildBlock(x: number, y: number, scaleX: number, scaleY?: number
             type = 2;
         }
         return type;
-    };
+    }
     (isBlock as any).height = y;
+    (isBlock as any).width = x;
     return isBlock;
 }
 
@@ -87,7 +88,7 @@ export function propsDiffComponent(render: (props: any) => any) {
 export function filterPropsComponent(props) {
     let vnode: any = "";
     if (props.children) {
-        vnode = Children.only(props.children)
+        vnode = Children.only(props.children);
     }
     return vnode;
 }

@@ -9,6 +9,13 @@ const subscribers = [];
 
 const EMPTY = {};
 
+function isRoute(vnode) {
+    if (vnode) {
+        return vnode.type === Route || vnode.nodeName === Route;
+    }
+    return false;
+}
+
 function isPreactElement(node) {
     return node.__preactattr_ != null || typeof Symbol !== "undefined" && node[Symbol.for("preactattr")] != null;
 }
@@ -189,7 +196,11 @@ class Router extends Component<any, any> {
 
     /** Check if the given URL can be matched against any children */
     private canRoute(url) {
-        return this.handleChildren(this.props.children, url, false).length > 0;
+        return this.handleChildren(
+            Children.toArray(this.props.children),
+            url,
+            false,
+        ).length > 0;
     }
 
     /** Re-render children with a new URL to match against. */
@@ -235,25 +246,31 @@ class Router extends Component<any, any> {
         this.updating = false;
     }
 
-    public handleChildren(children, url, invoke) {
-        children = Children.toArray(children);
-        const newChildren: any[] = [];
+    public handleChildren(children: any[], url: string, invoke: boolean): any[] {
+        let newChildren: any[] = [];
+        let isNoRank = false;
         if (children == null) {
             return newChildren;
         }
         for (let vnode of children) {
-            if (vnode.nodeName === Route || vnode.type === Route) {
-                return this.getMatchingChildren(children, url, invoke);
+            if (isRoute(vnode)) {
+                newChildren = this.getMatchingChildren(children, url, invoke, isNoRank);
+                break;
             } else {
+                isNoRank = true;
                 const vnodeChildren = findChildren(vnode);
                 if (vnodeChildren && vnodeChildren.length > 0) {
-                    vnode = cloneElement(
-                        vnode,
-                        {},
-                        this.handleChildren(vnodeChildren, url, invoke),
-                    );
+                    if (!invoke) {
+                        newChildren = newChildren.concat(this.handleChildren(vnodeChildren, url, invoke));
+                    } else {
+                        vnode = cloneElement(
+                            vnode,
+                            {},
+                            this.handleChildren(vnodeChildren, url, invoke),
+                        );
+                    }
                 }
-                if (vnode) {
+                if (vnode && invoke) {
                     newChildren.push(vnode);
                 }
             }
@@ -261,15 +278,26 @@ class Router extends Component<any, any> {
         return newChildren;
     }
 
-    public getMatchingChildren(children, url, invoke) {
+    public getMatchingChildren(children: any[], url: string, invoke: boolean, isNoRank: boolean = false): any[] {
         const rankArr = [];
-        children.forEach((vnode, index) => {
+        // let isNoRank = false;
+        if (!isNoRank) {
+            let index = 0;
+            for (const vnode of children) {
+                if (isRoute(vnode)) {
             const props = findProps(vnode);
             if (props) {
                 rankArr.push({ index, rank: rankChild(vnode), vnode });
             }
-        });
-        return rankArr.sort(pathRankSort).map(({ vnode }) => {
+                } else {
+                    isNoRank = true;
+                    break;
+                }
+                index += 1;
+            }
+        }
+        const rankChildren = [];
+        const execRoute = (vnode) => {
             const props = findProps(vnode);
             const matches = exec(url, props.path, props);
             if (matches) {
@@ -278,17 +306,36 @@ class Router extends Component<any, any> {
                     assign(newProps, matches);
                     delete (newProps as any).ref;
                     delete (newProps as any).key;
-                    return cloneElement(vnode, newProps);
+                    rankChildren.push(cloneElement(vnode, newProps));
+                } else {
+                    rankChildren.push(vnode);
                 }
-                return vnode;
             }
-        }).filter(Boolean);
+        };
+        if (isNoRank) {
+            for (const vnode of children) {
+                if (isRoute(vnode)) {
+                    execRoute(vnode);
+                } else if (vnode && invoke) {
+                    rankChildren.push(vnode);
+                }
+                }
+        } else {
+            rankArr.sort(pathRankSort).forEach(({ vnode }) => execRoute(vnode));
+            }
+        return rankChildren;
+        // children.forEach((vnode, index) => {
+        //     const props = findProps(vnode);
+        //     if (props) {
+        //         rankArr.push({ index, rank: rankChild(vnode), vnode });
+        //     }
+        // });
     }
 
     public render() {
         const { url } = this.state;
         const { children, onChange } = this.props;
-        const active = this.handleChildren(children, url, true);
+        const active = this.handleChildren(Children.toArray(children), url, true);
 
         const current = active[0] || null;
         this._didRoute = !!current;

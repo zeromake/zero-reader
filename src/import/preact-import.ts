@@ -1,5 +1,6 @@
 import { h, render, Component, findDOMNode, Children } from "./module-preact";
 import Router, { Route, Link, route } from "../assets/router/index";
+import { Match } from "../assets/router/match";
 
 export {
     h,
@@ -11,4 +12,5 @@ export {
     Route,
     route,
     Link,
+    Match,
 };

@@ -1,6 +1,6 @@
 import PdfLayout from "./pdf-layout";
 import EpubLayout from "./epub-layout";
-import { h, Component } from "react-import";
+import { h, Component, Children } from "react-import";
 import { libraryData } from "@/http/index";
 import { IAbcMeta } from "../types/index";
 import styl from "@/css/layout.styl";
@@ -40,7 +40,7 @@ export default class BookLayout extends Component<any, any> {
         });
     }
     public render(): any {
-        let layout: any = "Loading!";
+        let layout: any = Children.only(this.props.children);
         if (this.state.layoutType) {
             const selectLayout: any = bookLayout[this.state.layoutType];
             if (selectLayout) {

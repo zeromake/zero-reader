@@ -5,6 +5,7 @@ import { IAbcMeta, IAbcToc } from "../types/index";
 import Animate from "preact-animate";
 import Toc from "./toc";
 import hotkeys from "hotkeys-js";
+import SvgIcon from "./svg-icon";
 
 interface IabcProps<AbcMeta> {
     path: string;
@@ -153,9 +154,8 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                         }
                         resolve();
                     } finally {
-                        if (this.props.history) {
-                            route(`${this.props.history.location.pathname}?page=${num}`, true);
-                        }
+                        const pathname = this.props.history ? this.props.history.location.pathname : location.pathname;
+                        route(`${pathname}?page=${num}`, true);
                         this.load = false;
                     }
                 });
@@ -287,6 +287,12 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             barShow: show,
         });
     }
+    protected onBack = () => {
+        const propHistory = this.props.history || history;
+        if (propHistory && propHistory.go) {
+            propHistory.go(-1);
+        }
+    }
 
     protected abstract tocClick(toc: IAbcToc): void;
 
@@ -296,10 +302,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                 onClick={(event) => event.stopPropagation()}>
                 <div className={styl.toc_title}>
                     <p>{["目录"]}</p>
-                    <svg viewBox="0 0 24 24" className={styl.toc_close} onClick={() => this.tocToggler(false)}>
-                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
-                        <path d="M0 0h24v24H0z" fill="none"></path>
-                    </svg>
+                    <SvgIcon name="icon-close_light" className={styl.toc_close} onClick={() => this.tocToggler(false)}/>
                 </div>
                 <div className={styl.toc_content}>
                     {this.tocs ? <Toc tocs={this.tocs} onclick={this.tocClick}/> : null}

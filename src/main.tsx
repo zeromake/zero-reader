@@ -15,12 +15,12 @@ import("./assets/icons/index").then(() => {
 
 declare const process: any;
 
-// if (process.env.NODE_ENV !== "production") {
-//     import("zreact/devtools").then(({ initDevTools }) => {
-//         try {
-//             initDevTools();
-//         } catch (e) {
+if (process.env.NODE_ENV !== "production") {
+    import("zreact/devtools").then(({ initDevTools }) => {
+        try {
+            initDevTools();
+        } catch (e) {
 
-//         }
-//     });
-// }
+        }
+    });
+}

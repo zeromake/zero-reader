@@ -1,7 +1,12 @@
 import { h, Component } from "module-react";
 import { subscribers, getCurrentUrl, Link as StaticLink } from "./index";
 
-export class Match extends Component<any, any> {
+interface IMatchProps {
+    path: string;
+    render: (params: any) => any;
+}
+
+export class Match extends Component<IMatchProps, any> {
     public nextUrl: string;
     public static Link = null;
     public update = (url: string) => {
@@ -14,11 +19,12 @@ export class Match extends Component<any, any> {
     public componentWillUnmount() {
         subscribers.splice(subscribers.indexOf(this.update) >>> 0, 1);
     }
-    public render(props) {
+    public render() {
+        const props = this.props;
         const url = this.nextUrl || getCurrentUrl();
         const path = url.replace(/\?.+$/, "");
         this.nextUrl = null;
-        return props.children[0] && props.children[0]({
+        return props.render && props.render({
             url,
             path,
             matches: path === props.path,
@@ -28,8 +34,7 @@ export class Match extends Component<any, any> {
 export const Link = ({ activeClassName, path, ...props }) => (
     h(
         Match,
-        { path: path || props.href },
-        ({ matches }) => (
+        { path: path || props.href, render: ({ matches }) => (
             h(
                 StaticLink,
                 {
@@ -40,7 +45,7 @@ export const Link = ({ activeClassName, path, ...props }) => (
                     ].filter(Boolean).join(" "),
                 },
             )
-        ),
+        )},
     )
 );
 Match.Link = Link;

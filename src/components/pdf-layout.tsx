@@ -43,11 +43,18 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     }
 
     public resize = throttle(() => {
-        const callback = () => this.setZoom().then((zoom: number) => {
-            if (zoom !== this.state.zoom) {
-                this.setState({ zoom });
+        const callback = () => {
+            if (this.page) {
+                const clientWidth = this.page.clientWidth;
+                const clientHeight = this.page.clientHeight;
+                this.isBlock = buildBlock(clientWidth, clientHeight, 1 / 3);
             }
-        });
+            return this.setZoom().then((zoom: number) => {
+                if (zoom !== this.state.zoom) {
+                    this.setState({ zoom });
+                }
+            });
+        };
         if (typeof requestAnimationFrame !== "undefined") {
             requestAnimationFrame(callback);
         } else {
@@ -126,7 +133,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     }
     protected  renderHeader() {
         const meta = this.props.meta;
-        return h(TopBar, {title: meta.title || meta.file_name});
+        return h(TopBar, {title: meta.title || meta.file_name, onBack: this.onBack});
     }
 
     protected  renderFooter() {
@@ -159,10 +166,13 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         });
     }
     private setZoom() {
-        if (this.page) {
+        if (!this.isBlock) {
             const clientWidth = this.page.clientWidth;
             const clientHeight = this.page.clientHeight;
             this.isBlock = buildBlock(clientWidth, clientHeight, 1 / 3);
+        }
+        if (this.page) {
+            const clientWidth = (this.isBlock as any).width;
             const zoom = (clientWidth) / this.width;
             if (this.state.zoom !== zoom) {
                 this.addZoom(zoom);

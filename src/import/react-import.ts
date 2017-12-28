@@ -1,5 +1,6 @@
 import { h, Component, render, findDOMNode, Children } from "./module-react";
 import Router, { Route, Link, route } from "../assets/router/index";
+import { Match } from "../assets/router/match";
 // import Router from "preact-router";
 
 export {
@@ -12,4 +13,5 @@ export {
     Route,
     Link,
     route,
+    Match,
 };

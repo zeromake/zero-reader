@@ -2,6 +2,8 @@ const webpack = require('webpack')
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require("extract-text-webpack-plugin")
+const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin');
+
 const pkg = require("../package.json")
 
 const isProd = process.env.NODE_ENV === 'production'
@@ -81,12 +83,17 @@ const config = {
         filename: '[name]-[hash].js'
     },
     resolve: {
+        mainFields: ['jsnext:main', 'main'],
+        // 只使用当前项目下的node_modules
+        modules: [path.resolve(__dirname, '../node_modules')],
+        // 只采用 main 字段作为入口文件描述字段，以减少搜索步骤
         alias: Object.assign({
             '@': resolve('../src')
         }, zreactAlias),
         extensions: ['.js', '.ts', '.tsx']
     },
     plugins: [
+        new ModuleConcatenationPlugin(),
         new HtmlWebpackPlugin({
             version: pkg.version,
             buildTime: strftime(new Date()),
@@ -208,8 +215,20 @@ if (isProd) {
     )
     config.plugins.push(
         new webpack.optimize.UglifyJsPlugin({
+            // 最紧凑的输出
+            beautify: false,
+            // 删除所有的注释
+            comments: false,
             compress: {
+                // 在UglifyJs删除没有用到的代码时不输出警告
                 warnings: false,
+                // 删除所有的 `console` 语句，可以兼容ie浏览器
+                drop_console: true,
+                // 内嵌定义了但是只用到一次的变量
+                collapse_vars: true,
+                // 提取出出现多次但是没有定义成变量去引用的静态值
+                reduce_vars: true,
+                // warnings: false,
             }
         })
     )

@@ -65,7 +65,7 @@ export function pathRankSort(a, b) {
 export function prepareVNodeForRanking(vnode, index, callbak) {
     // vnode.index = index;
     // vnode.rank = rankChild(vnode);
-    callbak(vnode, index, rank)
+    callbak(vnode, index, rank);
     return vnode.attributes || vnode.props;
 }
 

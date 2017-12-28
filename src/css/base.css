@@ -105,6 +105,7 @@
 } */
 .svg_icon {
   fill: #fff;
+  cursor: pointer;
 }
 .main {
   width: 100%;
