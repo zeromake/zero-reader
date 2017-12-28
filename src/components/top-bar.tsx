@@ -1,7 +1,7 @@
-import styl from "../css/top-bar.styl";
+import styl from "@/css/top-bar.styl";
 import { h } from "react-import";
 import SvgIcon from "./svg-icon";
-import { propsDiffComponent } from "../utils";
+import { propsDiffComponent } from "@/utils";
 
 const TopBar = propsDiffComponent((props) => {
     return <div className={`${styl.top_bar} animated`} onClick={(event: MouseEvent) => event.stopPropagation()}>

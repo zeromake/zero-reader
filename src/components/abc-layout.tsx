@@ -1,7 +1,7 @@
 import { h, Component, findDOMNode, route } from "react-import";
-import { addLinkCss, addStyle, removeHead, filterPropsComponent } from "../utils";
-import styl from "../css/layout.styl";
-import { IAbcMeta, IAbcToc } from "../types/index";
+import { addLinkCss, addStyle, removeHead, filterPropsComponent } from "@/utils";
+import styl from "@/css/layout.styl";
+import { IAbcMeta, IAbcToc } from "@/types/index";
 import Animate from "preact-animate";
 import Toc from "./toc";
 import hotkeys from "hotkeys-js";

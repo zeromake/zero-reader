@@ -1,13 +1,13 @@
-import BookLayout from "./components/book-layout";
-import Library from "./components/library";
+import BookLayout from "@/components/book-layout";
+import Library from "@/components/library";
 import { h, Router, Route } from "react-import";
 import Animate from "preact-animate";
 // import AsyncRoute from "./assets/router/async-route";
-// import createHashHistory from "history/createHashHistory";
+import createHashHistory from "history/createHashHistory";
 
 let history = null;
 if (process.env.platform === "cordova") {
-    const createHashHistory = require("history/createHashHistory").default;
+    // const createHashHistory = require("history/createHashHistory").default;
     history = createHashHistory();
 }
 

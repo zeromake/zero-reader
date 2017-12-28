@@ -1,8 +1,8 @@
 // import { Component, createElement as h } from "react";
 // import { Link } from "react-router-dom";
 import { Component, h, Link } from "react-import";
-import styl from "../css/library.styl";
-import { get_json } from "../http/index";
+import styl from "@/css/library.styl";
+import { get_json } from "@/http/index";
 
 export default class Library extends Component<any, any> {
     constructor(p, c) {

@@ -1,5 +1,5 @@
 import { h, Component } from "react-import";
-import styl from "../css/toc.styl";
+import styl from "@/css/toc.styl";
 import TocItem from "./toc-item";
 
 const Toc = (props: any, content: any) => {

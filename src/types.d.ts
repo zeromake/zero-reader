@@ -83,6 +83,11 @@ declare module "hotkeys-js" {
     export default hotkeys;
 }
 
+declare module "history/createHashHistory" {
+    const History: any;
+    export default History;
+}
+
 declare const process: any;
 
 declare const require: (name: string) => { default: any };

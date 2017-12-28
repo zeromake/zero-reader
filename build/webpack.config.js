@@ -88,8 +88,10 @@ const config = {
         modules: [path.resolve(__dirname, '../node_modules')],
         // 只采用 main 字段作为入口文件描述字段，以减少搜索步骤
         alias: Object.assign({
+            'zreact/devtools': isProd ? resolve('../src/import/devtools.ts') : 'zreact/devtools',
+            'history/createHashHistory': resolve(isCordova ? '../src/import/hash-history.ts': '../src/import/history.ts'),
             '@': resolve('../src')
-        }, zreactAlias),
+        }, reactAlias),
         extensions: ['.js', '.ts', '.tsx']
     },
     plugins: [
@@ -232,12 +234,12 @@ if (isProd) {
             }
         })
     )
-    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-    config.plugins.push(
-        new BundleAnalyzerPlugin({
-            analyzerPort: 9999
-        })
-    )
+    // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+    // config.plugins.push(
+    //     new BundleAnalyzerPlugin({
+    //         analyzerPort: 9999
+    //     })
+    // )
 } else {
     config.plugins.push(
         new webpack.DefinePlugin({

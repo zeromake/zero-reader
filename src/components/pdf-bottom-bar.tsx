@@ -1,5 +1,5 @@
 import { h } from "react-import";
-import styl from "../css/bottom-bar.styl";
+import styl from "@/css/bottom-bar.styl";
 import SvgIcon from "./svg-icon";
 
 // const bottomMenu = [

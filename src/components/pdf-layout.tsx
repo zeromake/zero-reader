@@ -1,11 +1,11 @@
 import { h, findDOMNode } from "react-import";
 import AbcLayout, { IabcState } from "./abc-layout";
-import styl from "../css/layout.styl";
+import styl from "@/css/layout.styl";
 import BottomBar from "./pdf-bottom-bar";
-import { addStyle, buildBlock, filterPropsComponent } from "../utils";
+import { addStyle, buildBlock, filterPropsComponent } from "@/utils";
 import Toc from "./toc";
 import throttle from "lodash.throttle";
-import { IPdfMeta, IAbcToc } from "../types/index";
+import { IPdfMeta, IAbcToc } from "@/types/index";
 import PdfContent from "./pdf-content";
 import hotkeys from "hotkeys-js";
 import TopBar from "./top-bar";
