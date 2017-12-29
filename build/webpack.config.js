@@ -83,13 +83,13 @@ const config = {
         filename: '[name]-[hash].js'
     },
     resolve: {
+        // 只采用 main 字段作为入口文件描述字段，以减少搜索步骤
         mainFields: ['jsnext:main', 'main'],
         // 只使用当前项目下的node_modules
         modules: [path.resolve(__dirname, '../node_modules')],
-        // 只采用 main 字段作为入口文件描述字段，以减少搜索步骤
         alias: Object.assign({
             'zreact/devtools': isProd || isCordova ? resolve('../src/import/devtools.ts') : 'zreact/devtools',
-            'history/createHashHistory': resolve(isCordova ? '../src/import/hash-history.ts': '../src/import/history.ts'),
+            'history/createHashHistory': isCordova ? resolve('../src/import/history.ts'): 'history/createHashHistory',
             '@': resolve('../src')
         }, zreactAlias),
         extensions: ['.js', '.ts', '.tsx']

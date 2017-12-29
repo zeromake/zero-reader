@@ -179,85 +179,87 @@ class Pdf2Json(object):
                 self.extract_zip(pdf2html[0])
         else:
             raise NameError("bin not on")
-        if sysstr == 'Linux':
+        if self.sysstr == 'Linux':
             subprocess.call(["chmod", "+x", pdf2html[1]])
             subprocess.call(["chmod", "+x", 'bin/pdf2htmlEX'])
         temp_name = tempfile.mktemp()
         shutil.copyfile(self.pdf_name, temp_name)
-        exec_str = " ".join([
-            pdf2html[1],
-            '--font-format', 'woff',
-            '--bg-format', 'png',
-            '--optimize-text', '1',
-            '--space-as-offset', '1',
-            '--embed-css', '0',
-            '--embed-font', '0',
-            '--embed-image', '0',
-            '--embed-javascript', '0',
-            '--embed-outline', '0',
-            '--outline-filename', self.toc,
-            '--split-page', '1',
-            '--css-filename', self.css,
-            '--page-filename', self.page,
-            '--data-dir', self.share,
-            '--dest-dir', self.out,
-            temp_name,
-            'index.html'
-        ])
-        popen_obj = subprocess.Popen(
-            exec_str,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            shell=True
-        )
-        flag = False
-        read_num = 1
-        offset = 0
-        offset_start = False
-        old_line = b''
-        add_set = {int('9' * i) for i in range(1, 5)}
-        state = 1
-        # while True:
-        #     line = popen_obj.stdout.readline()
-        #     print(line)
-        #     if not line:
-        #         break
-        while True:
-            line = popen_obj.stdout.read(read_num)
-            if not line:
-                state = popen_obj.wait()
-                break
-            if not flag and line == b'W':
-                if offset_start:
-                    flag = True
-                    read_num = offset
-                    offset_start = False
-                    match = PDF_EXEC.match(old_line.decode('utf8'))
-                    task_progress = match.group(1)
-                    task_count = int(match.group(2))
-                    logger.debug('progress: %s/%d' % (task_progress, task_count))
-                    line = line + popen_obj.stdout.read(read_num -1)
-                else:
-                    offset_start = True
+        try:
+            exec_str = " ".join([
+                pdf2html[1],
+                '--font-format', 'woff',
+                '--bg-format', 'png',
+                '--optimize-text', '1',
+                '--space-as-offset', '1',
+                '--embed-css', '0',
+                '--embed-font', '0',
+                '--embed-image', '0',
+                '--embed-javascript', '0',
+                '--embed-outline', '0',
+                '--outline-filename', self.toc,
+                '--split-page', '1',
+                '--css-filename', self.css,
+                '--page-filename', self.page,
+                '--data-dir', self.share,
+                '--dest-dir', self.out,
+                temp_name,
+                'index.html'
+            ])
+            popen_obj = subprocess.Popen(
+                exec_str,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                shell=True
+            )
+            flag = False
+            read_num = 1
+            offset = 0
+            offset_start = False
+            old_line = b''
+            add_set = {int('9' * i) for i in range(1, 5)}
+            state = 1
+            # while True:
+            #     line = popen_obj.stdout.readline()
+            #     print(line)
+            #     if not line:
+            #         break
+            while True:
+                line = popen_obj.stdout.read(read_num)
+                if not line:
+                    state = popen_obj.wait()
+                    break
+                if not flag and line == b'W':
+                    if offset_start:
+                        flag = True
+                        read_num = offset
+                        offset_start = False
+                        match = PDF_EXEC.match(old_line.decode('utf8'))
+                        task_progress = match.group(1)
+                        task_count = int(match.group(2))
+                        logger.debug('progress: %s/%d' % (task_progress, task_count))
+                        line = line + popen_obj.stdout.read(read_num -1)
+                    else:
+                        offset_start = True
 
-            if offset_start:
-                offset += 1
-                old_line += line
-            if flag:
-                line_str = line.decode('utf8')
-                match = PDF_EXEC.match(line_str)
-                if match:
-                    task_progress = int(match.group(1))
-                    if task_progress in add_set:
-                        read_num += 1
-                    logger.debug('progress: %d/%d' % (task_progress, task_count))
-                else:
-                    flag = False
-                    read_num = 1
-                    offset = 0
-                    offset_start = False
-                    old_line = b''
-        os.remove(temp_name)
+                if offset_start:
+                    offset += 1
+                    old_line += line
+                if flag:
+                    line_str = line.decode('utf8')
+                    match = PDF_EXEC.match(line_str)
+                    if match:
+                        task_progress = int(match.group(1))
+                        if task_progress in add_set:
+                            read_num += 1
+                        logger.debug('progress: %d/%d' % (task_progress, task_count))
+                    else:
+                        flag = False
+                        read_num = 1
+                        offset = 0
+                        offset_start = False
+                        old_line = b''
+        finally:
+            os.remove(temp_name)
         with file_open(os.path.join(self.out, 'exec.lock'), 'w') as file_:
             file_.write(str(state))
 

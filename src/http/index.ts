@@ -1,4 +1,4 @@
-let baseUrl = "";
+let baseUrl = "/library";
 
 if (process.env.platform === "cordova" && process.env.NODE_ENV !== "production") {
     baseUrl = location.origin;
@@ -131,13 +131,13 @@ export function libraryData(sha: string) {
             }
         },
         json(url: string) {
-            return this.get(`/library/${sha}/${url}`, json);
+            return this.get(`/${sha}/${url}`, json);
         },
         text(url: string) {
-            return this.get(`/library/${sha}/${url}`, text);
+            return this.get(`/${sha}/${url}`, text);
         },
         css(url: string) {
-            return `${baseUrl}/library/${sha}/${url}`;
+            return `${baseUrl}/${sha}/${url}`;
         },
         image(url: string) {
             return this.css(url);

@@ -15,6 +15,7 @@ sanic = "*"
 "aiosqlite3" = "*"
 sanic-graphql = "*"
 sqlalchemy = "*"
+ipfsapi = "*"
 
 
 [dev-packages]
