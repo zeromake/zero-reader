@@ -13,13 +13,15 @@ export default class EpubLayout extends AbcLayout<any, any> {
     private htmlPage: number;
     private htmlOffsetPage: number;
     private initPage: boolean;
+    private columnCount: number = 2;
 
     constructor(props, content) {
         super(props, content);
         this.resize = throttle(this.resize.bind(this), 100);
         this.tocClick = this.tocClick.bind(this);
         this.bottomBarClick = this.bottomBarClick.bind(this);
-        this.htmlOffsetPage = 0;
+        
+        this.htmlOffsetPage = +props.offset || 0;
     }
 
     public componentDidMount() {
@@ -29,7 +31,9 @@ export default class EpubLayout extends AbcLayout<any, any> {
                 page,
             }, () => {
                 callback && callback();
-                this.resize();
+                this.initPage = true;
+                // this.resize(null, true);
+                // this.offsetPage();
             });
         });
     }
@@ -38,23 +42,38 @@ export default class EpubLayout extends AbcLayout<any, any> {
         if (dom) {
             const lastChild = dom.lastElementChild;
             this.htmlPage = lastChild.offsetLeft / (lastChild.offsetWidth + 45);
+            dom.style.columns = `auto ${this.columnCount}`;
         }
         this.htmlDom = dom;
+        if (this.initPage) {
+            this.initPage = false;
+            this.resize(null, true);
+            this.offsetPage();
+        }
     }
 
-    protected resize() {
+    protected resize(event, flag?:boolean) {
         if (this.page) {
             const clientWidth = this.page.clientWidth;
             const clientHeight = this.page.clientHeight;
             this.isBlock = buildBlock(clientWidth, clientHeight, 1 / 3);
         }
         this.setHtmlPage();
+        if (!flag) {
+            this.htmlOffsetPage = 0;
+            this.offsetPage();
+        }
     }
 
     protected setHtmlPage() {
         if (this.htmlDom) {
             const lastChild = this.htmlDom.lastElementChild;
-            this.htmlPage = lastChild.offsetLeft / (lastChild.offsetWidth + 45);
+            const pageNum = lastChild.offsetLeft / ((lastChild.offsetWidth + 45) * this.columnCount);
+            if (pageNum % 1) {
+                this.htmlPage = ~~(pageNum) + 1;
+            } else {
+                this.htmlPage = pageNum;
+            }
         }
     }
 
@@ -62,11 +81,19 @@ export default class EpubLayout extends AbcLayout<any, any> {
 
     }
     protected bottomBarClick(type: number) {
-
+        if (type === 2) {
+            if (this.htmlDom) {
+                this.columnCount = this.columnCount === 1 ? 2 : 1;
+                this.htmlDom.style.columns = `auto ${this.columnCount}`;
+            }
+        }
     }
 
     protected offsetPage() {
         if (this.htmlDom) {
+            if (this.htmlOffsetPage >= this.htmlPage) {
+                this.htmlOffsetPage = 0;
+            }
             const offset = 100 * this.htmlOffsetPage;
             const offsetGap = 45 * this.htmlOffsetPage; 
             this.htmlDom.style.left = `calc(-${offset}% - ${offsetGap}px)`;
@@ -76,20 +103,28 @@ export default class EpubLayout extends AbcLayout<any, any> {
         }
     }
 
-    protected nextPage(raw: boolean = false) {
-        if (raw || this.htmlOffsetPage >= this.htmlPage) {
-            this.htmlOffsetPage = 0;
-            return super.nextPage();
+    protected nextPage(event=null, raw: boolean = false) {
+        if (raw || this.htmlOffsetPage >= this.htmlPage - 1) {
+            const res = super.nextPage();
+            if (res) {
+                res.then(() => {
+                    this.htmlOffsetPage = 0;
+                    this.setHtmlPage();
+                    this.offsetPage();
+                });
+            }
+            return res;
         }
         this.htmlOffsetPage += 1;
         this.offsetPage();
     }
-    protected previousPage(raw: boolean = false) {
+    protected previousPage(event=null, raw: boolean = false) {
         if (raw || this.htmlOffsetPage <= 0) {
             const res = super.previousPage();
             if (res) {
                 res.then(() => {
-                    this.htmlOffsetPage = this.htmlPage;
+                    this.setHtmlPage();
+                    this.htmlOffsetPage = this.htmlPage === 0 ? 0 : this.htmlPage - 1;
                     this.offsetPage();
                 })
             }

@@ -6,6 +6,7 @@ import Animate from "preact-animate";
 import Toc from "./toc";
 import hotkeys from "hotkeys-js";
 import SvgIcon from "./svg-icon";
+import Dialog from "./dialog";
 
 interface IabcProps<AbcMeta> {
     path: string;
@@ -301,17 +302,22 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     protected abstract resize(event: UIEvent): void;
 
     protected renderToc() {
-        return <div
-                className={`${styl.toc_layout} animated`}
-                onClick={(event) => event.stopPropagation()}>
-                <div className={styl.toc_title}>
-                    <p>{["目录"]}</p>
-                    {h(SvgIcon, { name: "icon-close_light", className: styl.toc_close, onClick: () => this.tocToggler(false) })}
-                </div>
-                <div className={styl.toc_content}>
-                    {this.tocs ? <Toc tocs={this.tocs} onclick={this.tocClick}/> : null}
-                </div>
-            </div>;
+        return <Dialog title="目录" close={() => this.tocToggler(false)}>
+            <div className={styl.toc_content}>
+                {this.tocs ? <Toc tocs={this.tocs} onclick={this.tocClick}/> : null}
+            </div>
+        </Dialog>
+        // return <div
+        //         className={`${styl.toc_layout} animated`}
+        //         onClick={(event) => event.stopPropagation()}>
+        //         <div className={styl.toc_title}>
+        //             <p>{["目录"]}</p>
+        //             {h(SvgIcon, { name: "icon-close_light", className: styl.toc_close, onClick: () => this.tocToggler(false) })}
+        //         </div>
+        //         <div className={styl.toc_content}>
+        //             {this.tocs ? <Toc tocs={this.tocs} onclick={this.tocClick}/> : null}
+        //         </div>
+        //     </div>;
     }
 
     public render() {
