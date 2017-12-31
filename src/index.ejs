@@ -9,6 +9,9 @@
 </head>
 <body>
     <div id="app"></div>
+    <% if (htmlWebpackPlugin.options.isCordova){%>
+    <script type="text/javascript" src="cordova.js"></script>
+    <%}%>
     <% if (!htmlWebpackPlugin.options.isProd){%>
     <script>
         ;(function () {

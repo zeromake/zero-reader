@@ -25,6 +25,7 @@ interface IBookState extends IabcState {
     zoom: number;
 }
 
+
 // const PdfContent = propsDiffComponent("div");
 
 export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
@@ -40,9 +41,10 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         this.state.offset = 0;
         this.load = false;
         this.tocClick = this.tocClick.bind(this);
+        this.resize = throttle(this.resize.bind(this), 100);
     }
 
-    public resize = throttle(() => {
+    public resize() {
         const callback = () => {
             if (this.page) {
                 const clientWidth = this.page.clientWidth;
@@ -60,7 +62,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         } else {
             setTimeout(callback());
         }
-    }, 100);
+    }
 
     public componentDidMount() {
         this.hotkey["up, j"] = () => {
@@ -83,7 +85,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                 }
             }
         };
-        this.init().then(({ pageHtml, page }) => {
+        this.init().then(({ pageHtml, page, callback }) => {
             if (this.props.meta.zoom) {
                 this.getZoom(this.props.meta.zoom).then((zoom: number) => {
                     this.setState({
@@ -91,8 +93,9 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                         page,
                         zoom,
                     }, () => {
-                        window.addEventListener("resize", this.resize as any);
+                        callback && callback();
                         this.resize();
+                        this.mountCss.push("zoom_style");
                     });
                 });
             }
@@ -114,11 +117,6 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     private bottomBarClick = (id: number, event: MouseEvent) => {
         event.stopPropagation();
         if (id === 1) {
-            // delete this.clickState.barShow;
-            // const obj = {
-            //     barShow: false,
-            // };
-            // this.clickState['tocShow'] = false;
             if (this.tocs) {
                 this.barToggler(false);
                 this.tocToggler(true);
@@ -149,7 +147,6 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                     {h(
                         PdfContent,
                         {
-                            bg: styl[state.bg],
                             pageHtml: state.pageHtml,
                             library: this.library,
                         },
@@ -166,12 +163,12 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         });
     }
     private setZoom() {
-        if (!this.isBlock) {
+        if (this.page && !this.isBlock) {
             const clientWidth = this.page.clientWidth;
             const clientHeight = this.page.clientHeight;
             this.isBlock = buildBlock(clientWidth, clientHeight, 1 / 3);
         }
-        if (this.page) {
+        if (this.isBlock) {
             const clientWidth = (this.isBlock as any).width;
             const zoom = (clientWidth) / this.width;
             if (this.state.zoom !== zoom) {
@@ -193,7 +190,6 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
             });
             const cssText = css.join("\n");
             const cssId = "zoom_style";
-            this.mountCss.push(cssId);
             addStyle(cssId, cssText);
         }
     }

@@ -94,7 +94,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             },
         };
         this.state = {
-            bg: "blue",
+            bg: "white",
             barShow: false,
             tocShow: false,
         } as AbcState;
@@ -129,6 +129,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         return Promise.resolve({
             pageHtml,
             page,
+            callback: () => window.addEventListener("resize", this.resize),
         });
         // await this.setPage(0);
     }
@@ -152,11 +153,11 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                         } else {
                             console.log("page no has scroll: ");
                         }
-                        resolve();
                     } finally {
                         const pathname = this.props.history ? this.props.history.location.pathname : location.pathname;
                         route(`${pathname}?page=${num}`, true);
                         this.load = false;
+                        resolve();
                     }
                 });
             });
@@ -170,6 +171,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         return this.library.json(this.props.meta.toc);
     }
     public componentWillUnmount() {
+        window.removeEventListener("resize", this.resize);
         const keys = [];
         for (const key in this.hotkey) {
             if (key) {
@@ -296,13 +298,15 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
 
     protected abstract tocClick(toc: IAbcToc): void;
 
+    protected abstract resize(event: UIEvent): void;
+
     protected renderToc() {
         return <div
                 className={`${styl.toc_layout} animated`}
                 onClick={(event) => event.stopPropagation()}>
                 <div className={styl.toc_title}>
                     <p>{["目录"]}</p>
-                    <SvgIcon name="icon-close_light" className={styl.toc_close} onClick={() => this.tocToggler(false)}/>
+                    {h(SvgIcon, { name: "icon-close_light", className: styl.toc_close, onClick: () => this.tocToggler(false) })}
                 </div>
                 <div className={styl.toc_content}>
                     {this.tocs ? <Toc tocs={this.tocs} onclick={this.tocClick}/> : null}
@@ -318,7 +322,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                 componentProps={{
                     onClick: this.pageClick,
                     // ref: ((vdom: any) => this.page = findDOMNode(vdom)),
-                    className: styl.content,
+                    className: `${styl.content}  ${styl[this.state.bg]}`,
                 }}
                 transitionEnter={true}
                 transitionLeave={true}

@@ -92,3 +92,18 @@ export function filterPropsComponent(props) {
     }
     return vnode;
 }
+
+
+declare const AndroidFullScreen: any;
+export function togglerFullScreen(show: boolean) {
+    if (typeof AndroidFullScreen !== "undefined") {
+        AndroidFullScreen.isSupported(function() {
+            // console.log("--------", show);
+            if (show) {
+                AndroidFullScreen.showSystemUI();
+            } else {
+                AndroidFullScreen.immersiveMode();
+            }
+        });
+    } 
+}

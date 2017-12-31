@@ -31,11 +31,12 @@ export default class PdfContent extends Component<any, any> {
     }
     protected bindObserver() {
         if (!this.observer) {
-            this.observer = lozad(".lozad", {
+            this.observer = lozad("img.lozad", {
                 target: findDOMNode(this),
-                load: (element) => {
-                    if (element.getAttribute("data-src")) {
-                        element.src = this.props.library.image(element.getAttribute("data-src"));
+                load: (element: HTMLImageElement) => {
+                    const dataSrc = element.getAttribute("data-src");
+                    if (dataSrc) {
+                        element.src = this.props.library.image(dataSrc);
                     }
                 },
             });
@@ -53,7 +54,6 @@ export default class PdfContent extends Component<any, any> {
     public render() {
         const props = this.props;
         return <div
-            className={`${props.bg}`}
             dangerouslySetInnerHTML={{__html: props.pageHtml}}>
         </div>;
     }

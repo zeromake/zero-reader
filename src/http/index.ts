@@ -1,12 +1,12 @@
 let baseUrl = "/library";
 
 if (process.env.platform === "cordova" && process.env.NODE_ENV !== "production") {
-    baseUrl = location.origin;
+    baseUrl = location.origin + '/library';
 }
 if (process.env.platform === "cordova" && process.env.NODE_ENV === "production") {
     baseUrl = localStorage.getItem("baseUrl");
     if (!baseUrl || baseUrl === "") {
-        baseUrl = prompt("填写服务器地址", "http://");
+        baseUrl = prompt("填写服务器地址", "http://192.168.2.103:8080/library");
         localStorage.setItem("baseUrl", baseUrl);
     }
 }

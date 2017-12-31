@@ -22,6 +22,8 @@ from .utils import (
     zip_join,
     HTTP_NAME,
     FONT_RE,
+    FACE_RE_START,
+    FACE_RE_END,
     logger,
     get_file_path_dir,
     get_file_path_name,
@@ -143,15 +145,17 @@ class Epub2Json(object):
         保存zip中的文件到tar或文件系统
         """
         if zip_path in self.file_set:
+            if not isinstance(zip_path, str):
+                raise TypeError("%s -> %s" % (zip_path, output_path))
             logger.warn("has file: %s", zip_path)
             return
         else:
             self.file_set.add(zip_path)
         if self.compress:
-            add_zipfile_to_tar(self.tar_file, zip_file, zip_path, output_path)
+            return add_zipfile_to_tar(self.tar_file, zip_file, zip_path, output_path)
         else:
             output_path = os.path.join(self.dist, output_path)
-            copy_zip_file(zip_file, zip_path, output_path)
+            return copy_zip_file(zip_file, zip_path, output_path)
 
     def save_tar_json(self, output_path, data):
         """
@@ -275,7 +279,7 @@ class Epub2Json(object):
         container_data = []
         for container_name, container_num in self.container:
             data = {
-                'data-page-url': container_name,
+                'data-page-url': zip_join(self.page_dir, container_name),
                 'index': container_num
             }
             if container_num in self.toc_link:
@@ -480,6 +484,7 @@ class Epub2Json(object):
         过滤字体
         """
         css_dir = get_file_path_dir(css_zip_path)
+        self.flag = False
         def replace_copy_font(match):
             """
             替换css中的字体路径，并拷贝到指定目录
@@ -488,17 +493,47 @@ class Epub2Json(object):
             font_path = zip_join(css_dir, font_url)
             font_name = get_file_path_name(font_url)
             out_name = zip_join(self.font_dir, font_name)
-            self.save_zip_file(epub_file, font_path, out_name)
-            out_url = ('../' * self.css_deep) + out_name
-            logger.debug('save font: ' + font_path + ' -> ' + out_name)
-            return 'src: url(%s)' % out_url
+            if self.save_zip_file(epub_file, font_path, out_name):
+                out_url = ('../' * self.css_deep) + out_name
+                logger.debug('save font: ' + font_path + ' -> ' + out_name)
+                replace_str = 'url(%s)' % out_url
+                if match.group(0).endswith(","):
+                    replace_str += ','
+                self.flag = True
+            else:
+                if not font_url.startswith("res:///") and not font_url.startswith("/"):
+                    out_url = ('../' * self.css_deep) + out_name
+                    replace_str = 'url(%s)' % out_url
+                    raw_str = match.group(0)
+                    if raw_str.endswith(","):
+                        replace_str += ','
+                    if raw_str.startswith("src:"):
+                        replace_str = "src: " + replace_str
+                else:
+                    replace_str = ""
+            return replace_str
 
         with epub_file.open(css_zip_path, 'r') as from_file:
             line = from_file.readline().decode('utf8')
             with self.open_temp_file(css_out_path, 'w', encoding='utf8') as out_fd:
+                face_arr = []
+                face_start = False
                 while line:
-                    line = FONT_RE.sub(replace_copy_font, line)
-                    out_fd.write(line)
+                    if FACE_RE_START.match(line):
+                        face_start = True
+                    if face_start and FACE_RE_END.match(line):
+                        face_start = False
+                        if self.flag:
+                            for temp in face_arr:
+                                out_fd.write(temp)
+                            out_fd.write(line)
+                        self.flag = False
+                        face_arr = []
+                    elif face_start:
+                        line = FONT_RE.sub(replace_copy_font, line)
+                        face_arr.append(line)
+                    else:
+                        out_fd.write(line)
                     line = from_file.readline().decode('utf8')
 
     def handle_page(self, epub_file):
@@ -577,6 +612,11 @@ class Epub2Json(object):
                         else:
                             img_out_name = zip_join(self.image_dir, img_src)
                         self.save_zip_file(epub_file, img_zip_path, os.path.join(img_out_name))
+                        old_class = img.get('class')
+                        tmp = 'lozad'
+                        if old_class:
+                            tmp += " " + old_class
+                        img.set('class', tmp)
                         del img.attrib[name_spaces]
                         img.set('data-src', img_out_name)
                 self.save_tar_xml(tree, new_page_path)

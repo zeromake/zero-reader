@@ -8,7 +8,6 @@ import os
 import argparse
 import asyncio
 
-from web_app import app
 
 from converts.pdf2json import Pdf2Json
 from converts.epub2json import Epub2Json
@@ -93,6 +92,7 @@ def main():
         os.makedirs(options['dist'])
     loop = asyncio.get_event_loop()
     if options['web'] == 1:
+        from web_app import app
         app.run()
     else:
         convert = None

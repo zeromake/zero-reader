@@ -38,8 +38,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger('converts')
 
-
-
 IS_PY3 = sys.version_info[0] > 2
 ENCODING = 'utf-8'
 
@@ -58,7 +56,13 @@ NAMESPACES = {
 HTTP_NAME = re.compile(r'(^(?:[a-z]+\:)?(?:\/\/))')
 
 FONT_RE = re.compile(
-    r'src *: *url\(\'?"? *([a-zA-Z0-9\/\-_]+\.(?:ttf|woff|woff2|svg|eot)) *\'?"?\)'
+    r'(?:src: *)?url\(\'?"? *([a-zA-Z0-9\/\-_:\.]+\.(?:ttf|woff|woff2|svg|eot|otf)) *\'?"?\),? *'
+)
+FACE_RE_START = re.compile(
+    r'^ *@font-face *{'
+)
+FACE_RE_END = re.compile(
+    r'^.*}$'
 )
 
 PDF_EXEC = re.compile(r'Working: *(\d+)\/(\d+)')
@@ -225,8 +229,10 @@ def copy_zip_file(zip_file, from_path, to_path):
                 while data:
                     to_file.write(data)
                     data = from_file.read(io.DEFAULT_BUFFER_SIZE)
+        return True
     except KeyError:
-        logger.debug('miss: %s not in zip' % zip_file)
+        logger.debug('miss: %s not in zip' % from_path)
+        return False
 
 def zip_join(*dirs):
     """
@@ -238,7 +244,8 @@ def zip_join(*dirs):
             dir_arr = dir_name.split('/')
             for item in dir_arr:
                 if item == '..':
-                    dist_dirs.pop()
+                    if len(dist_dirs):
+                        dist_dirs.pop()
                 else:
                     dist_dirs.append(item)
         else:
@@ -279,10 +286,13 @@ def add_zipfile_to_tar(tar_file, zip_file, zip_path, output_path):
     """
     把zip文件放入tar中
     """
+    status = False
     temp = tempfile.mktemp()
-    copy_zip_file(zip_file, zip_path, temp)
-    add_path_to_tar(tar_file, temp, output_path)
+    if copy_zip_file(zip_file, zip_path, temp):
+        status = True
+        add_path_to_tar(tar_file, temp, output_path)
     os.remove(temp)
+    return status
 
 def add_json_to_tar(tar_file, json_data, output_path):
     """

@@ -61,6 +61,7 @@ const zreactAlias = {
     'react-import': resolve('../src/import/zreact-import.ts'),
 }
 const reactAlias = {
+    'zreact/devtools': resolve('../src/import/devtools.ts'),
     'zreact': resolve('../src/import/module-react.ts'),
     'preact': resolve('../src/import/module-react.ts'),
     'module-react': resolve('../src/import/module-react.ts'),
@@ -69,6 +70,7 @@ const reactAlias = {
 }
 const preactAlias = {
     'zreact': 'preact',
+    'zreact/devtools': resolve('../src/import/devtools.ts'),
     'module-react': resolve('../src/import/module-preact.ts'),
     'react-import': resolve('../src/import/preact-import.ts'),
 }
@@ -89,7 +91,7 @@ const config = {
         modules: [path.resolve(__dirname, '../node_modules')],
         alias: Object.assign({
             'zreact/devtools': isProd || isCordova ? resolve('../src/import/devtools.ts') : 'zreact/devtools',
-            'history/createHashHistory': isCordova ? resolve('../src/import/history.ts'): 'history/createHashHistory',
+            'history/createHashHistory': isCordova ? 'history/createHashHistory' : resolve('../src/import/history.ts'),
             '@': resolve('../src')
         }, zreactAlias),
         extensions: ['.js', '.ts', '.tsx']
@@ -100,6 +102,7 @@ const config = {
             version: pkg.version,
             buildTime: strftime(new Date()),
             isProd,
+            isCordova,
             filename: 'index.html',
             template: 'src/index.ejs',
             inject: true
@@ -215,25 +218,25 @@ if (isProd) {
             }
         })
     )
-    config.plugins.push(
-        new webpack.optimize.UglifyJsPlugin({
-            // 最紧凑的输出
-            beautify: false,
-            // 删除所有的注释
-            comments: false,
-            compress: {
-                // 在UglifyJs删除没有用到的代码时不输出警告
-                warnings: false,
-                // 删除所有的 `console` 语句，可以兼容ie浏览器
-                drop_console: true,
-                // 内嵌定义了但是只用到一次的变量
-                collapse_vars: true,
-                // 提取出出现多次但是没有定义成变量去引用的静态值
-                reduce_vars: true,
-                // warnings: false,
-            }
-        })
-    )
+    // config.plugins.push(
+    //     new webpack.optimize.UglifyJsPlugin({
+    //         // 最紧凑的输出
+    //         beautify: false,
+    //         // 删除所有的注释
+    //         comments: false,
+    //         compress: {
+    //             // 在UglifyJs删除没有用到的代码时不输出警告
+    //             warnings: false,
+    //             // 删除所有的 `console` 语句，可以兼容ie浏览器
+    //             drop_console: true,
+    //             // 内嵌定义了但是只用到一次的变量
+    //             collapse_vars: true,
+    //             // 提取出出现多次但是没有定义成变量去引用的静态值
+    //             reduce_vars: true,
+    //             // warnings: false,
+    //         }
+    //     })
+    // )
     // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
     // config.plugins.push(
     //     new BundleAnalyzerPlugin({

@@ -2,6 +2,7 @@ import BookLayout from "@/components/book-layout";
 import Library from "@/components/library";
 import { h, Router, Route } from "react-import";
 import Animate from "preact-animate";
+import { togglerFullScreen } from "./utils";
 // import AsyncRoute from "./assets/router/async-route";
 import createHashHistory from "history/createHashHistory";
 
@@ -14,10 +15,28 @@ if (process.env.platform === "cordova") {
 // const Library = () => import("./components/library").then((modul) => modul.default);
 
 // const BookLayout = () => import("./components/book-layout").then((modul) => modul.default);
+let onAfterEnter = null
+if (process.env.platform === "cordova") {
+    onAfterEnter = function(component) {
+        if (component && component.props) {
+            let flag = null;
+            if(component.props.rawKey === "2") {
+                flag = false
+            } else if(component.props.rawKey === "1"){
+                flag = true;
+            }
+            requestAnimationFrame(() => togglerFullScreen(flag));
+        }
+    }
+}
 
 const MainRouter = () => (
     <Router history={tmpHistory}>
-        <Animate component="div" componentProps={{className: "main"}} transitionEnter={true} transitionLeave={true} transitionName={null}>
+        <Animate
+            component="div"
+            componentProps={{className: "main"}}
+            onAfterEnter={onAfterEnter}
+            >
             <Route
                 key="1"
                 component={Library}
@@ -31,7 +50,7 @@ const MainRouter = () => (
                 path="/library/:sha/"
                 transitionName={{ enter: "fadeInRight", leave: "fadeOutRight" }}
             >
-            <div>loading!</div>
+                <div>loading!</div>
             </Route>
         </Animate>
     </Router>
