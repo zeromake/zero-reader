@@ -501,16 +501,22 @@ class Epub2Json(object):
                     replace_str += ','
                 self.flag = True
             else:
-                if not font_url.startswith("res:///") and not font_url.startswith("/"):
-                    out_url = ('../' * self.css_deep) + out_name
-                    replace_str = 'url(%s)' % out_url
-                    raw_str = match.group(0)
-                    if raw_str.endswith(","):
-                        replace_str += ','
-                    if raw_str.startswith("src:"):
-                        replace_str = "src: " + replace_str
-                else:
-                    replace_str = ""
+                raw_str = match.group(0)
+                if not raw_str.startswith("src:"):
+                        self.flag = True
+                # if not font_url.startswith("res:///") and not font_url.startswith("/"):
+                #     out_url = ('../' * self.css_deep) + out_name
+                #     replace_str = 'url(%s)' % out_url
+                #     raw_str = match.group(0)
+                #     if raw_str.endswith(","):
+                #         replace_str += ','
+                #     if raw_str.startswith("src:"):
+                #         replace_str = "src: " + replace_str
+                #     else:
+                #         self.flag = True
+                        
+                # else:
+                replace_str = ""
             return replace_str
 
         with epub_file.open(css_zip_path, 'r') as from_file:
