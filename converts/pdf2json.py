@@ -282,15 +282,8 @@ class Pdf2Json(object):
             'data-dest-detail': lambda x: tuple(json.loads(x)),
             'href': lambda x: x[1:]
         }
-        with file_open(toc_html_name, 'r', encoding='utf8') as file_:
-            try:
-                tree = etree.parse(file_)
-            except etree.XMLSyntaxError as error:
-                if is_try:
-                    raise error
-                file_.seek(0)
-                self.toc_del_zero(toc_html_name)
-                return await self.toc_to_json(toc_html_name, toc_json_name, True)
+        with file_open(toc_html_name, 'r', encoding='utf8', errors="ignore") as file_:
+            tree = etree.parse(file_)
             toc = []
 
             def callback_toc(item, level):
@@ -356,7 +349,7 @@ class Pdf2Json(object):
         # background.append("div.background_img_class{")
         # background.append("  background-size: 100%;")
         # background.append("}")
-        with file_open(container_name, encoding='utf8') as file_:
+        with file_open(container_name, encoding='utf8', errors="ignore") as file_:
             tree = etree.parse(file_)
             container_root = tree.xpath(u'//div[@id="page-container"]')[0]
             last_class = None
@@ -397,7 +390,8 @@ class Pdf2Json(object):
         join_dir = 'img'
         input_name = os.path.join(input_dir, page_name)
         out_name = os.path.join(out_dir, page_name)
-        with file_open(input_name, 'r', encoding='utf8') as file_:
+        print(input_name)
+        with file_open(input_name, 'r', encoding='utf8', errors="ignore") as file_:
             tree = etree.parse(file_)
             root = tree.getroot()
             old_class = root.get('class')
@@ -470,8 +464,8 @@ class Pdf2Json(object):
             'width': 0,
             'height': 0
         }
-        with file_open(css_name, 'r', encoding='utf-8') as file_:
-            with file_open(out_name, 'w', encoding='utf-8') as out_fd:
+        with file_open(css_name, 'r', encoding='utf-8', errors="ignore") as file_:
+            with file_open(out_name, 'w', encoding='utf-8', errors="ignore") as out_fd:
                 line = file_.readline()
                 media_print = False
                 while line:

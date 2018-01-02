@@ -71,6 +71,8 @@ def file_open(*args, **k):
     """
     代理原open保证python2，python3通用
     """
+    # if 'errors' not in k:
+    #     k['errors'] = 'surrogateescape'
     if IS_PY3:
         return open(*args, **k)
     return codecs.open(*args, **k)
