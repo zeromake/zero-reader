@@ -21,6 +21,7 @@ export default class EpubContent extends Component<any, any> {
             this.observer.unobserve();
             this.observer = null;
         }
+        this.setHtmlPage();
     }
     public componentDidUpdate(previousProps: any, previousState: any, previousContext: any) {
         if (this.props.pageHtml) {
@@ -31,24 +32,55 @@ export default class EpubContent extends Component<any, any> {
                 this.bindObserver();
             }
         }
+        this.setHtmlPage();
+    }
+
+    public setHtmlPage() {
+        if (this.props.setHtmlPage && this.props.columnCount !== 0) {
+            const base = findDOMNode(this);
+            let lastChild: HTMLElement = base.lastElementChild as HTMLElement;
+            const offsetLeft = lastChild.offsetLeft;
+            const offsetWidth = (lastChild.offsetWidth + 90) * this.props.columnCount;
+            let pageNum = 0;
+            if (offsetLeft > offsetWidth) {
+                pageNum = offsetLeft / offsetWidth;
+            }
+            if (pageNum === 0) {
+                // lastChild = lastChild.lastElementChild as HTMLElement;
+                while (true) {
+                    const lastElementChild = lastChild.lastElementChild as HTMLElement;
+                    if (lastElementChild && lastElementChild.offsetLeft) {
+                        lastChild = lastElementChild;
+                    } else {
+                        break;
+                    }
+                }
+                pageNum = lastChild.offsetLeft / offsetWidth;
+            }
+            let htmlPage = 0;
+            if (pageNum % 1) {
+                htmlPage = ~~(pageNum) + 1;
+            } else {
+                htmlPage = pageNum;
+            }
+            console.log("----setHtmlPage---", htmlPage);
+            this.props.setHtmlPage(htmlPage);
+        }
     }
     protected bindObserver() {
-        if (this.props.pageRef) {
-            this.props.pageRef(document.querySelector(`.${styl.content}>div`));
-        }
         Array.prototype.forEach.call(findDOMNode(this).querySelectorAll("img.lozad"), (element: HTMLImageElement) => {
             const dataSrc = element.getAttribute("data-src");
             if (dataSrc) {
                 element.src = this.props.library.image(dataSrc);
             }
-        })
+        });
         Array.prototype.forEach.call(findDOMNode(this).querySelectorAll("image.lozad"), (element: SVGImageElement) => {
             const nameSpace = "http://www.w3.org/1999/xlink";
             const dataSrc = element.getAttribute("data-src");
             if (dataSrc) {
                 element.setAttributeNS(nameSpace, "xlink:href", this.props.library.image(dataSrc));
             }
-        })
+        });
         // if (!this.observer) {
         //     this.observer = lozad("img.lozad", {
         //         target: findDOMNode(this),
@@ -73,8 +105,22 @@ export default class EpubContent extends Component<any, any> {
 
     public render() {
         const props = this.props;
-        return <div className={styl.content + " " + (this.props.not ? styl.content_not : "")}
-            dangerouslySetInnerHTML={{__html: props.pageHtml}}>
+        const style: any = {};
+        let className = styl.content;
+        if (this.props.columnCount !== 0) {
+            className += " " + styl.content_not;
+            style.columns = `auto ${this.props.columnCount}`;
+        }
+        if (this.props.columnOffset !== 0) {
+            const offset = 100 * this.props.columnOffset;
+            const offsetGap = 45 * this.props.columnOffset;
+            style.left = `calc(-${offset}% - ${offsetGap}px)`;
+        }
+        return <div
+            className={className}
+            dangerouslySetInnerHTML={{__html: props.pageHtml}}
+            style={style}
+        >
         </div>;
     }
 }

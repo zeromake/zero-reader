@@ -25,7 +25,6 @@ interface IBookState extends IabcState {
     zoom: number;
 }
 
-
 // const PdfContent = propsDiffComponent("div");
 
 export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {

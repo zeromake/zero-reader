@@ -10,7 +10,7 @@ import zipfile
 import posixpath
 import tempfile
 import asyncio
-from lxml import etree
+from lxml import etree, objectify
 from .utils import (
     file_sha256,
     file_open,
@@ -625,7 +625,19 @@ class Epub2Json(object):
                         img.set('class', tmp)
                         del img.attrib[name_spaces]
                         img.set('data-src', img_out_name)
-                self.save_tar_xml(tree, new_page_path)
+                with file_open(os.path.join(self.dist, new_page_path), 'wb') as xml_file:
+                    root_tree = tree.getroot()
+                    for child in root_tree.iterchildren():
+                        string_ = etree.tostring(
+                            child,
+                            pretty_print=True
+                        )
+                        string_ = string_.replace(b' xmlns="http://www.w3.org/1999/xhtml"', b'')
+                        xml_file.write(
+                            string_
+                        )
+
+                # self.save_tar_xml(tree, new_page_path)
                 # tree.write(
                 #     now_page_path,
                 #     pretty_print=True,
