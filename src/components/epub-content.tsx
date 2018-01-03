@@ -73,7 +73,7 @@ export default class EpubContent extends Component<any, any> {
 
     public render() {
         const props = this.props;
-        return <div className={styl.content}
+        return <div className={styl.content + " " + (this.props.not ? styl.content_not : "")}
             dangerouslySetInnerHTML={{__html: props.pageHtml}}>
         </div>;
     }

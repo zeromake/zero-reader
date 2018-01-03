@@ -390,8 +390,7 @@ class Pdf2Json(object):
         join_dir = 'img'
         input_name = os.path.join(input_dir, page_name)
         out_name = os.path.join(out_dir, page_name)
-        print(input_name)
-        with file_open(input_name, 'r', encoding='utf8', errors="ignore") as file_:
+        with file_open(input_name, 'r', encoding='utf8', errors="backslashreplace") as file_:
             tree = etree.parse(file_)
             root = tree.getroot()
             old_class = root.get('class')
@@ -478,20 +477,10 @@ class Pdf2Json(object):
                                 zip(field, match.groups())
                             }
                             item['size'] = float(item['size'])
-                            if item['select'].startswith('.w'):
-                                zoom['width'] = max(
-                                    (
-                                        item['size'],
-                                        zoom['width']
-                                    )
-                                )
-                            elif item['select'].startswith('.h'):
-                                zoom['height'] = max(
-                                    (
-                                        item['size'],
-                                        zoom['height']
-                                    )
-                                )
+                            if item['select'] == '.w0':
+                                zoom['width'] = item['size']
+                            elif item['select'] == '.h0':
+                                zoom['height'] = item['size']
                             item['media_print'] = media_print
                             zoom_arr.append(item)
                     elif line.startswith('@font-face{font-family'):

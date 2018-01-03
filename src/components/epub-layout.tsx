@@ -13,7 +13,7 @@ export default class EpubLayout extends AbcLayout<any, any> {
     private htmlPage: number;
     private htmlOffsetPage: number;
     private initPage: boolean;
-    private columnCount: number = 2;
+    private columnCount: number = 1;
 
     constructor(props, content) {
         super(props, content);
@@ -42,7 +42,9 @@ export default class EpubLayout extends AbcLayout<any, any> {
         if (dom) {
             const lastChild = dom.lastElementChild;
             this.htmlPage = lastChild.offsetLeft / (lastChild.offsetWidth + 45);
-            dom.style.columns = `auto ${this.columnCount}`;
+            if (this.columnCount !== 0) {
+                dom.style.columns = `auto ${this.columnCount}`;
+            }
         }
         this.htmlDom = dom;
         if (this.initPage) {
@@ -83,8 +85,27 @@ export default class EpubLayout extends AbcLayout<any, any> {
     protected bottomBarClick(type: number) {
         if (type === 2) {
             if (this.htmlDom) {
+                if (this.columnCount === 2) {
+                    this.columnCount = 0;
+                    // this.htmlDom.style.cssText = "";
+                    this.setState({
+                        not: false,
+                    }, () => {
+                        this.setHtmlPage();
+                        this.htmlOffsetPage = 0;
+                        this.offsetPage();
+                    });
+                    return
+                }
                 this.columnCount = this.columnCount === 1 ? 2 : 1;
                 this.htmlDom.style.columns = `auto ${this.columnCount}`;
+                this.setState({
+                    not: true,
+                }, () => {
+                    this.setHtmlPage();
+                    this.htmlOffsetPage = 0;
+                    this.offsetPage();
+                })
             }
         }
     }
@@ -95,7 +116,10 @@ export default class EpubLayout extends AbcLayout<any, any> {
                 this.htmlOffsetPage = 0;
             }
             const offset = 100 * this.htmlOffsetPage;
-            const offsetGap = 45 * this.htmlOffsetPage; 
+            const offsetGap = 45 * this.htmlOffsetPage;
+            if (offset === 0 && !('left' in this.htmlDom.style)) {
+                return
+            }
             this.htmlDom.style.left = `calc(-${offset}% - ${offsetGap}px)`;
             const num = this.state.page;
             const pathname = this.props.history ? this.props.history.location.pathname : location.pathname;
@@ -104,7 +128,7 @@ export default class EpubLayout extends AbcLayout<any, any> {
     }
 
     protected nextPage(event=null, raw: boolean = false) {
-        if (raw || this.htmlOffsetPage >= this.htmlPage - 1) {
+        if (raw || this.htmlOffsetPage >= this.htmlPage - 1 || this.columnCount == 0) {
             const res = super.nextPage();
             if (res) {
                 res.then(() => {
@@ -119,7 +143,7 @@ export default class EpubLayout extends AbcLayout<any, any> {
         this.offsetPage();
     }
     protected previousPage(event=null, raw: boolean = false) {
-        if (raw || this.htmlOffsetPage <= 0) {
+        if (raw || this.htmlOffsetPage <= 0 || this.columnCount == 0) {
             const res = super.previousPage();
             if (res) {
                 res.then(() => {
@@ -149,6 +173,7 @@ export default class EpubLayout extends AbcLayout<any, any> {
                 pageHtml: state.pageHtml,
                 library: this.library,
                 pageRef: this.setHtmlDom,
+                not: this.state.not,
             },
         );
     }

@@ -82,7 +82,7 @@ class Epub2Json(object):
         self.font_dir = 'font'
 
         # 内容页分割大小
-        self.split_size = 100 * 1024
+        self.split_size = 1000 * 1024
         # opf文件路径
         self.opf_file = None
         # opf文件夹
