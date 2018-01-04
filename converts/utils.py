@@ -20,7 +20,7 @@ import subprocess
 import asyncio
 from functools import partial
 
-from lxml import etree
+from lxml import etree, html
 from PyPDF2 import PdfFileReader
 from PyPDF2.generic import IndirectObject, TextStringObject
 import zipfile
@@ -309,11 +309,15 @@ def save_xml_path(xml, output_path):
     """
     保存xml
     """
+    # with file_open(output_path, 'wb') as out_file:
+    #     out_file.write(etree.tostring(
+    #         xml,
+    #         pretty_print=True,
+    #     ))
     return etree.ElementTree(xml).write(
         output_path,
         pretty_print=True,
-        encoding='utf-8',
-        method='html'
+        encoding='utf-8'
     )
 
 def save_xml_tree_path(tree, output_path):

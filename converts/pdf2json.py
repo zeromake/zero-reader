@@ -16,7 +16,7 @@ import subprocess
 
 import asyncio
 import binascii
-from lxml import etree
+from lxml import etree, html
 from .utils import (
     PNGBIN,
     deep_tree,
@@ -324,19 +324,6 @@ class Pdf2Json(object):
             save_json(toc_json_name, toc)
         self.tocs = toc
 
-    def toc_del_zero(self, toc_html_name):
-        """
-        删除0x00
-        """
-        with file_open(toc_html_name, 'rb') as file_:
-            data = file_.read()
-        buffer = bytearray()
-        for char in data:
-            if char != 0x00:
-                buffer.append(char)
-        with file_open(toc_html_name, 'wb') as file_:
-            file_.write(buffer)
-
     async def container_to_json(self, container_name, json_name, callback=None):
         """
         转换内容页
@@ -390,7 +377,7 @@ class Pdf2Json(object):
         join_dir = 'img'
         input_name = os.path.join(input_dir, page_name)
         out_name = os.path.join(out_dir, page_name)
-        with file_open(input_name, 'r', encoding='utf8', errors="backslashreplace") as file_:
+        with file_open(input_name, 'r', encoding='utf8', errors="ignore") as file_:
             tree = etree.parse(file_)
             root = tree.getroot()
             old_class = root.get('class')
@@ -399,8 +386,8 @@ class Pdf2Json(object):
                 tmp += " " + old_class
             root.set('class', tmp)
             for img in tree.xpath('//img'):
-                parent = img.getparent()
-                div = etree.Element('div')
+                # parent = img.getparent()
+                # div = etree.Element('div')
                 val = img.get('src')
                 input_path = os.path.join(input_dir, val)
                 # logger.debug("pngquant : %s", input_path)
@@ -444,8 +431,7 @@ class Pdf2Json(object):
             tree.write(
                 out_name,
                 pretty_print=True,
-                encoding='utf-8',
-                method='html'
+                encoding='utf-8'
             )
 
     async def css_copy(self):
@@ -457,6 +443,7 @@ class Pdf2Json(object):
         self.page_css.append(self.css)
         font_pat = re.compile(r'url\((\w+\.woff)\)')
         px_and_pat = re.compile(r'(.*){([\w-]+):(-?\d+(?:\.\d+)?)(px|pt);}')
+        filter_pat = re.compile(r'\._\d+')
         zoom_arr = []
         field = ('select', 'attribute', 'size', 'unit')
         zoom = {
@@ -482,7 +469,8 @@ class Pdf2Json(object):
                             elif item['select'] == '.h0':
                                 zoom['height'] = item['size']
                             item['media_print'] = media_print
-                            zoom_arr.append(item)
+                            if not filter_pat.match(item['select']):
+                                zoom_arr.append(item)
                     elif line.startswith('@font-face{font-family'):
                         line = font_pat.sub(self.font_copy, line)
                         out_fd.write(line)

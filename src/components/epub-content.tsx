@@ -13,6 +13,8 @@ import styl from "../css/epub-layout.styl";
 export default class EpubContent extends Component<any, any> {
     private observer: any;
     private flag: boolean;
+    private offsetWidth: number;
+
     public componentWillUnmount() {
         if (this.props.pageRef) {
             this.props.pageRef(null);
@@ -40,7 +42,8 @@ export default class EpubContent extends Component<any, any> {
             const base = findDOMNode(this);
             let lastChild: HTMLElement = base.lastElementChild as HTMLElement;
             const offsetLeft = lastChild.offsetLeft;
-            const offsetWidth = (lastChild.offsetWidth + 90) * this.props.columnCount;
+            const offsetWidth = (lastChild.offsetWidth + 45) * this.props.columnCount;
+            this.offsetWidth = offsetWidth;
             let pageNum = 0;
             if (offsetLeft > offsetWidth) {
                 pageNum = offsetLeft / offsetWidth;
@@ -111,10 +114,9 @@ export default class EpubContent extends Component<any, any> {
             className += " " + styl.content_not;
             style.columns = `auto ${this.props.columnCount}`;
         }
-        if (this.props.columnOffset !== 0) {
-            const offset = 100 * this.props.columnOffset;
-            const offsetGap = 45 * this.props.columnOffset;
-            style.left = `calc(-${offset}% - ${offsetGap}px)`;
+        if (this.props.columnOffset !== 0 && this.offsetWidth) {
+            const offset = this.offsetWidth * this.props.columnOffset;
+            style.left = `-${offset}px`;
         }
         return <div
             className={className}

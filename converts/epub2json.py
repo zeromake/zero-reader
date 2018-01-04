@@ -10,7 +10,8 @@ import zipfile
 import posixpath
 import tempfile
 import asyncio
-from lxml import etree, objectify
+import shutil
+from lxml import etree, html
 from .utils import (
     file_sha256,
     file_open,
@@ -387,11 +388,10 @@ class Epub2Json(object):
         不分割拷贝
         """
         with epub_file.open(zip_path) as html_file:
-            tree = etree.parse(html_file)
+            tree = html.parse(html_file)
             self.find_head_css(epub_file, tree, container_dir)
-            body = tree.find('//xmlns:body', namespaces={'xmlns': NAMESPACES['XHTML']})
-            nsmap = body.nsmap
-            page_xml = etree.Element('div', nsmap=nsmap)
+            body = tree.find('//body')
+            page_xml = html.Element('div')
             for child in body.iterchildren():
                 page_xml.append(child)
             self.save_html(page_xml, container_count)
@@ -408,9 +408,9 @@ class Epub2Json(object):
         切割html
         """
         with epub_file.open(zip_path) as html_file:
-            tree = etree.parse(html_file)
+            tree = html.parse(html_file)
             self.find_head_css(epub_file, tree, container_dir)
-            body = tree.find('//xmlns:body', namespaces={'xmlns': NAMESPACES['XHTML']})
+            body = tree.find('//body')
             children = body.getchildren()
             children_len = len(children)
             if children_len < split_count:
@@ -420,13 +420,12 @@ class Epub2Json(object):
             split_num = int(children_len / split_count)
             page_count = 0
             page_xml = None
-            nsmap = body.nsmap
             for index, child in enumerate(children):
                 if index % split_num == 0 and page_count < split_count - 1:
                     if page_xml is not None:
                         self.save_html(page_xml, container_count + page_count)
                         page_count += 1
-                    page_xml = etree.Element('div', nsmap=nsmap)
+                    page_xml = html.Element('div')
                 page_xml.append(child)
             if page_xml is not None:
                 self.save_html(page_xml, container_count + page_count)
@@ -437,7 +436,7 @@ class Epub2Json(object):
         """
         page_name = '%s%d.html' % (self.page_join, container_count)
         logger.debug('save container: ' + page_name)
-        links = xml.xpath('//@id', namespaces={'xmlns': NAMESPACES['XHTML']})
+        links = xml.xpath('//@id')
         self.container.append((page_name, container_count))
         link_set = set()
         for link in links:
@@ -463,7 +462,7 @@ class Epub2Json(object):
         """
         处理内容页head上的css
         """
-        links = tree.findall('//xmlns:link[@href]', namespaces={'xmlns': NAMESPACES['XHTML']})
+        links = tree.findall('//link[@href]')
         for link in links:
             css_name = link.get('href')
             if container_dir:
@@ -546,6 +545,7 @@ class Epub2Json(object):
         """
         处理page中的锚点
         """
+        # return
         for page_name, index in self.container:
             old_page_name = self.get_old_page_name(index)
             old_page_dir = get_file_path_dir(old_page_name)
@@ -556,8 +556,8 @@ class Epub2Json(object):
                 'r',
                 encoding='utf8'
             ) as page_file:
-                tree = etree.parse(page_file)
-                links = tree.findall('//xmlns:a[@href]', namespaces={'xmlns': NAMESPACES['XHTML']})
+                tree = html.parse(page_file)
+                links = tree.findall('//a[@href]')
                 for link in links:
                     href = link.get('href')
                     http_head = HTTP_NAME.findall(href)
@@ -573,10 +573,7 @@ class Epub2Json(object):
                             new_href += '?' + query_str
                         link.set('href', new_href)
                 images = tree.findall(
-                    '//xmlns:img[@src]',
-                    namespaces={
-                        'xmlns': NAMESPACES['XHTML']
-                    }
+                    '//img[@src]'
                 )
                 for img in images:
                     img_src = img.get('src')
@@ -601,16 +598,12 @@ class Epub2Json(object):
                     del img.attrib['src']
                     img.set('data-src', img_out_name)
                 images = tree.findall(
-                    '//xmlns:image[@xlink:href]',
-                    namespaces={
-                        'xmlns': NAMESPACES['SVG'],
-                        'xlink': NAMESPACES['SVGLINK']
-                    }
+                    "//image"
                 )
                 img_len = len(images)
                 if img_len > 0:
                     for img in images:
-                        name_spaces = '{%s}href' % NAMESPACES['SVGLINK']
+                        name_spaces = 'xlink:href'
                         img_src = img.get(name_spaces)
                         img_zip_path = zip_join(old_page_dir, img_src)
                         if '/' in img_src:
@@ -626,24 +619,16 @@ class Epub2Json(object):
                         del img.attrib[name_spaces]
                         img.set('data-src', img_out_name)
                 with file_open(os.path.join(self.dist, new_page_path), 'wb') as xml_file:
-                    root_tree = tree.getroot()
+                    root_tree = tree.find("//div")
                     for child in root_tree.iterchildren():
                         string_ = etree.tostring(
                             child,
                             pretty_print=True
                         )
-                        string_ = string_.replace(b' xmlns="http://www.w3.org/1999/xhtml"', b'')
                         xml_file.write(
                             string_
                         )
-
-                # self.save_tar_xml(tree, new_page_path)
-                # tree.write(
-                #     now_page_path,
-                #     pretty_print=True,
-                #     encoding='utf-8',
-                #     method='html'
-                # )
+        shutil.rmtree(self.temp_dir)
 
     def get_old_page_name(self, count):
         """
