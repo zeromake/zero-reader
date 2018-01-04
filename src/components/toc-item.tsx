@@ -32,6 +32,7 @@ export default class TocItem extends Component<ITocProps, IAbcToc> {
 
     private itemClick(event) {
         event.stopPropagation();
+        event.preventDefault();
         if (this.props.onclick) {
             this.props.onclick(this.state);
         }

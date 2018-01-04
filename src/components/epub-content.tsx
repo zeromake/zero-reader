@@ -37,6 +37,9 @@ export default class EpubContent extends Component<any, any> {
         this.setHtmlPage();
     }
 
+    /**
+     * 计算当前页面翻页数
+     */
     public setHtmlPage() {
         if (this.props.setHtmlPage && this.props.columnCount !== 0) {
             const base = findDOMNode(this);
@@ -104,6 +107,31 @@ export default class EpubContent extends Component<any, any> {
         // props只要一个不同就返回true
         const flag = shallowDiffers(this.props, props);
         return flag;
+    }
+
+    /**
+     * 滚动到锚点
+     * @param hash 需要滚动到id
+     */
+    public scrollHash(hash: string) {
+        const idHash = decodeURI(hash);
+        const base = findDOMNode(this);
+        const scrollView = base.querySelector(idHash);
+        if (scrollView) {
+            if (this.props.columnCount === 0) {
+                scrollView.scrollIntoView();
+            } else {
+                const offsetLeft = (scrollView as HTMLElement).offsetLeft;
+                const pageNum = offsetLeft / this.offsetWidth;
+                let htmlPage = 0;
+                if (pageNum % 1) {
+                    htmlPage = ~~(pageNum) + 1;
+                } else {
+                    htmlPage = pageNum;
+                }
+                return htmlPage;
+            }
+        }
     }
 
     public render() {

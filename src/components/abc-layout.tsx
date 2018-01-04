@@ -205,6 +205,10 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
      */
     protected abstract renderContent(): JSX.Element | string | Array<JSX.Element|string>;
 
+    protected clickPageUrl(target: HTMLLinkElement): void {
+        console.warn("on PageUrl handle");
+    }
+
     protected nextPage() {
         const page = this.state.page + 1;
         if (page >= this.pageNum) {
@@ -224,6 +228,12 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     }
 
     private pageClick = (event: MouseEvent) => {
+        if ((event.target as Element).nodeName === "A") {
+            event.preventDefault();
+            this.clickPageUrl(event.target as HTMLLinkElement);
+            return;
+        }
+
         const selectionObj =  document.getSelection();
         const selection = selectionObj.toString();
         if (!this.selection) {

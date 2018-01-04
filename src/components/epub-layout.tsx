@@ -10,9 +10,8 @@ import EpubContent from "./epub-content";
 export default class EpubLayout extends AbcLayout<any, any> {
     protected isBlock;
     private htmlPage: number = 0;
-    private htmlContent: any;
-    // private initPage: boolean;
-    // private columnCount: number = 0;
+    private htmlContent: EpubContent| undefined;
+    private offsetWidth: number;
 
     constructor(props, content) {
         super(props, content);
@@ -23,7 +22,6 @@ export default class EpubLayout extends AbcLayout<any, any> {
 
     public componentDidMount() {
         this.init().then(({ pageHtml, page, callback }) => {
-            // this.initPage = true;
             this.setState({
                 pageHtml,
                 page,
@@ -34,7 +32,11 @@ export default class EpubLayout extends AbcLayout<any, any> {
                     callback();
                 }
                 this.resize(null, true);
-                // this.offsetPage();
+                const propsLocation = (this.props.history && this.props.history.location) || location;
+                if (propsLocation) {
+                    const hash = propsLocation.hash;
+                    this.scrollHash(hash);
+                }
             });
         });
     }
@@ -43,21 +45,16 @@ export default class EpubLayout extends AbcLayout<any, any> {
         this.htmlPage = count;
     }
 
-    // private setHtmlDom = (dom) => {
-    //     this.htmlDom = findDOMNode(dom);
-    //     if (dom && this.columnCount !== 0) {
-    //         const lastChild = dom.lastElementChild;
-    //         this.htmlPage = lastChild.offsetLeft / (lastChild.offsetWidth + 45);
-    //         dom.style.columns = `auto ${this.columnCount}`;
-    //     }
-    //     if (this.initPage) {
-    //         this.initPage = false;
-    //         this.resize(null, true);
-    //         if (this.columnCount !== 0) {
-    //             this.offsetPage();
-    //         }
-    //     }
-    // }
+    private scrollHash(hash) {
+        if (hash && this.htmlContent) {
+            const offset = this.htmlContent.scrollHash(hash);
+            if (this.state.columnCount !== 0) {
+                this.setState({
+                    columnOffset: offset || 0,
+                });
+            }
+        }
+    }
 
     protected resize(event, flag?: boolean) {
         if (this.page) {
@@ -72,55 +69,61 @@ export default class EpubLayout extends AbcLayout<any, any> {
                 }
             }
         }
-        // if (this.columnCount !== 0) {
-        //     this.setHtmlPage();
-        //     if (!flag) {
-        //         this.htmlOffsetPage = 0;
-        //         this.offsetPage();
-        //     }
-        // }
     }
-
-    // protected setHtmlPage() {
-    //     if (this.htmlDom) {
-    //         const lastChild = this.htmlDom.lastElementChild;
-    //         const pageNum = lastChild.offsetLeft / ((lastChild.offsetWidth + 45) * this.columnCount);
-    //         if (pageNum % 1) {
-    //             this.htmlPage = ~~(pageNum) + 1;
-    //         } else {
-    //             this.htmlPage = pageNum;
-    //         }
-    //     }
-    // }
 
     protected tocClick(toc) {
-
+        this.setPage(toc.index).then(() => {
+            let href = `?page=${toc.index}`;
+            const pathname = this.props.history ? this.props.history.location.pathname : location.pathname;
+            if (toc.hash) {
+                href += "#" + toc.hash;
+                this.scrollHash("#" + toc.hash);
+            }
+            route(`${pathname}${href}`, true);
+            this.tocToggler(false);
+        });
     }
+
     protected bottomBarClick(type: number) {
-        if (type === 2) {
+        if (type === 1) {
+            if (this.tocs) {
+                this.barToggler(false);
+                this.tocToggler(true);
+            } else {
+                this.getToc().then((tocs) => {
+                    this.tocs = tocs;
+                    this.barToggler(false);
+                    this.tocToggler(true);
+                });
+            }
+        } else if (type === 2) {
             const columnCount = this.state.columnCount;
             const state: {[name: string]: any} = {};
             if (columnCount === 2 || columnCount === 0) {
                 state.isScroll = !this.state.isScroll;
             }
             state.columnCount = columnCount === 2 ? 0 : this.state.columnCount + 1;
+            state.columnOffset = 0;
             this.setState(state);
         }
     }
 
-    // protected offsetPage() {
-    //     if (this.htmlDom) {
-    //         if (this.htmlOffsetPage >= this.htmlPage) {
-    //             this.htmlOffsetPage = 0;
-    //         }
-    //         const offset = 100 * this.htmlOffsetPage;
-    //         const offsetGap = 45 * this.htmlOffsetPage;
-    //         this.htmlDom.style.left = `calc(-${offset}% - ${offsetGap}px)`;
-    //         const num = this.state.page;
-    //         const pathname = this.props.history ? this.props.history.location.pathname : location.pathname;
-    //         route(`${pathname}?page=${num}&offset=${this.htmlOffsetPage}`, true);
-    //     }
-    // }
+    protected clickPageUrl(target: HTMLLinkElement) {
+        const href = target.getAttribute("href");
+        const dataHref = target.getAttribute("data-href");
+        if (href) {
+            if (dataHref) {
+                const pageData = JSON.parse(dataHref);
+                this.setPage(pageData.page).then(() => {
+                    const pathname = this.props.history ? this.props.history.location.pathname : location.pathname;
+                    route(`${pathname}${href}`, true);
+                    this.scrollHash("#" + pageData.hash);
+                });
+            } else {
+                console.log("out link", href);
+            }
+        }
+    }
 
     private refContent = (content) => {
         this.htmlContent = content;

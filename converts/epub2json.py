@@ -6,6 +6,7 @@ epub2json
 """
 import re
 import os
+import json
 import zipfile
 import posixpath
 import tempfile
@@ -103,6 +104,8 @@ class Epub2Json(object):
         self.css_set = set()
         # 新css清单
         self.css_list = []
+        # 内容下标map
+        self.container_index_map = None
         self.toc_link = {}
         self.page_map = {}
         self.container_count = 1
@@ -545,7 +548,7 @@ class Epub2Json(object):
         """
         处理page中的锚点
         """
-        # return
+        self.container_index_map = { item_[1]: container_index for container_index, item_  in enumerate(self.container)}
         for page_name, index in self.container:
             old_page_name = self.get_old_page_name(index)
             old_page_dir = get_file_path_dir(old_page_name)
@@ -566,12 +569,20 @@ class Epub2Json(object):
                     link_page_name = zip_join(old_page_dir, href)
                     now_page, link_id, query_str = self.handle_href(link_page_name)
                     if now_page is not None:
-                        new_href = '%s%d.html' % (self.page_join, now_page)
+                        page_index = self.container_index_map.get(now_page)
+                        new_href = '?page=%d' % page_index
+                        data = {
+                            'page': page_index,
+                            'page_num': now_page
+                        }
+                        if query_str:
+                            new_href += '&' + query_str
+                            data['query'] = query_str
                         if link_id:
                             new_href += '#' + link_id
-                        if query_str:
-                            new_href += '?' + query_str
+                            data['hash'] = link_id
                         link.set('href', new_href)
+                        link.set('data-href', json.dumps(data))
                 images = tree.findall(
                     '//img[@src]'
                 )
@@ -680,9 +691,10 @@ class Epub2Json(object):
                 href_name = item.get('src')
                 page, hash_str, query_str = self.handle_href(zip_join(self.toc_dir_path, href_name))
                 if page is not None:
+                    page_index = self.container_index_map.get(page)
                     toc_info['page'] = page
                     new_href = '%s/%s%d.html' % (self.page_dir, self.page_join, page)
-                    toc_info['index'] = page - 1
+                    toc_info['index'] = page_index
                     toc_info['page_url'] = new_href
                 else:
                     toc_info['src'] = href_name
