@@ -128,6 +128,20 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
             }
         }
     }
+
+    protected clickPageUrl(target: HTMLLinkElement) {
+        const href = target.getAttribute("href");
+        const dataHref = target.getAttribute("data-href");
+        if (href) {
+            if (dataHref) {
+                const pageData = JSON.parse(dataHref);
+                this.setPage(pageData.index);
+            } else {
+                console.log("out link", href);
+            }
+        }
+    }
+
     protected  renderHeader() {
         const meta = this.props.meta;
         return h(TopBar, {title: meta.title || meta.file_name, onBack: this.onBack});

@@ -69,6 +69,7 @@ class Pdf2Json(object):
         self.zoom = 'zoom.json'
         self.page_css = []
         self.meta_data = None
+        self.links_zoom = {}
 
     async def run(self):
         """
@@ -341,6 +342,7 @@ class Pdf2Json(object):
             container_root = tree.xpath(u'//div[@id="page-container"]')[0]
             last_class = None
             index = 0
+            page_id_map = {}
             for row in container_root.iterchildren():
                 item = {key: val for key, val in row.items()
                         if not (
@@ -356,16 +358,17 @@ class Pdf2Json(object):
 
                 item['index'] = index
                 containers.append(item)
-                if callback:
-                    await callback(item)
                 last_class = row.get('class')
                 index += 1
+            self.pages = page_id_to_index
+            for container in containers:
+                if callback:
+                    await callback(container)
         if json_name:
             save_json(json_name, containers)
         # with file_open(out_bg_css, 'w', encoding='utf8') as file_:
         #     file_.write("\n".join(background))
         self.containers = containers
-        self.pages = page_id_to_index
 
     async def copy_page(self, page):
         """
@@ -377,6 +380,8 @@ class Pdf2Json(object):
         join_dir = 'img'
         input_name = os.path.join(input_dir, page_name)
         out_name = os.path.join(out_dir, page_name)
+        class_pat = re.compile(r'pages/page-(\d+)\.html')
+        class_name_join = class_pat.match(page_name).group(1)
         with file_open(input_name, 'r', encoding='utf8', errors="ignore") as file_:
             tree = etree.parse(file_)
             root = tree.getroot()
@@ -411,6 +416,52 @@ class Pdf2Json(object):
                 img.set('class', tmp)
                 del img.attrib['src']
                 img.set('data-src', zip_join(join_dir, val))
+            px_and_pat = re.compile(r'([\w-]+): *(-?\d+(?:\.\d+)?)(px|pt)')
+            field = ('attribute', 'size', 'unit')
+            class_index = 1
+            for link in tree.xpath('//div[@style]'):
+                style = link.get("style")
+                parent_link = link.getparent()
+                # del link.attrib['style']
+                old_class = link.get("class")
+                parent_link.remove(link)
+                style_arr = style.split(";")
+                class_name = 'link_%s_%s'% (class_name_join, class_index)
+                new_class = "link_base %s" % class_name
+                if old_class:
+                    new_class += " %s" % old_class
+                old_class = parent_link.set("class", new_class)
+                class_name = "." + class_name
+                href = parent_link.get('href')
+                if href.startswith("#"):
+                    page_id = href[1:]
+                    page_data = self.pages.get(page_id)
+                    if page_data:
+                        parent_link.set(
+                            'data-href',
+                            json.dumps({
+                                'index': page_data[0],
+                                'page': page_data[1]
+                            })
+                        )
+                        parent_link.set('href', '?page=%s' % page_data[0])
+                class_index += 1
+                for style_item in style_arr:
+                    match = px_and_pat.match(style_item)
+                    if class_name not in self.links_zoom:
+                        self.links_zoom[class_name] = []
+                    if match:
+                        item = {
+                            key: val
+                            for key, val in
+                            zip(field, match.groups())
+                        }
+                        item['size'] = float(item['size'])
+                        self.links_zoom[class_name].append(item)
+                    elif style_item != "":
+                        self.links_zoom[class_name].append(style_item)
+                        
+
                 # img_sha = file_sha256(os.path.join(input_dir, val))
                 # background.append("div.img_" + img_sha + "{")
                 # background.append(
@@ -444,8 +495,8 @@ class Pdf2Json(object):
         self.page_css.append(self.css)
         font_pat = re.compile(r'url\((\w+\.woff)\)')
         px_and_pat = re.compile(r'(.*){([\w-]+):(-?\d+(?:\.\d+)?)(px|pt);}')
-        filter_pat = re.compile(r'^\._[\d\w]+$')
-        zoom_arr = []
+        # filter_pat = re.compile(r'^\._[\d\w]+$')
+        zoom_arr = self.links_zoom
         field = ('select', 'attribute', 'size', 'unit')
         zoom = {
             'width': 0,
@@ -470,8 +521,12 @@ class Pdf2Json(object):
                             elif item['select'] == '.h0':
                                 zoom['height'] = item['size']
                             item['media_print'] = media_print
+                            select = item['select']
+                            del item['select']
+                            if select not in zoom_arr:
+                                zoom_arr[select] = []
                             # if not filter_pat.match(item['select']) or not (item['attribute'] == 'width'):
-                            zoom_arr.append(item)
+                            zoom_arr[select].append(item)
                     elif line.startswith('@font-face{font-family'):
                         line = font_pat.sub(self.font_copy, line)
                         out_fd.write(line)
@@ -482,6 +537,7 @@ class Pdf2Json(object):
                     else:
                         out_fd.write(line)
                     line = file_.readline()
+                out_fd.write('.link_base{\ndisplay:block;background-color:rgba(255,255,255,0.000001);\nposition:absolute;\nborder-style:none;\n}')
         zoom['css'] = zoom_arr
         save_json(os.path.join(self.dist, self.zoom), zoom)
 
