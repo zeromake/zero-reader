@@ -35,6 +35,7 @@ export interface IabcState {
     bg: string;
     barShow: boolean;
     tocShow: boolean;
+    isScroll: boolean;
     // [key: string]: string;
 }
 
@@ -98,6 +99,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             bg: "white",
             barShow: false,
             tocShow: false,
+            isScroll: true,
         } as AbcState;
     }
     protected async init() {
@@ -306,7 +308,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             <div className={styl.toc_content}>
                 {this.tocs ? <Toc tocs={this.tocs} onclick={this.tocClick}/> : null}
             </div>
-        </Dialog>
+        </Dialog>;
         // return <div
         //         className={`${styl.toc_layout} animated`}
         //         onClick={(event) => event.stopPropagation()}>
@@ -328,7 +330,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                 componentProps={{
                     onClick: this.pageClick,
                     // ref: ((vdom: any) => this.page = findDOMNode(vdom)),
-                    className: `${styl.content}  ${styl[this.state.bg]}`,
+                    className: `${styl.content} ${styl[this.state.bg]} ${this.state.isScroll ? styl.is_scroll : ""}`,
                 }}
                 transitionEnter={true}
                 transitionLeave={true}

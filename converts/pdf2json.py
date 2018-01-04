@@ -431,7 +431,8 @@ class Pdf2Json(object):
             tree.write(
                 out_name,
                 pretty_print=True,
-                encoding='utf-8'
+                encoding='utf-8',
+                method='html'
             )
 
     async def css_copy(self):
@@ -443,7 +444,7 @@ class Pdf2Json(object):
         self.page_css.append(self.css)
         font_pat = re.compile(r'url\((\w+\.woff)\)')
         px_and_pat = re.compile(r'(.*){([\w-]+):(-?\d+(?:\.\d+)?)(px|pt);}')
-        filter_pat = re.compile(r'\._\d+')
+        filter_pat = re.compile(r'^\._[\d\w]+$')
         zoom_arr = []
         field = ('select', 'attribute', 'size', 'unit')
         zoom = {
@@ -469,8 +470,8 @@ class Pdf2Json(object):
                             elif item['select'] == '.h0':
                                 zoom['height'] = item['size']
                             item['media_print'] = media_print
-                            if not filter_pat.match(item['select']):
-                                zoom_arr.append(item)
+                            # if not filter_pat.match(item['select']) or not (item['attribute'] == 'width'):
+                            zoom_arr.append(item)
                     elif line.startswith('@font-face{font-family'):
                         line = font_pat.sub(self.font_copy, line)
                         out_fd.write(line)

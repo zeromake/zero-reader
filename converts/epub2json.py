@@ -621,9 +621,11 @@ class Epub2Json(object):
                 with file_open(os.path.join(self.dist, new_page_path), 'wb') as xml_file:
                     root_tree = tree.find("//div")
                     for child in root_tree.iterchildren():
-                        string_ = etree.tostring(
+                        string_ = html.tostring(
                             child,
-                            pretty_print=True
+                            pretty_print=True,
+                            method="html",
+                            encoding='utf-8'
                         )
                         xml_file.write(
                             string_

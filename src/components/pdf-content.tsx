@@ -30,6 +30,12 @@ export default class PdfContent extends Component<any, any> {
         }
     }
     protected bindObserver() {
+        // Array.prototype.forEach.call(findDOMNode(this).querySelectorAll("img.lozad"), (element: HTMLImageElement) => {
+        //     const dataSrc = element.getAttribute("data-src");
+        //     if (dataSrc) {
+        //         element.src = this.props.library.image(dataSrc);
+        //     }
+        // });
         if (!this.observer) {
             this.observer = lozad("img.lozad", {
                 target: findDOMNode(this),

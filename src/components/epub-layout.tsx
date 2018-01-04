@@ -65,7 +65,11 @@ export default class EpubLayout extends AbcLayout<any, any> {
             const clientHeight = this.page.clientHeight;
             this.isBlock = buildBlock(clientWidth, clientHeight, 1 / 3);
             if (this.state.columnCount !== 0 && this.htmlContent && this.htmlContent.setHtmlPage) {
-                this.htmlContent.setHtmlPage();
+                if (this.state.columnOffset !== 0) {
+                    this.setState({columnOffset: 0}, () => this.htmlContent.setHtmlPage());
+                } else {
+                    this.htmlContent.setHtmlPage();
+                }
             }
         }
         // if (this.columnCount !== 0) {
@@ -94,9 +98,13 @@ export default class EpubLayout extends AbcLayout<any, any> {
     }
     protected bottomBarClick(type: number) {
         if (type === 2) {
-            this.setState({
-                columnCount: this.state.columnCount === 2 ? 0 : this.state.columnCount + 1,
-            });
+            const columnCount = this.state.columnCount;
+            const state: {[name: string]: any} = {};
+            if (columnCount === 2 || columnCount === 0) {
+                state.isScroll = !this.state.isScroll;
+            }
+            state.columnCount = columnCount === 2 ? 0 : this.state.columnCount + 1;
+            this.setState(state);
         }
     }
 
@@ -135,7 +143,7 @@ export default class EpubLayout extends AbcLayout<any, any> {
             const res = super.previousPage();
             if (res) {
                 res.then(() => {
-                    this.setState({columnOffset: 0});
+                    this.setState({columnOffset: this.htmlPage === 0 ? 0 : this.htmlPage - 1});
                 });
             }
             return res;
