@@ -15,20 +15,24 @@ if (process.env.platform === "cordova") {
 // const Library = () => import("./components/library").then((modul) => modul.default);
 
 // const BookLayout = () => import("./components/book-layout").then((modul) => modul.default);
-let onAfterEnter = null
+let onAfterEnter = null;
 if (process.env.platform === "cordova") {
-    onAfterEnter = function(component) {
+    onAfterEnter = function _(component) {
         if (component && component.props) {
             let flag = null;
-            if(component.props.rawKey === "2") {
-                flag = false
-            } else if(component.props.rawKey === "1"){
+            if (component.props.rawKey === "2") {
+                flag = false;
+            } else if (component.props.rawKey === "1") {
                 flag = true;
             }
             requestAnimationFrame(() => togglerFullScreen(flag));
         }
-    }
+    };
 }
+
+const text = (props) => {
+    return <h1>Text</h1>;
+};
 
 const MainRouter = () => (
     <Router history={tmpHistory}>

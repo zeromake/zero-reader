@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 
 """
-models by zeromake on 2017-12-29
+models by zeromake on 2018-01-05
 """
 
 metadata = sa.MetaData()
@@ -14,8 +14,11 @@ __all__ = [
     "LibraryBindTag",
     "Authors",
     "LibraryBindAuthor",
-    "ReadHistory"
+    "ReadHistory",
+    "BookShelf",
+    "UserConfig"
 ]
+__version__ = "1.0.0"
 
 # 用户表
 User = sa.Table(
@@ -28,31 +31,37 @@ User = sa.Table(
         primary_key=True,
         nullable=False
     ),
+    # 帐号
     sa.Column(
         'account',
         sa.String(16),
         nullable=False
     ),
+    # 昵称
     sa.Column(
         'role_name',
         sa.String(16),
         nullable=False
     ),
+    # 密码
     sa.Column(
         'password',
-        sa.String(32),
+        sa.String(128),
         nullable=False
     ),
+    # 用户状态
     sa.Column(
         'status',
         sa.Integer,
         nullable=False
     ),
+    # 用户权限
     sa.Column(
         'permissions',
         sa.Integer,
         nullable=False
     ),
+    # 是否为管理员
     sa.Column(
         'admin',
         sa.Boolean,
@@ -72,11 +81,13 @@ Permissions = sa.Table(
         primary_key=True,
         nullable=False
     ),
+    # 权限名
     sa.Column(
         'name',
         sa.String(16),
         nullable=False
     ),
+    # 权限配置文本
     sa.Column(
         'permission',
         sa.Text,
@@ -96,21 +107,25 @@ Library = sa.Table(
         primary_key=True,
         nullable=False
     ),
+    # 书籍唯一编码通过文件hash获取
     sa.Column(
-        'sha256',
+        'hash',
         sa.String(256),
         nullable=False
     ),
+    # 书籍标题
     sa.Column(
         'title',
         sa.String(128),
         nullable=False
     ),
+    # 文件名
     sa.Column(
         'file_name',
         sa.String(128),
         nullable=False
     ),
+    # 文件类型
     sa.Column(
         'type',
         sa.String(8),
@@ -130,6 +145,7 @@ Tags = sa.Table(
         primary_key=True,
         nullable=False
     ),
+    # tag名
     sa.Column(
         'name',
         sa.String(16),
@@ -204,6 +220,7 @@ LibraryBindAuthor = sa.Table(
     sqlite_autoincrement=True
 )
 
+# 阅读记录
 ReadHistory = sa.Table(
     'read_history',
     metadata,
@@ -212,6 +229,91 @@ ReadHistory = sa.Table(
         sa.Integer,
         autoincrement=True,
         primary_key=True,
+        nullable=False
+    ),
+    sa.Column(
+        'library_id',
+        sa.Integer,
+        nullable=False
+    ),
+    sa.Column(
+        'page',
+        sa.Integer,
+        nullable=False
+    ),
+    sa.Column(
+        'offset',
+        sa.Integer,
+        nullable=False
+    ),
+    sa.Column(
+        'create_time',
+        sa.Integer(64),
+        nullable=False
+    ),
+    sqlite_autoincrement=True
+)
+# 书架
+BookShelf = sa.Table(
+    'book_shelf',
+    metadata,
+    sa.Column(
+        'id',
+        sa.Integer,
+        autoincrement=True,
+        primary_key=True,
+        nullable=False
+    ),
+    sa.Column(
+        'library_id',
+        sa.Integer,
+        nullable=False
+    ),
+    sa.Column(
+        'sort',
+        sa.String(32),
+        nullable=False
+    ),
+    sa.Column(
+        'create_time',
+        sa.Integer(64),
+        nullable=False
+    ),
+    sqlite_autoincrement=True
+)
+# 用户偏好设置
+UserConfig = sa.Table(
+    'user_config',
+    metadata,
+    sa.Column(
+        'id',
+        sa.Integer,
+        autoincrement=True,
+        primary_key=True,
+        nullable=False
+    ),
+    # 阅读器背景色
+    sa.Column(
+        'read_bg',
+        sa.Integer,
+        nullable=False
+    ),
+    # 首页设置
+    sa.Column(
+        'index',
+        sa.Integer,
+        nullable=False
+    ),
+    # pdf适应方式
+    sa.Column(
+        'zoom',
+        sa.Integer,
+        nullable=False
+    ),
+    # epub阅读方式
+    sa.Column(
+        'column',
+        sa.Integer,
         nullable=False
     ),
     sqlite_autoincrement=True

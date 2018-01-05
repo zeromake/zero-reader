@@ -1,3 +1,6 @@
+import { Route } from "./index";
+import { Children } from "module-react";
+
 const EMPTY = {};
 
 export function findProps(vnode) {
@@ -88,4 +91,23 @@ export function rankChild(vnode) {
 
 export function findChildren(vnode) {
     return vnode.children || (vnode.props && vnode.props.children);
+}
+
+export function isRoute(vnode) {
+    if (vnode) {
+        return vnode.type === Route || vnode.nodeName === Route;
+    }
+    return false;
+}
+
+export function findChildRoute(vnode) {
+    while (vnode && !isRoute(vnode)) {
+        const deep = Children.toArray(findChildren(vnode));
+        if (deep && deep.length > 0) {
+            vnode = deep[0];
+        } else {
+            return null;
+        }
+    }
+    return vnode;
 }

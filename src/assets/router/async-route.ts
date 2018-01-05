@@ -56,7 +56,7 @@ class AsyncRoute extends Component<any, any> {
             const loadingComponent = this.props.loading();
             return loadingComponent;
         } else {
-            return Children.only(this.props.children);
+            return "";
         }
     }
 }

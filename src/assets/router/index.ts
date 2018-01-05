@@ -1,5 +1,14 @@
 import { cloneElement, h, Component, Children } from "module-react";
-import { exec, assign, pathRankSort, findProps, rankChild, findChildren } from "./utils";
+import {
+    exec,
+    assign,
+    pathRankSort,
+    findProps,
+    rankChild,
+    findChildren,
+    isRoute,
+    findChildRoute,
+} from "./utils";
 
 let customHistory = null;
 
@@ -8,13 +17,6 @@ const ROUTERS = [];
 const subscribers = [];
 
 const EMPTY = {};
-
-function isRoute(vnode) {
-    if (vnode) {
-        return vnode.type === Route || vnode.nodeName === Route;
-    }
-    return false;
-}
 
 function isPreactElement(node) {
     return node.__preactattr_ != null || typeof Symbol !== "undefined" && node[Symbol.for("preactattr")] != null;
@@ -246,7 +248,7 @@ class Router extends Component<any, any> {
         this.updating = false;
     }
 
-    public handleChildren(children: any[], url: string, invoke: boolean): any[] {
+    public handleChildren(children: any[], url: string, invoke: boolean, parentPath?: string): any[] {
         let newChildren: any[] = [];
         let isNoRank = false;
         if (children == null) {
@@ -254,7 +256,7 @@ class Router extends Component<any, any> {
         }
         for (let vnode of children) {
             if (isRoute(vnode)) {
-                newChildren = this.getMatchingChildren(children, url, invoke, isNoRank);
+                newChildren = this.getMatchingChildren(children, url, invoke, isNoRank, parentPath);
                 break;
             } else {
                 isNoRank = true;
@@ -278,17 +280,26 @@ class Router extends Component<any, any> {
         return newChildren;
     }
 
-    public getMatchingChildren(children: any[], url: string, invoke: boolean, isNoRank: boolean = false): any[] {
+    public getMatchingChildren(children: any[], url: string, invoke: boolean, isNoRank: boolean = false, parentPath?: string): any[] {
         const rankArr = [];
         // let isNoRank = false;
         if (!isNoRank) {
             let index = 0;
             for (const vnode of children) {
                 if (isRoute(vnode)) {
-            const props = findProps(vnode);
-            if (props) {
-                rankArr.push({ index, rank: rankChild(vnode), vnode });
-            }
+                    const props = findProps(vnode);
+                    if (props) {
+                        let newVnode = vnode;
+                        const deepChildren = Children.toArray(findChildren(vnode));
+                        if (deepChildren && deepChildren.length > 0) {
+                            newVnode = cloneElement(
+                                vnode,
+                                {},
+                                this.handleChildren(deepChildren, url, invoke, props.path),
+                            );
+                        }
+                        rankArr.push({ index, rank: rankChild(newVnode), vnode: newVnode });
+                    }
                 } else {
                     isNoRank = true;
                     break;
@@ -299,8 +310,14 @@ class Router extends Component<any, any> {
         const rankChildren = [];
         const execRoute = (vnode) => {
             const props = findProps(vnode);
-            const matches = exec(url, props.path, props);
-            if (matches) {
+            let path = props.path;
+            if (parentPath && !path.startsWith("/")) {
+                path = parentPath + parentPath.endsWith("/") ? "" : "/" + path;
+            }
+            const deepChildren = Children.toArray(findChildren(vnode));
+            const childRoute = findChildRoute(deepChildren[0]);
+            if (childRoute) {
+                const matches = childRoute.matches;
                 if (invoke !== false) {
                     const newProps = { url, matches, history: customHistory };
                     assign(newProps, matches);
@@ -309,6 +326,19 @@ class Router extends Component<any, any> {
                     rankChildren.push(cloneElement(vnode, newProps));
                 } else {
                     rankChildren.push(vnode);
+                }
+            } else {
+                const matches = exec(url, path, props);
+                if (matches) {
+                    if (invoke !== false) {
+                        const newProps = { url, matches, history: customHistory };
+                        assign(newProps, matches);
+                        delete (newProps as any).ref;
+                        delete (newProps as any).key;
+                        rankChildren.push(cloneElement(vnode, newProps));
+                    } else {
+                        rankChildren.push(vnode);
+                    }
                 }
             }
         };
@@ -322,7 +352,7 @@ class Router extends Component<any, any> {
                 }
         } else {
             rankArr.sort(pathRankSort).forEach(({ vnode }) => execRoute(vnode));
-            }
+        }
         return rankChildren;
         // children.forEach((vnode, index) => {
         //     const props = findProps(vnode);

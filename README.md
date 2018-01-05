@@ -8,7 +8,7 @@ web reader
 - [x] preact-animate轮子
 + [x] preact-router改造轮子(src/assets/router)
     - [x] 动画切换支持
-    - [ ] 子路由支持
+    - [x] 子路由支持
 - [x] peract的pdf前端阅读器
 - [x] epub前端阅读器
 - [x] 按键支持翻页
@@ -64,4 +64,12 @@ web reader
 5. [sanic](https://github.com/channelcat/sanic): aio http server
 6. [aiosqlite3](https://github.com/zeromake/aiosqlite3): aio sqlite support
 7. [sqlalchemy](https://github.com/zzzeek/sqlalchemy): database orm
-1. [pdf2htmlEX](https://github.com/coolwanglu/pdf2htmlEX): pdf to html
+8. [pdf2htmlEX](https://github.com/coolwanglu/pdf2htmlEX): pdf to html
+
+## develop use tools
+
+1. webpack + webpack-dev-server: make package
+2. svg-sprite-loader: import svg icon
+3. webpack-bundle-analyzer: module rely
+4. stylus: css pre processor
+5. typescript: script pre processor

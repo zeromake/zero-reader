@@ -6,7 +6,7 @@ web服务
 """
 
 from sanic import Sanic
-from sanic_graphql import GraphQLView
+# from sanic_graphql import GraphQLView
 from graphql.execution.executors.asyncio import AsyncioExecutor
 from aiosqlite3.sa import create_engine
 from .config import CONFIG
@@ -16,15 +16,15 @@ app = Sanic(__name__)
 
 @app.listener('before_server_start')
 async def init_graphql(app, loop):
-    from .schema import Schema
+    # from .schema import Schema
     app.engine = await create_engine(CONFIG['DB'], loop=loop)
-    app.add_route(
-        GraphQLView.as_view(
-            schema=Schema,
-            executor=AsyncioExecutor(loop=loop)
-        ),
-        '/graphql'
-    )
+    # app.add_route(
+    #     GraphQLView.as_view(
+    #         schema=Schema,
+    #         executor=AsyncioExecutor(loop=loop)
+    #     ),
+    #     '/graphql'
+    # )
 
 @app.listener('before_server_stop')
 async def before_server_stop(app, loop):
