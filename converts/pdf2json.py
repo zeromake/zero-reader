@@ -70,6 +70,7 @@ class Pdf2Json(object):
         self.page_css = []
         self.meta_data = None
         self.links_zoom = {}
+        self.links_css = {}
 
     async def run(self):
         """
@@ -427,7 +428,7 @@ class Pdf2Json(object):
                 parent_link.remove(link)
                 style_arr = style.split(";")
                 class_name = 'link_%s_%s'% (class_name_join, class_index)
-                new_class = "link_base %s" % class_name
+                new_class = class_name
                 if old_class:
                     new_class += " %s" % old_class
                 old_class = parent_link.set("class", new_class)
@@ -445,11 +446,11 @@ class Pdf2Json(object):
                             })
                         )
                         parent_link.set('href', '?page=%s' % page_data[0])
+                else:
+                    parent_link.set("target", "_blank")
                 class_index += 1
                 for style_item in style_arr:
                     match = px_and_pat.match(style_item)
-                    if class_name not in self.links_zoom:
-                        self.links_zoom[class_name] = []
                     if match:
                         item = {
                             key: val
@@ -457,11 +458,13 @@ class Pdf2Json(object):
                             zip(field, match.groups())
                         }
                         item['size'] = float(item['size'])
+                        if class_name not in self.links_zoom:
+                            self.links_zoom[class_name] = []
                         self.links_zoom[class_name].append(item)
                     elif style_item != "":
-                        self.links_zoom[class_name].append(style_item)
-                        
-
+                        if class_name not in self.links_css:
+                            self.links_css[class_name] = []
+                        self.links_css[class_name].append(style_item)
                 # img_sha = file_sha256(os.path.join(input_dir, val))
                 # background.append("div.img_" + img_sha + "{")
                 # background.append(
@@ -537,7 +540,11 @@ class Pdf2Json(object):
                     else:
                         out_fd.write(line)
                     line = file_.readline()
-                out_fd.write('.link_base{\ndisplay:block;background-color:rgba(255,255,255,0.000001);\nposition:absolute;\nborder-style:none;\n}')
+                for css_select, values in self.links_css.items():
+                    out_fd.write('%s{\n' % css_select)
+                    out_fd.write(";\n".join(values))
+                    out_fd.write('\n}\n')
+                # out_fd.write('.link_base{\ndisplay:block;background-color:rgba(255,255,255,0.000001);\nposition:absolute;\nborder-style:none;\n}')
         zoom['css'] = zoom_arr
         save_json(os.path.join(self.dist, self.zoom), zoom)
 

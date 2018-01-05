@@ -28,7 +28,7 @@ interface IBookState extends IabcState {
 // const PdfContent = propsDiffComponent("div");
 
 export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
-    private zoom?: IZoom[];
+    private zoom?: {[name: string]: IZoom[]};
     private width?: number;
     private height?: number;
     public tocs: any[];
@@ -92,7 +92,9 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                         page,
                         zoom,
                     }, () => {
-                        callback && callback();
+                        if (callback) {
+                            callback();
+                        }
                         this.resize();
                         this.mountCss.push("zoom_style");
                     });
@@ -129,16 +131,21 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         }
     }
 
-    protected clickPageUrl(target: HTMLLinkElement) {
+    protected clickPageUrl(event: MouseEvent) {
+        const target = event.target as HTMLLinkElement;
         const href = target.getAttribute("href");
         const dataHref = target.getAttribute("data-href");
         if (href) {
             if (dataHref) {
+                event.preventDefault();
                 const pageData = JSON.parse(dataHref);
                 this.setPage(pageData.index);
             } else {
                 console.log("out link", href);
             }
+        } else {
+            event.preventDefault();
+            event.stopPropagation();
         }
     }
 
@@ -194,13 +201,21 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         }
     }
     private addZoom(zoom: number) {
-        if (this.zoom && this.zoom.length > 0) {
+        if (this.zoom) {
             const css = [];
-            this.zoom.forEach((pZoom: IZoom) => {
-                css.push(`${pZoom.select}{`);
-                css.push(`  ${pZoom.attribute}: ${pZoom.size * zoom}${pZoom.unit};`);
+            for (const select in this.zoom) {
+                const cssTexts = this.zoom[select];
+                css.push(`${select}{`);
+                for (const text of cssTexts) {
+                    css.push(`  ${text.attribute}: ${text.size * zoom}${text.unit};`);
+                }
                 css.push("}");
-            });
+            }
+            // this.zoom.forEach((pZoom: IZoom) => {
+            //     css.push(`${pZoom.select}{`);
+            //     css.push(`  ${pZoom.attribute}: ${pZoom.size * zoom}${pZoom.unit};`);
+            //     css.push("}");
+            // });
             const cssText = css.join("\n");
             const cssId = "zoom_style";
             addStyle(cssId, cssText);

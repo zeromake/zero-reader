@@ -93,7 +93,7 @@ const config = {
             'zreact/devtools': isProd || isCordova ? resolve('../src/import/devtools.ts') : 'zreact/devtools',
             'history/createHashHistory': isCordova ? 'history/createHashHistory' : resolve('../src/import/history.ts'),
             '@': resolve('../src')
-        }, zreactAlias),
+        }, reactAlias),
         extensions: ['.js', '.ts', '.tsx']
     },
     plugins: [

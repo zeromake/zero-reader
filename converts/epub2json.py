@@ -565,6 +565,7 @@ class Epub2Json(object):
                     href = link.get('href')
                     http_head = HTTP_NAME.findall(href)
                     if len(http_head) > 0:
+                        link.set("target", "_blank")
                         continue
                     link_page_name = zip_join(old_page_dir, href)
                     now_page, link_id, query_str = self.handle_href(link_page_name)
@@ -583,6 +584,8 @@ class Epub2Json(object):
                             data['hash'] = link_id
                         link.set('href', new_href)
                         link.set('data-href', json.dumps(data))
+                    else:
+                        link.set("target", "_blank")
                 images = tree.findall(
                     '//img[@src]'
                 )
@@ -735,6 +738,9 @@ class Epub2Json(object):
                         break
                 if not page:
                     page = now_page[0]
+        elif href_name.endswith('.md'):
+            # gitbook link 还指向 md替换为html
+            return self.handle_href(href_name.replace('md', 'html'))
         return page, hash_str, query_str
 
 

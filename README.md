@@ -6,14 +6,16 @@ web reader
 - [x] pdf转换后的脚本处理
 - [x] epub转换到html，json
 - [x] preact-animate轮子
-- [x] preact-router改造轮子(src/assets/router)
++ [x] preact-router改造轮子(src/assets/router)
+    - [x] 动画切换支持
+    - [ ] 子路由支持
 - [x] peract的pdf前端阅读器
 - [x] epub前端阅读器
 - [x] 按键支持翻页
 - [x] epub改造为翻页滚动
 - [x] react，react-dom支持
 - [x] 阅读器内部链接跳转
-- [ ] 阅读器外部链接新标签打开
+- [x] 阅读器外部链接新标签打开
 + [ ] 更多的全按键操作支持
     - [ ] 书库按键支持
     - [ ] 目录dialog按键支持

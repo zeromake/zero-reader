@@ -108,11 +108,13 @@ export default class EpubLayout extends AbcLayout<any, any> {
         }
     }
 
-    protected clickPageUrl(target: HTMLLinkElement) {
+    protected clickPageUrl(event: MouseEvent) {
+        const target = event.target as HTMLLinkElement;
         const href = target.getAttribute("href");
         const dataHref = target.getAttribute("data-href");
         if (href) {
             if (dataHref) {
+                event.preventDefault();
                 const pageData = JSON.parse(dataHref);
                 this.setPage(pageData.page).then(() => {
                     const pathname = this.props.history ? this.props.history.location.pathname : location.pathname;
@@ -122,6 +124,9 @@ export default class EpubLayout extends AbcLayout<any, any> {
             } else {
                 console.log("out link", href);
             }
+        } else {
+            event.preventDefault();
+            event.stopPropagation();
         }
     }
 

@@ -205,7 +205,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
      */
     protected abstract renderContent(): JSX.Element | string | Array<JSX.Element|string>;
 
-    protected clickPageUrl(target: HTMLLinkElement): void {
+    protected clickPageUrl(event: MouseEvent): void {
         console.warn("on PageUrl handle");
     }
 
@@ -229,8 +229,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
 
     private pageClick = (event: MouseEvent) => {
         if ((event.target as Element).nodeName === "A") {
-            event.preventDefault();
-            this.clickPageUrl(event.target as HTMLLinkElement);
+            this.clickPageUrl(event);
             return;
         }
 
@@ -314,11 +313,11 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     protected abstract resize(event: UIEvent): void;
 
     protected renderToc() {
-        return <Dialog title="目录" close={() => this.tocToggler(false)}>
+        return h(Dialog, {title: "目录", close: () => this.tocToggler(false)},
             <div className={styl.toc_content}>
                 {this.tocs ? <Toc tocs={this.tocs} onclick={this.tocClick}/> : null}
-            </div>
-        </Dialog>;
+            </div>,
+        );
         // return <div
         //         className={`${styl.toc_layout} animated`}
         //         onClick={(event) => event.stopPropagation()}>
