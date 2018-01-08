@@ -15,7 +15,6 @@ import platform
 import subprocess
 
 import asyncio
-import binascii
 from lxml import etree, html
 from .utils import (
     PNGBIN,
