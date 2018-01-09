@@ -587,6 +587,17 @@ class Epub2Json(object):
                             data['hash'] = link_id
                         link.set('href', new_href)
                         link.set('data-href', json.dumps(data))
+                    elif link.startswith("#"):
+                        link_id = link[1:]
+                        for page_count, ids in self.toc_link.items():
+                            if link_id in ids:
+                                new_href = '?page=%d' % page_count
+                                data = {
+                                    'page': page_count,
+                                    'page_num': self.container[page_count][1]
+                                }
+                                link.set('href', new_href)
+                                link.set('data-href', json.dumps(data))
                     else:
                         link.set("target", "_blank")
                 images = tree.findall(

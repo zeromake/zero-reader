@@ -47,24 +47,24 @@ web reader
     - [ ] gitbook 支持
 
 ## use open project
-1. [preact](https://github.com/developit/preact): mini react like library
-2. [zreact](https://github.com/zeromake/zreact): copy preact
-3. [preact-animate](https://github.com/zeromake/preact-animate): fork by rc-animate
-4. [animate.css](https://github.com/daneden/animate.css): css animate
-5. [preact-router](https://github.com/developit/preact-router): preact router copy to src/assets/router add animate, react support
-6. [better-scroll](https://github.com/ustbhuangyi/better-scroll): mobile scroll
-7. [history](https://github.com/ReactTraining/history): hash router support
-8. [lozad](https://github.com/ApoorvSaxena/lozad.js): img lazy
-9. [cordova](http://cordova.apache.org/): android and ios package
+1. [preact](https://github.com/developit/preact): mini react like library(MIT)
+2. [zreact](https://github.com/zeromake/zreact): copy preact(MIT)
+3. [preact-animate](https://github.com/zeromake/preact-animate): fork by rc-animate(MIT)
+4. [animate.css](https://github.com/daneden/animate.css): css animate(MIT)
+5. [preact-router](https://github.com/developit/preact-router): preact router copy to src/assets/router add animate, react support(MIT)
+6. [better-scroll](https://github.com/ustbhuangyi/better-scroll): mobile scroll(MIT)
+7. [history](https://github.com/ReactTraining/history): hash router support(MIT)
+8. [lozad](https://github.com/ApoorvSaxena/lozad.js): img lazy(MIT)
+9. [cordova](http://cordova.apache.org/): android and ios package(Apache2.0)
 ---
-1. [lxml](https://github.com/lxml/lxml): xml tools
-2. [requests](https://github.com/requests/requests): http client request
-3. [argparse](https://github.com/ThomasWaldmann/argparse/): cmd parse
+1. [lxml](https://github.com/lxml/lxml): xml tools(BSD)
+2. [requests](https://github.com/requests/requests): http client request(Apache2.0)
+3. [argparse](https://github.com/ThomasWaldmann/argparse/): cmd parse(Python-License)
 4. [pypdf2](https://github.com/mstamy2/PyPDF2): read pdf meta
-5. [sanic](https://github.com/channelcat/sanic): aio http server
-6. [aiosqlite3](https://github.com/zeromake/aiosqlite3): aio sqlite support
-7. [sqlalchemy](https://github.com/zzzeek/sqlalchemy): database orm
-8. [pdf2htmlEX](https://github.com/coolwanglu/pdf2htmlEX): pdf to html
+5. [sanic](https://github.com/channelcat/sanic): aio http server(MIT)
+6. [aiosqlite3](https://github.com/zeromake/aiosqlite3): aio sqlite support(MIT)
+7. [sqlalchemy](https://github.com/zzzeek/sqlalchemy): database orm(MIT)
+8. [pdf2htmlEX](https://github.com/coolwanglu/pdf2htmlEX): pdf to html(GPLv3)
 
 ## develop use tools
 
