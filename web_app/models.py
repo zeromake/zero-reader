@@ -43,6 +43,12 @@ User = sa.Table(
         sa.String(16),
         nullable=False
     ),
+    # 邮箱
+    sa.Column(
+        'email',
+        sa.String(256),
+        nullable=False
+    ),
     # 密码
     sa.Column(
         'password',
@@ -292,28 +298,44 @@ UserConfig = sa.Table(
         primary_key=True,
         nullable=False
     ),
-    # 阅读器背景色
     sa.Column(
-        'read_bg',
+        'user_id',
         sa.Integer,
         nullable=False
     ),
-    # 首页设置
+    # 配置
     sa.Column(
-        'index',
+        'config',
+        sa.Text,
+        nullable=False
+    ),
+    sqlite_autoincrement=True
+)
+
+BookConfig = sa.Table(
+    'book_config',
+    metadata,
+    sa.Column(
+        'id',
+        sa.Integer,
+        autoincrement=True,
+        primary_key=True,
+        nullable=False
+    ),
+    sa.Column(
+        'user_id',
         sa.Integer,
         nullable=False
     ),
-    # pdf适应方式
     sa.Column(
-        'zoom',
+        'library_id',
         sa.Integer,
         nullable=False
     ),
-    # epub阅读方式
+    # 配置
     sa.Column(
-        'column',
-        sa.Integer,
+        'config',
+        sa.Text,
         nullable=False
     ),
     sqlite_autoincrement=True

@@ -116,19 +116,14 @@ export default class EpubContent extends Component<any, any> {
     public scrollHash(hash: string) {
         const idHash = decodeURI(hash);
         const base = findDOMNode(this);
-        const scrollView = base.querySelector(idHash);
+        const scrollView = document.getElementById(idHash) || base.querySelector(`[name='${idHash}']`);
         if (scrollView) {
             if (this.props.columnCount === 0) {
                 scrollView.scrollIntoView();
             } else {
                 const offsetLeft = (scrollView as HTMLElement).offsetLeft;
                 const pageNum = offsetLeft / this.offsetWidth;
-                let htmlPage = 0;
-                if (pageNum % 1) {
-                    htmlPage = ~~(pageNum) + 1;
-                } else {
-                    htmlPage = pageNum;
-                }
+                const htmlPage = pageNum % 1 ? ~~(pageNum) + 1 : pageNum;
                 return htmlPage;
             }
         }

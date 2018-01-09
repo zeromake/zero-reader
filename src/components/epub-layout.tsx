@@ -35,7 +35,9 @@ export default class EpubLayout extends AbcLayout<any, any> {
                 const propsLocation = (this.props.history && this.props.history.location) || location;
                 if (propsLocation) {
                     const hash = propsLocation.hash;
-                    this.scrollHash(hash);
+                    if (hash) {
+                        this.scrollHash(hash.substring(1));
+                    }
                 }
             });
         });
@@ -77,7 +79,7 @@ export default class EpubLayout extends AbcLayout<any, any> {
             const pathname = this.props.history ? this.props.history.location.pathname : location.pathname;
             if (toc.hash) {
                 href += "#" + toc.hash;
-                this.scrollHash("#" + toc.hash);
+                this.scrollHash(toc.hash);
             }
             route(`${pathname}${href}`, true);
             this.tocToggler(false);
@@ -119,7 +121,7 @@ export default class EpubLayout extends AbcLayout<any, any> {
                 this.setPage(pageData.page).then(() => {
                     const pathname = this.props.history ? this.props.history.location.pathname : location.pathname;
                     route(`${pathname}${href}`, true);
-                    this.scrollHash("#" + pageData.hash);
+                    this.scrollHash(pageData.hash);
                 });
             } else {
                 console.log("out link", href);

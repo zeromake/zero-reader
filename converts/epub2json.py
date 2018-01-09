@@ -13,6 +13,7 @@ import tempfile
 import asyncio
 import shutil
 from lxml import etree, html
+from urllib import parse
 from .utils import (
     file_sha256,
     file_open,
@@ -563,6 +564,8 @@ class Epub2Json(object):
                 links = tree.findall('//a[@href]')
                 for link in links:
                     href = link.get('href')
+                    if "%" in href:
+                        href = parse.unquote(href)
                     http_head = HTTP_NAME.findall(href)
                     if len(http_head) > 0:
                         link.set("target", "_blank")
@@ -580,7 +583,7 @@ class Epub2Json(object):
                             new_href += '&' + query_str
                             data['query'] = query_str
                         if link_id:
-                            new_href += '#' + link_id
+                            new_href += '#' + parse.quote(link_id)
                             data['hash'] = link_id
                         link.set('href', new_href)
                         link.set('data-href', json.dumps(data))
@@ -591,6 +594,8 @@ class Epub2Json(object):
                 )
                 for img in images:
                     img_src = img.get('src')
+                    if "%" in img_src:
+                        img_src = parse.unquote(img_src)
                     img_zip_path = zip_join(old_page_dir, img_src)
                     if '/' in img_src:
                         img_out_name = zip_join(
@@ -610,7 +615,7 @@ class Epub2Json(object):
                         tmp += " " + old_class
                     img.set('class', tmp)
                     del img.attrib['src']
-                    img.set('data-src', img_out_name)
+                    img.set('data-src', parse.quote(img_out_name))
                 images = tree.findall(
                     "//image"
                 )

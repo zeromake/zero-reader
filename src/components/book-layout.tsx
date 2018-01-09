@@ -16,18 +16,10 @@ export default class BookLayout extends Component<any, any> {
     constructor(p, c) {
         super(p, c);
         this.library = libraryData(p.sha);
-        if (this.library.has("meta.json")) {
-            const meta = this.library.syncGet("meta.json");
-            this.setState({
-                layoutType: meta.type,
-                meta,
-            });
-        } else {
-            this.state = {
-                layoutType: null,
-                meta: null,
-            };
-        }
+        this.state = {
+            layoutType: null,
+            meta: null,
+        };
     }
     public componentDidMount() {
         return this.getMeta();
@@ -40,7 +32,7 @@ export default class BookLayout extends Component<any, any> {
         });
     }
     public render(): any {
-        let layout: any = Children.only(this.props.children);
+        let layout: any = <div>loading!</div>;
         if (this.state.layoutType) {
             const selectLayout: any = bookLayout[this.state.layoutType];
             if (selectLayout) {

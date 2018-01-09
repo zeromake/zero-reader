@@ -97,7 +97,7 @@ const config = {
         extensions: ['.js', '.ts', '.tsx']
     },
     plugins: [
-        // new ModuleConcatenationPlugin(),
+        new ModuleConcatenationPlugin(),
         new HtmlWebpackPlugin({
             version: pkg.version,
             buildTime: strftime(new Date()),

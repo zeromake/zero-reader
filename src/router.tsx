@@ -54,7 +54,6 @@ const MainRouter = () => (
                 path="/library/:sha/"
                 transitionName={{ enter: "fadeInRight", leave: "fadeOutRight" }}
             >
-                <div>loading!</div>
             </Route>
         </Animate>
     </Router>
