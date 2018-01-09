@@ -16,7 +16,9 @@ __all__ = [
     "LibraryBindAuthor",
     "ReadHistory",
     "BookShelf",
-    "UserConfig"
+    "UserConfig",
+    "BookConfig",
+    "BookNotes"
 ]
 __version__ = "1.0.0"
 
@@ -254,7 +256,7 @@ ReadHistory = sa.Table(
     ),
     sa.Column(
         'create_time',
-        sa.Integer(64),
+        sa.Integer,
         nullable=False
     ),
     sqlite_autoincrement=True
@@ -282,7 +284,7 @@ BookShelf = sa.Table(
     ),
     sa.Column(
         'create_time',
-        sa.Integer(64),
+        sa.Integer,
         nullable=False
     ),
     sqlite_autoincrement=True
@@ -335,6 +337,44 @@ BookConfig = sa.Table(
     # 配置
     sa.Column(
         'config',
+        sa.Text,
+        nullable=False
+    ),
+    sqlite_autoincrement=True
+)
+
+BookNotes = sa.Table(
+    'book_notes',
+    metadata,
+    sa.Column(
+        'id',
+        sa.Integer,
+        autoincrement=True,
+        primary_key=True,
+        nullable=False
+    ),
+    sa.Column(
+        'user_id',
+        sa.Integer,
+        nullable=False
+    ),
+    sa.Column(
+        'library_id',
+        sa.Integer,
+        nullable=False
+    ),
+    sa.Column(
+        'update_time',
+        sa.Integer,
+        nullable=False
+    ),
+    sa.Column(
+        'page',
+        sa.Integer,
+        nullable=False
+    ),
+    sa.Column(
+        'note',
         sa.Text,
         nullable=False
     ),
