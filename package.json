@@ -6,7 +6,7 @@
   "main": "build/build.js",
   "repository": "https://github.com/zeromake/zero-reader",
   "author": "zeromake <a390720046@gmail.com>",
-  "license": "(ISC OR GPL-3.0)",
+  "license": "AGPL-3.0",
   "scripts": {
     "cordova-init": "cordova prepare",
     "cordova-build": "cross-env NODE_ENV=production platform=cordova webpack --colors --config build/webpack.config.js",

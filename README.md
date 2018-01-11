@@ -45,6 +45,9 @@ web reader
 + [ ] 更多书籍格式支持
     - [ ] mobi 支持
     - [ ] gitbook 支持
++ [ ] 安装引导
+    - 升级引导
+    - 备份数据库
 
 ## use open project
 1. [preact](https://github.com/developit/preact): mini react like library(MIT)

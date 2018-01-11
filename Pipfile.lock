@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "81a4c2fd1fe0911ae9a8d51ef501c378ee663461299aaab8d61cb17cda1b9be7"
+            "sha256": "5666d510b3f11822f70100de7981406597e033a8f2650024b0980f5fde5eff6d"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -35,6 +35,10 @@
             "hashes": [],
             "version": "==0.0.11"
         },
+        "aiopg": {
+            "hashes": [],
+            "version": "==0.13.1"
+        },
         "aiosqlite3": {
             "hashes": [],
             "version": "==0.1.1"
@@ -59,6 +63,10 @@
             "hashes": [],
             "version": "==1.0.dev20170322001"
         },
+        "gunicorn": {
+            "hashes": [],
+            "version": "==19.7.1"
+        },
         "httptools": {
             "hashes": [],
             "version": "==0.0.10"
@@ -78,6 +86,10 @@
         "promise": {
             "hashes": [],
             "version": "==2.1"
+        },
+        "psycopg2": {
+            "hashes": [],
+            "version": "==2.7.3.2"
         },
         "pymysql": {
             "hashes": [],

@@ -61,20 +61,21 @@ class DateBase:
             )
         elif self._driver == "mysql":
             from aiomysql.sa import create_engine
+            print(self._url.translate_connect_args(), self._loop)
             return await create_engine(
                 user=self._url.username,
                 db=self._url.database,
                 host=self._url.host,
                 password=self._url.password,
                 port=self._url.port,
-                loop=self._loop,
-                **self._args
+                loop=self._loop
+                # **self._args
             )
         elif self._driver == "postgresql":
             from aiopg.sa import create_engine
             return await create_engine(
                 user=self._url.username,
-                db=self._url.database,
+                database=self._url.database,
                 host=self._url.host,
                 port=self._url.port,
                 password=self._url.password,
@@ -88,7 +89,6 @@ class DateBase:
         """
         from sqlalchemy.sql.ddl import CreateTable
         self.load_table()
-        print("create_table")
         async with engine.acquire() as conn:
             if await self.exists_table(conn, self._tables[0].name):
                 await self.drop_table(conn)
@@ -101,7 +101,6 @@ class DateBase:
         """
         from sqlalchemy.sql.ddl import DropTable
         self.load_table()
-        print("drop_table")
         # async with engine.acquire() as conn:
         for table in self._tables:
             await conn.execute(DropTable(table))
@@ -114,9 +113,10 @@ class DateBase:
         if self._driver == "sqlite":
             sql = "SELECT name FROM sqlite_master where type='table' and name='%s'" % name
         elif self._driver == "mysql":
-            sql = "SELECT table_name FROM information_schema.TABLES WHERE table_name ='%s'" % name
+            sql = "SELECT TABLE_NAME FROM information_schema.TABLES "\
+            "WHERE TABLE_NAME ='%s' AND TABLE_SCHEMA = '%s'" % (name, self._url.database)
         elif self._driver == "postgresql":
-            sql = "SELECT name FROM pg_class WHERE relname = '%s'" % name
+            sql = "SELECT relname FROM pg_class WHERE relname = '%s'" % name
         result = await conn.execute(sql)
         first = await result.first()
         return first != None

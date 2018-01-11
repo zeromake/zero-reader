@@ -12,7 +12,8 @@ import posixpath
 import tempfile
 import asyncio
 import shutil
-from lxml import etree, html
+import lxml 
+# from lxml import etree, html
 from urllib import parse
 from .utils import (
     file_sha256,
@@ -219,6 +220,7 @@ class Epub2Json(object):
         """
         读取根文件
         """
+        from lxml import etree
         with epub_file.open(self.meta_info_path) as container:
             tree = etree.parse(container)
             for root_file in tree.findall(
@@ -233,6 +235,7 @@ class Epub2Json(object):
         """
         读取opf文件
         """
+        from lxml import etree
         with epub_file.open(self.opf_file) as opf_file:
             tree = etree.parse(opf_file)
             meta = read_tree_meta_opf(tree)
@@ -391,11 +394,12 @@ class Epub2Json(object):
         """
         不分割拷贝
         """
+        from lxml import html
         with epub_file.open(zip_path) as html_file:
             tree = html.parse(html_file)
             self.find_head_css(epub_file, tree, container_dir)
             body = tree.find('//body')
-            page_xml = html.Element('div')
+            page_xml = lxml.html.Element('div')
             for child in body.iterchildren():
                 page_xml.append(child)
             self.save_html(page_xml, container_count)
@@ -412,7 +416,7 @@ class Epub2Json(object):
         切割html
         """
         with epub_file.open(zip_path) as html_file:
-            tree = html.parse(html_file)
+            tree = lxml.html.parse(html_file)
             self.find_head_css(epub_file, tree, container_dir)
             body = tree.find('//body')
             children = body.getchildren()
@@ -429,7 +433,7 @@ class Epub2Json(object):
                     if page_xml is not None:
                         self.save_html(page_xml, container_count + page_count)
                         page_count += 1
-                    page_xml = html.Element('div')
+                    page_xml = lxml.html.Element('div')
                 page_xml.append(child)
             if page_xml is not None:
                 self.save_html(page_xml, container_count + page_count)
@@ -449,7 +453,7 @@ class Epub2Json(object):
         if len(link_set) > 0:
             self.toc_link[container_count] = link_set
         return self.save_temp_xml(xml, page_name)
-        # return etree.ElementTree(xml).write(
+        # return lxml.etree.ElementTree(xml).write(
         #     os.path.join(self.dist, self.page_dir, page_name),
         #     pretty_print=True,
         #     encoding='utf-8',
@@ -560,7 +564,7 @@ class Epub2Json(object):
                 'r',
                 encoding='utf8'
             ) as page_file:
-                tree = html.parse(page_file)
+                tree = lxml.html.parse(page_file)
                 links = tree.findall('//a[@href]')
                 for link in links:
                     href = link.get('href')
@@ -570,25 +574,8 @@ class Epub2Json(object):
                     if len(http_head) > 0:
                         link.set("target", "_blank")
                         continue
-                    link_page_name = zip_join(old_page_dir, href)
-                    now_page, link_id, query_str = self.handle_href(link_page_name)
-                    if now_page is not None:
-                        page_index = self.container_index_map.get(now_page)
-                        new_href = '?page=%d' % page_index
-                        data = {
-                            'page': page_index,
-                            'page_num': now_page
-                        }
-                        if query_str:
-                            new_href += '&' + query_str
-                            data['query'] = query_str
-                        if link_id:
-                            new_href += '#' + parse.quote(link_id)
-                            data['hash'] = link_id
-                        link.set('href', new_href)
-                        link.set('data-href', json.dumps(data))
-                    elif link.startswith("#"):
-                        link_id = link[1:]
+                    if href.startswith("#"):
+                        link_id = href[1:]
                         for page_count, ids in self.toc_link.items():
                             if link_id in ids:
                                 new_href = '?page=%d' % page_count
@@ -599,7 +586,25 @@ class Epub2Json(object):
                                 link.set('href', new_href)
                                 link.set('data-href', json.dumps(data))
                     else:
-                        link.set("target", "_blank")
+                        link_page_name = zip_join(old_page_dir, href)
+                        now_page, link_id, query_str = self.handle_href(link_page_name)
+                        if now_page is not None:
+                            page_index = self.container_index_map.get(now_page)
+                            new_href = '?page=%d' % page_index
+                            data = {
+                                'page': page_index,
+                                'page_num': now_page
+                            }
+                            if query_str:
+                                new_href += '&' + query_str
+                                data['query'] = query_str
+                            if link_id:
+                                new_href += '#' + parse.quote(link_id)
+                                data['hash'] = link_id
+                            link.set('href', new_href)
+                            link.set('data-href', json.dumps(data))
+                        else:
+                            link.set("target", "_blank")
                 images = tree.findall(
                     '//img[@src]'
                 )
@@ -651,7 +656,7 @@ class Epub2Json(object):
                 with file_open(os.path.join(self.dist, new_page_path), 'wb') as xml_file:
                     root_tree = tree.find("//div")
                     for child in root_tree.iterchildren():
-                        string_ = html.tostring(
+                        string_ = lxml.html.tostring(
                             child,
                             pretty_print=True,
                             method="html",
@@ -682,7 +687,7 @@ class Epub2Json(object):
             return
         self.container_page_dict = { container_name : page for container_name, page in self.container}
         with epub_file.open(self.toc_zip_path, 'r') as toc_file:
-            tree = etree.parse(toc_file)
+            tree = lxml.etree.parse(toc_file)
             nav_map = tree.find('//xmlns:navMap', namespaces={'xmlns': NAMESPACES['DAISY']})
             tocs_info = []
             for point in nav_map.iterchildren():

@@ -15,7 +15,7 @@ import platform
 import subprocess
 
 import asyncio
-from lxml import etree, html
+# from lxml import etree, html
 from .utils import (
     PNGBIN,
     deep_tree,
@@ -276,6 +276,7 @@ class Pdf2Json(object):
         """
         把html的toc转为json
         """
+        from lxml import etree
         if os.path.getsize(toc_html_name) < 1:
             logger.debug('MISS empty TOC')
             return
@@ -329,6 +330,7 @@ class Pdf2Json(object):
         """
         转换内容页
         """
+        from lxml import etree
         page_id_to_index = {}
         containers = []
         # out_bg_css = os.path.join(self.dist, 'bg.css')
@@ -374,6 +376,7 @@ class Pdf2Json(object):
         """
         拷贝page的html，并做好预处理
         """
+        from lxml import etree
         page_name = page['data-page-url']
         out_dir = self.dist
         input_dir = self.out
@@ -392,7 +395,7 @@ class Pdf2Json(object):
             root.set('class', tmp)
             for img in tree.xpath('//img'):
                 # parent = img.getparent()
-                # div = etree.Element('div')
+                # div = lxml.etree.Element('div')
                 val = img.get('src')
                 input_path = os.path.join(input_dir, val)
                 # logger.debug("pngquant : %s", input_path)

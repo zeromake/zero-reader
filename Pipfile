@@ -17,6 +17,8 @@ sanic-graphql = "*"
 sqlalchemy = "*"
 ipfsapi = "*"
 aiomysql = "*"
+aiopg = "*"
+gunicorn = "*"
 
 
 [dev-packages]

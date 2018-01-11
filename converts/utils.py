@@ -20,18 +20,12 @@ import subprocess
 import asyncio
 from functools import partial
 
-from lxml import etree, html
+# from lxml import etree, html as lxmlHtml
 from PyPDF2 import PdfFileReader
 from PyPDF2.generic import IndirectObject, TextStringObject
 import zipfile
-# from .compress.zstd_tar import ZstdTar
+# # from .compress.zstd_tar import ZstdTar
 import tarfile
-
-try:
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
-except:
-    pass
 
 logging.basicConfig(
     level=logging.DEBUG
@@ -168,6 +162,7 @@ def read_zip_meta_opf(opf_file):
     """
     直接读取文件对象的opf
     """
+    from lxml import etree
     return read_tree_meta_opf(etree.parse(opf_file))
 
 def read_meta_opf(opf_name):
@@ -213,6 +208,7 @@ def parse_string(string):
     """
     处理zip open无法解析文本
     """
+    from lxml import etree
     try:
         tree = etree.parse(io.BytesIO(string.encode('utf-8')))
     except:
@@ -309,8 +305,9 @@ def save_xml_path(xml, output_path):
     """
     保存xml
     """
+    from lxml import etree
     # with file_open(output_path, 'wb') as out_file:
-    #     out_file.write(html.tostring(
+    #     out_file.write(lxml.html.tostring(
     #         xml,
     #         pretty_print=True,
     #         method='html'
@@ -318,6 +315,7 @@ def save_xml_path(xml, output_path):
     return etree.ElementTree(xml).write(
         output_path,
         pretty_print=True,
+        encoding='utf-8',
         method='html'
     )
 

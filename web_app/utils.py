@@ -1,6 +1,7 @@
+import os
 import sys
 
-__all__ = ["import_string"]
+__all__ = ["import_string", "ROOT_PATH"]
 
 def import_string(import_name, silent=False):
     """Imports an object based on a string.  This is useful if you want to
@@ -42,3 +43,10 @@ def import_string(import_name, silent=False):
     except ImportError as e:
         if not silent:
             raise e
+ROOT_PATH = os.path.abspath(os.path.dirname(__file__))
+
+def root_resolve(path):
+    """
+    获取绝对路径(以${project_dir}/web_app/起始)
+    """
+    return os.path.join(ROOT_PATH, path)

@@ -7,11 +7,7 @@
 import os
 import argparse
 import asyncio
-
-
-from converts.pdf2json import Pdf2Json
-from converts.epub2json import Epub2Json
-from converts.utils import logger
+import logging
 
 def add_args():
     """
@@ -93,8 +89,11 @@ def main():
     loop = asyncio.get_event_loop()
     if options['web'] == 1:
         from web_app import app
-        app.run()
+        app.run(workers=4, access_log=False)
     else:
+        from converts.utils import logger
+        from converts.epub2json import Epub2Json
+        from converts.pdf2json import Pdf2Json
         convert = None
         if file_name.endswith('.epub'):
             convert = Epub2Json

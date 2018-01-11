@@ -9,6 +9,7 @@ const pkg = require("../package.json")
 const isProd = process.env.NODE_ENV === 'production'
 const isCordova = process.env.platform === "cordova"
 const resolve = file => path.resolve(__dirname, file)
+const assetsPath = "assets"
 
 const fullZero= function(date, funName) {
     let res = date[funName]()
@@ -80,8 +81,8 @@ const config = {
         "main": resolve('../src/main.tsx')
     },
     output: {
-        path: outPath,
-        publicPath: isCordova ? '' : '/',
+        path: path.join(outPath, assetsPath),
+        publicPath: (isCordova ? '' : '/') + assetsPath,
         filename: '[name]-[hash].js'
     },
     resolve: {
@@ -103,13 +104,19 @@ const config = {
             buildTime: strftime(new Date()),
             isProd,
             isCordova,
-            filename: 'index.html',
+            filename: (assetsPath === "" ? "" : "../") +'index.html',
             template: 'src/index.ejs',
             inject: true
         }),
         new ExtractTextPlugin("css/common.[chunkhash].css"),
         // new webpack.HotModuleReplacementPlugin(),
         // new es3ifyPlugin()
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: isProd ? '"production"' : '"development"',
+                platform: JSON.stringify(process.env.platform)
+            }
+        })
     ],
     devServer: {
         contentBase: outPath,
@@ -211,14 +218,6 @@ const config = {
 }
 if (isProd) {
     config.plugins.push(
-        new webpack.DefinePlugin({
-            'process.env': {
-                NODE_ENV: '"production"',
-                platform: JSON.stringify(process.env.platform)
-            }
-        })
-    )
-    config.plugins.push(
         new webpack.optimize.UglifyJsPlugin({
             // 最紧凑的输出
             beautify: false,
@@ -243,14 +242,5 @@ if (isProd) {
     //         analyzerPort: 9999
     //     })
     // )
-} else {
-    config.plugins.push(
-        new webpack.DefinePlugin({
-            'process.env': {
-                NODE_ENV: '"dev"',
-                platform: JSON.stringify(process.env.platform)
-            }
-        })
-    )
 }
 module.exports = config;

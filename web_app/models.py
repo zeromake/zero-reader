@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 
 """
-models by zeromake on 2018-01-05
+models by zeromake on 2018-01-11
 """
 
 metadata = sa.MetaData()
@@ -20,7 +20,7 @@ __all__ = [
     "BookConfig",
     "BookNotes"
 ]
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 # 用户表
 User = sa.Table(
@@ -137,6 +137,16 @@ Library = sa.Table(
     sa.Column(
         'type',
         sa.String(8),
+        nullable=False
+    ),
+    sa.Column(
+        'create_time',
+        sa.BigInteger,
+        nullable=False
+    ),
+    sa.Column(
+        'update_time',
+        sa.BigInteger,
         nullable=False
     ),
     sqlite_autoincrement=True
@@ -256,7 +266,7 @@ ReadHistory = sa.Table(
     ),
     sa.Column(
         'create_time',
-        sa.Integer,
+        sa.BigInteger,
         nullable=False
     ),
     sqlite_autoincrement=True
@@ -284,7 +294,7 @@ BookShelf = sa.Table(
     ),
     sa.Column(
         'create_time',
-        sa.Integer,
+        sa.BigInteger,
         nullable=False
     ),
     sqlite_autoincrement=True
@@ -365,7 +375,7 @@ BookNotes = sa.Table(
     ),
     sa.Column(
         'update_time',
-        sa.Integer,
+        sa.BigInteger,
         nullable=False
     ),
     sa.Column(
