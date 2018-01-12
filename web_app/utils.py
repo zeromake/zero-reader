@@ -50,3 +50,41 @@ def root_resolve(path):
     获取绝对路径(以${project_dir}/web_app/起始)
     """
     return os.path.join(ROOT_PATH, path)
+
+def make_columns(table):
+    """
+    取出table中的columns
+    """
+    return [column for column in table.columns]
+
+def handle_param(columns, form_data):
+    """
+    处理参数
+    """
+    is_use = False
+    data = {}
+    for column in columns:
+        name = column.name
+        if name in form_data:
+            data[name] = form_data[name]
+            if not is_use:
+                is_use = True
+    return data, is_use
+
+def handle_param_primary(columns, form_data):
+    """
+    处理带主键的参数
+    """
+    is_use = False
+    data = []
+    for column in columns:
+        name = column.name
+        if name in form_data:
+            primary_data = form_data[name]
+            if column.primary_key and isinstance(primary_data, list):
+                data.append(column.in_(primary_data))
+            else:
+                data.append(column==form_data[name])
+            if not is_use:
+                is_use = True
+    return data, is_use

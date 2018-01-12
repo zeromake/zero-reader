@@ -24,3 +24,5 @@ async def fall_back(request, exception):
 #     print(file_uri)
 #     file_path = os.path.join(root_resolve("../library"), file_uri)
 #     return await response.file(file_path)
+
+from web_app.services import service_router
