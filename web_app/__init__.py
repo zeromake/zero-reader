@@ -13,6 +13,7 @@ from .config import CONFIG
 from .db import DateBase
 
 app = Sanic(__name__)
+app.__model__ = {}
 
 @app.listener('before_server_start')
 async def before_server_start(app, loop):

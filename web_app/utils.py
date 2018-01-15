@@ -57,34 +57,58 @@ def make_columns(table):
     """
     return [column for column in table.columns]
 
-def handle_param(columns, form_data):
+def handle_param(column, data):
     """
-    处理参数
+    处理where条件
     """
-    is_use = False
-    data = {}
-    for column in columns:
-        name = column.name
-        if name in form_data:
-            data[name] = form_data[name]
-            if not is_use:
-                is_use = True
-    return data, is_use
+    opt = data.get('opt', '==')
+    if 'val' in data:
+        value = data['val']
+        if opt == '==':
+            return column == value
+        if opt == '!=':
+            return column != value
+        elif opt == '>=':
+            return column >= value
+        elif opt == '<=':
+            return column <= value
+        elif opt == '>':
+            return column > value
+        elif opt == '<':
+            return column < value
+        elif opt == 'like':
+            like_str = value if value.startswith("%") else "%%%s%%" % value
+            return column.like(like_str)
+        elif opt == 'in':
+            return column.in_(value)
+        elif opt == 'notin':
+            return ~column.in_(value)
+        elif opt == 'raw':
+            return value
 
 def handle_param_primary(columns, form_data):
     """
     处理带主键的参数
     """
-    is_use = False
     data = []
     for column in columns:
         name = column.name
         if name in form_data:
             primary_data = form_data[name]
-            if column.primary_key and isinstance(primary_data, list):
-                data.append(column.in_(primary_data))
+            if isinstance(primary_data, list):
+                if len(primary_data) > 0:
+                    if isinstance(primary_data[0], dict):
+                        for row in primary_data:
+                            param = handle_param(column, row)
+                            if not param is None:
+                                data.append(param)
+                    else:
+                        data.append(column.in_(primary_data))
+            elif isinstance(primary_data, dict):
+                param = handle_param(column, primary_data)
+                if not param is None:
+                    data.append(param)
             else:
                 data.append(column==form_data[name])
-            if not is_use:
-                is_use = True
+    is_use = len(data) > 0
     return data, is_use

@@ -89,7 +89,7 @@ def main():
     loop = asyncio.get_event_loop()
     if options['web'] == 1:
         from web_app import app
-        app.run(workers=4, access_log=True)
+        app.run(workers=1, access_log=True)
     else:
         from converts.utils import logger
         from converts.epub2json import Epub2Json
