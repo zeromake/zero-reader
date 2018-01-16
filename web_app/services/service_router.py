@@ -23,4 +23,4 @@ async def register(request):
     model = app.__model__.get(model_url)
     if not model:
         return response.json({'status': 500, 'message': "not find model: %s" % model_url})
-    return response.json(await model.execute_dml(model.insert(form_data)))
+    return response.json(await model.execute_dml(model.insert(form_data), "注册成功"))

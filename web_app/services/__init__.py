@@ -7,6 +7,8 @@ from web_app.utils import make_columns, handle_param, handle_param_primary
 from sanic.views import HTTPMethodView
 from sanic import response
 from web_app import app
+import ujson as json
+from sqlalchemy import func
 
 class ApiView(HTTPMethodView):
     __model__ = None
@@ -140,3 +142,56 @@ class ApiView(HTTPMethodView):
             if is_use and data and isinstance(data, dict):
                 sql = self.__model__.update().where(*where).values(data)
         return sql
+
+    async def get(self, request, *args, **kwargs):
+        """
+        查询
+        """
+        args = request.raw_args
+        if "query" in args:
+            form_data = json.loads(args["query"])
+        else:
+            form_data = {}
+        limit = None
+        if "__limit__" in form_data:
+            limit = form_data['__limit__']
+            del form_data['__limit__']
+        
+        engine = app.engine
+        where, is_use = handle_param_primary(self._columns, form_data)
+        limit_sql = None
+        count_sql = None
+        if is_use:
+            sql = self.__model__.select().where(*where)
+        else:
+            sql = self.__model__.select()
+            
+        if limit:
+            count_sql = self.__model__.select(func.count(self._columns[0]).label("count"))
+            if is_use:
+                count_sql = count_sql.where(*where)
+            now = limit[0]
+            count = limit[1]
+            page_start = (now - 1) * count
+            page_end = now * count
+            print(page_start, page_end)
+            limit_sql = sql.offset(page_start).limit(page_end)
+        try:
+            async with engine.acquire() as conn:
+                if limit_sql is None:
+                    async with conn.execute(sql) as cursor:
+                        data = await cursor.fetchall()
+                        data = [{key: val for key, val in row.items()}for row in data]
+                        return response.json({'status': 200, 'message': "ok", 'data': data})
+                else:
+                    print(count_sql)
+                    async with conn.execute(count_sql) as cursor:
+                        count = await cursor.first()
+                        print(count)
+                            
+        except Exception as e:
+            print(e)
+            return response.json({'status': 500, 'message': str(e)})
+        
+        return response.json({'status': 400, 'message': 'param is error'})
+
