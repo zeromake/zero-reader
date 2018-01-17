@@ -1,5 +1,5 @@
 from web_app.models import User
-from . import ApiView
+from .. import ApiView
 
 class UserService(ApiView):
     """
