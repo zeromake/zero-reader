@@ -120,3 +120,20 @@ class DateBase:
         result = await conn.execute(sql)
         first = await result.first()
         return first != None
+
+    async def get_last_row_id(self, conn, cursor):
+        """
+        获取最后的id
+        """
+        sql = None
+        if self._driver == "sqlite":
+            sql = "SELECT last_insert_rowid() as id"
+        elif self._driver == "mysql":
+            sql = "SELECT LAST_INSERT_ID() as id"
+        elif self._driver == "postgresql":
+            result = await cursor.first()
+            if not result is None:
+                return result[0]
+        if sql:
+            cursor = await conn.execute(sql)
+            return (await cursor.first()).id

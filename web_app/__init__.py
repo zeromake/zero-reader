@@ -19,6 +19,7 @@ app.__model__ = {}
 async def before_server_start(app, loop):
     init = os.path.exists(CONFIG['FILE'])
     data_base = DateBase(CONFIG['DB'], loop)
+    app.db = data_base
     app.engine = await data_base.create_engine()
     if not init:
         await data_base.create_table(app.engine)

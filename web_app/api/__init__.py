@@ -2,7 +2,6 @@
 将model转换为resetful api模式
 by zeromake 2018.01.12
 """
-import aiosqlite3
 from web_app.utils import make_columns, handle_param, handle_param_primary
 from sanic.views import HTTPMethodView
 from sanic import response, Blueprint
@@ -35,6 +34,7 @@ class ApiView(HTTPMethodView):
 
     async def dispatch_request(self, request, *args, **kwargs):
         method = request.method.lower()
+        content_type = request.headers.get("content-type")
         handler = None
         if self.__method__ is None:
             handler = getattr(self, method, None)
@@ -97,6 +97,28 @@ class ApiView(HTTPMethodView):
         except Exception as e:
             return {'status': 500, 'message': str(e)}
 
+    
+    async def execute_insert(self, sql, message="execute ok", form_data=None):
+        """
+        执行单次插入语句
+        """
+        engine = app.engine
+        db_ = app.db
+        try:
+            async with engine.acquire() as conn:
+                async with conn.begin():
+                    count = 0
+                    data = None
+                    async with conn.execute(sql) as cursor:
+                        count = cursor.rowcount
+                        row_id = await db_.get_last_row_id(conn, cursor)
+                        if row_id:
+                            form_data[self._key.name] = row_id
+                            data = form_data
+                    return {'status': 200, 'message': message, 'count': count, "data": data}
+        except Exception as e:
+            return {'status': 500, 'message': str(e)}
+
     async def post(self, request, *args, **kwargs):
         """
         form_data = request.json
@@ -106,7 +128,9 @@ class ApiView(HTTPMethodView):
         sql = self.insert(form_data)
         if sql is None:
             return response.json({'status': 400, 'message': 'param is error'})
-        return response.json(await self.execute_dml(sql, "insert ok"))
+        if isinstance(form_data, list):
+            return response.json(await self.execute_dml(sql, "insert ok"))
+        return response.json(await self.execute_insert(sql, "insert ok", form_data))
 
     def insert(self, form_data):
         """
@@ -193,25 +217,22 @@ class ApiView(HTTPMethodView):
         查询
         """
         args = request.raw_args
-        if "query" in args:
+        if "where" in args:
             try:
-                form_data = json.loads(args["query"])
+                where_data = json.loads(args["where"])
             except ValueError:
-                form_data = {}
+                where_data = {}
         else:
-            form_data = {}
+            where_data = {}
         if 'primary_key' in kwargs:
             if not self._key is None:
-                form_data[self._key.name] = kwargs['primary_key']
-        limit = None
-        if "__limit__" in form_data:
-            limit = form_data['__limit__']
-            del form_data['__limit__']
-        else:
-            limit = [1, 30]
-        
+                where_data[self._key.name] = kwargs['primary_key']
+        try:
+            limit = [int(args.get("skip", 0)), int(args.get("limit", 50))]
+        except ValueError:
+            limit = [0, 50]
         engine = app.engine
-        where, is_use = handle_param_primary(self._columns, form_data)
+        where, is_use = handle_param_primary(self._columns, where_data)
         limit_sql = None
         count_sql = None
         if is_use:
@@ -222,11 +243,8 @@ class ApiView(HTTPMethodView):
             count_sql = sa_sql.select([func.count(self._columns[0]).label("count")])
             if is_use:
                 count_sql = count_sql.where(*where)
-            now = limit[0]
-            count = limit[1]
-            page_start = (now - 1) * count
-            page_end = now * count
-            limit_sql = sql.offset(page_start).limit(page_end)
+            limit_sql = sql.offset(limit[0]).limit(limit[1])
+
         try:
             async with engine.acquire() as conn:
                 if limit_sql is None:

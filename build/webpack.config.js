@@ -3,15 +3,17 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require("extract-text-webpack-plugin")
 const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin');
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+// const AutoDllPlugin = require("autodll-webpack-plugin");
 
-const pkg = require("../package.json")
+const pkg = require("../package.json");
 
-const isProd = process.env.NODE_ENV === 'production'
-const isCordova = process.env.platform === "cordova"
-const resolve = file => path.resolve(__dirname, file)
-const assetsPath = "assets"
+const isProd = process.env.NODE_ENV === 'production';
+const isCordova = process.env.platform === "cordova";
+const resolve = file => path.resolve(__dirname, file);
+const assetsPath = "assets";
 
-const fullZero= function(date, funName) {
+const fullZero = function(date, funName) {
     let res = date[funName]()
     if ('getMonth' === funName) {
         res += 1
@@ -20,7 +22,7 @@ const fullZero= function(date, funName) {
         res = '0' + res
     }
     return res
-}
+};
 
 const strftime = function(date) {
     let offset = date.getTimezoneOffset() / 60
@@ -75,6 +77,36 @@ const preactAlias = {
     'module-react': resolve('../src/import/module-preact.ts'),
     'react-import': resolve('../src/import/preact-import.ts'),
 }
+
+const basePlugin = [
+    new ModuleConcatenationPlugin(),
+    new webpack.DefinePlugin({
+        'process.env': {
+            NODE_ENV: isProd ? '"production"' : '"development"',
+            platform: JSON.stringify(process.env.platform)
+        }
+    })
+]
+if (isProd) {
+    basePlugin.push(new webpack.optimize.UglifyJsPlugin({
+        // 最紧凑的输出
+        beautify: false,
+        // 删除所有的注释
+        comments: false,
+        compress: {
+            // 在UglifyJs删除没有用到的代码时不输出警告
+            warnings: false,
+            // 删除所有的 `console` 语句，可以兼容ie浏览器
+            drop_console: true,
+            // 内嵌定义了但是只用到一次的变量
+            collapse_vars: true,
+            // 提取出出现多次但是没有定义成变量去引用的静态值
+            reduce_vars: true,
+            // warnings: false,
+        }
+    }));
+}
+
 const config = {
     devtool: isProd ? false : "#source-map",
     entry: {
@@ -82,7 +114,7 @@ const config = {
     },
     output: {
         path: path.join(outPath, assetsPath),
-        publicPath: (isCordova ? '' : '/') + assetsPath,
+        publicPath: isProd ? (isCordova ? '' : '/') + assetsPath : (isCordova ? '' : '/'),
         filename: '[name]-[hash].js'
     },
     resolve: {
@@ -98,26 +130,35 @@ const config = {
         extensions: ['.js', '.ts', '.tsx']
     },
     plugins: [
-        new ModuleConcatenationPlugin(),
         new HtmlWebpackPlugin({
             version: pkg.version,
             buildTime: strftime(new Date()),
             isProd,
             isCordova,
-            filename: (assetsPath === "" ? "" : "../") +'index.html',
+            filename: ((assetsPath === "" || !isProd) ? "" : "../") +'index.html',
             template: 'src/index.ejs',
             inject: true
         }),
+        // new AutoDllPlugin({
+        //     inject: true, // will inject the DLL bundles to index.html
+        //     filename: '[name]_[hash].js',
+        //     plugins: basePlugin,
+        //     entry: {
+        //         vendor: [
+        //             'zreact',
+        //             'es6-promise',
+        //             'hotkeys-js',
+        //             'intersection-observer',
+        //             'lodash.throttle',
+        //             'preact-animate',
+        //             'screenfull',
+        //             'unfetch'
+        //         ]
+        //     }
+        // }),
         new ExtractTextPlugin("css/common.[chunkhash].css"),
-        // new webpack.HotModuleReplacementPlugin(),
-        // new es3ifyPlugin()
-        new webpack.DefinePlugin({
-            'process.env': {
-                NODE_ENV: isProd ? '"production"' : '"development"',
-                platform: JSON.stringify(process.env.platform)
-            }
-        })
-    ],
+        new HardSourceWebpackPlugin(),
+    ].concat(basePlugin),
     devServer: {
         contentBase: outPath,
         host: serverIp,
@@ -216,31 +257,31 @@ const config = {
         ]
     }
 }
-if (isProd) {
-    config.plugins.push(
-        new webpack.optimize.UglifyJsPlugin({
-            // 最紧凑的输出
-            beautify: false,
-            // 删除所有的注释
-            comments: false,
-            compress: {
-                // 在UglifyJs删除没有用到的代码时不输出警告
-                warnings: false,
-                // 删除所有的 `console` 语句，可以兼容ie浏览器
-                drop_console: true,
-                // 内嵌定义了但是只用到一次的变量
-                collapse_vars: true,
-                // 提取出出现多次但是没有定义成变量去引用的静态值
-                reduce_vars: true,
-                // warnings: false,
-            }
-        })
-    )
-    // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-    // config.plugins.push(
-    //     new BundleAnalyzerPlugin({
-    //         analyzerPort: 9999
-    //     })
-    // )
-}
+// if (isProd) {
+//     config.plugins.push(
+//         new webpack.optimize.UglifyJsPlugin({
+//             // 最紧凑的输出
+//             beautify: false,
+//             // 删除所有的注释
+//             comments: false,
+//             compress: {
+//                 // 在UglifyJs删除没有用到的代码时不输出警告
+//                 warnings: false,
+//                 // 删除所有的 `console` 语句，可以兼容ie浏览器
+//                 drop_console: true,
+//                 // 内嵌定义了但是只用到一次的变量
+//                 collapse_vars: true,
+//                 // 提取出出现多次但是没有定义成变量去引用的静态值
+//                 reduce_vars: true,
+//                 // warnings: false,
+//             }
+//         })
+//     )
+//     // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+//     // config.plugins.push(
+//     //     new BundleAnalyzerPlugin({
+//     //         analyzerPort: 9999
+//     //     })
+//     // )
+// }
 module.exports = config;

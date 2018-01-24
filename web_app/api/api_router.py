@@ -1,3 +1,6 @@
+"""
+无需登录的api 如登录，注册，验证码，email验证，安装引导
+"""
 from web_app import app
 from . import Api
 # from .admin import AdminApi
