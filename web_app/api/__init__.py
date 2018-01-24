@@ -7,7 +7,7 @@ from sanic.views import HTTPMethodView
 from sanic import response, Blueprint
 from web_app import app
 import ujson as json
-from sqlalchemy import func, sql as sa_sql
+from sqlalchemy import func, sql as sa_sql, desc
 
 __all__ = [
     "ApiView",
@@ -26,6 +26,7 @@ class ApiView(HTTPMethodView):
             raise TypeError("self.__model__ is None")
         else:
             self._columns = make_columns(self.__model__)
+            self._columns_name = {column.name: column for column in self._columns}
             self._key = None
             for column in self.__model__.columns:
                 if column.primary_key:
@@ -212,7 +213,7 @@ class ApiView(HTTPMethodView):
                 sql = self.__model__.update().where(*where).values(data)
         return sql
 
-    async def get(self, request, *args, **kwargs):
+    async def get(self, request, *args_, **kwargs):
         """
         查询
         """
@@ -244,6 +245,27 @@ class ApiView(HTTPMethodView):
             if is_use:
                 count_sql = count_sql.where(*where)
             limit_sql = sql.offset(limit[0]).limit(limit[1])
+        if "order" in args:
+            orders = args['order'].split(",")
+            order_by = None
+            for order in orders:
+                is_desc = False
+                if order[0] == "-":
+                    order = order[1:]
+                    is_desc = True
+                if order in self._columns_name:
+                    if order_by is None:
+                        order_by = []
+                    column = self._columns_name[order]
+                    if is_desc:
+                        order_by.append(desc(column))
+                    else:
+                        order_by.append(column)
+            if order_by:
+                if limit_sql is None:
+                    sql = sql.order_by(*order_by)
+                else:
+                    limit_sql = limit_sql.order_by(*order_by)
 
         try:
             async with engine.acquire() as conn:
@@ -254,6 +276,7 @@ class ApiView(HTTPMethodView):
                         return response.json({'status': 200, 'message': "ok", 'data': data})
                 else:
                     count = 0
+                    print(limit_sql)
                     async with conn.execute(count_sql) as cursor:
                         count = (await cursor.first()).count
                     async with conn.execute(limit_sql) as cursor:
@@ -264,8 +287,8 @@ class ApiView(HTTPMethodView):
                             'message': "ok",
                             'data': data,
                             'count': count,
-                            'page_now': limit[0],
-                            'page_count': limit[1]
+                            'skip': limit[0],
+                            'limit': limit[1]
                         })
         except Exception as e:
             return response.json({'status': 500, 'message': str(e)})

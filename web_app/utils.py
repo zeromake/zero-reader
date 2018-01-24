@@ -1,6 +1,6 @@
 import os
 import sys
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 
 __all__ = ["import_string", "ROOT_PATH"]
 
@@ -62,7 +62,7 @@ def handle_param(column, data):
     """
     处理where条件
     """
-    opt = data.get('opt', '==')
+    opt = data.get('opt', '$lt')
     if 'val' in data:
         value = data['val']
         if opt == '$ne': # 不等于
@@ -87,36 +87,60 @@ def handle_param(column, data):
         elif opt == '$raw':
             return value
 
+def handle_param_desc(column, data):
+    """
+    处理参数类型
+    """
+    params = []
+    if isinstance(data, list):
+        if len(data) > 0:
+            if isinstance(data[0], dict):
+                for row in data:
+                    param = handle_param(column, row)
+                    if not param is None:
+                        params.append(param)
+            else:
+                data.append(column.in_(data))
+    elif isinstance(data, dict):
+        param = handle_param(column, data)
+        if not param is None:
+            params.append(param)
+    else:
+        params.append(column==data)
+    params_len = len(params)
+    if params_len == 0:
+        return
+    elif params_len == 1:
+        return params[0]
+    elif params_len > 1:
+        return params
+
 def handle_param_primary(columns, form_data):
     """
     处理带主键的参数
     """
     data = []
     column_name = {column.name: column for column in columns}
-    for key, val in form_data:
+    for key, val in form_data.items():
         if key in column_name:
             column = column_name[key]
-            if isinstance(val, list):
-                if len(val) > 0:
-                    if isinstance(val[0], dict):
-                        for row in val:
-                            param = handle_param(column, row)
-                            if not param is None:
-                                data.append(param)
-                    else:
-                        data.append(column.in_(val))
-            elif isinstance(val, dict):
-                param = handle_param(column, val)
-                if not param is None:
-                    data.append(param)
-            else:
-                data.append(column==val)
+            params = handle_param_desc(column, val)
+            if not params is None:
+                if isinstance(params, list):
+                    data.extend(params)
+                else:
+                    data.append(params)
         elif key == "$or" and isinstance(val, dict):
             params = []
             for column_key, row in val.items():
                 if column_key in column_name:
                     column = column_name[column_key]
-                    params.append(handle_param(column, row))
+                    params_ = handle_param_desc(column, row)
+                    if not params_ is None:
+                        if isinstance(params_, list):
+                            params.append(and_(*params_))
+                        else:
+                            params.append(params_)
             params_len = len(params)
             if params_len == 1:
                 data.append(params[0])
