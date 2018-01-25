@@ -1,6 +1,9 @@
 from web_app.models import User
+import sqlalchemy as sa
 
 
-from sqlalchemy import func, sql as sa_sql
-
-print(sa_sql.select([func.count(User.c.id).label("count")]))
+for c in User.columns:
+    if isinstance(c.type, sa.String):
+        print(c.type, c.type.length, c.type.__class__)
+    else:
+        print(c.type, c.type.__class__)

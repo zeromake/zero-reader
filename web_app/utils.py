@@ -1,5 +1,6 @@
 import os
 import sys
+import sqlalchemy as sa
 from sqlalchemy import or_, and_
 
 __all__ = ["import_string", "ROOT_PATH"]
@@ -115,36 +116,99 @@ def handle_param_desc(column, data):
     elif params_len > 1:
         return params
 
-def handle_param_primary(columns, form_data):
+def handle_param_primary(column_name, form_data, is_or=False):
     """
     处理带主键的参数
     """
     data = []
-    column_name = {column.name: column for column in columns}
     for key, val in form_data.items():
         if key in column_name:
             column = column_name[key]
             params = handle_param_desc(column, val)
             if not params is None:
                 if isinstance(params, list):
-                    data.extend(params)
+                    data.append(and_(params))
                 else:
                     data.append(params)
         elif key == "$or" and isinstance(val, dict):
-            params = []
-            for column_key, row in val.items():
-                if column_key in column_name:
-                    column = column_name[column_key]
-                    params_ = handle_param_desc(column, row)
-                    if not params_ is None:
-                        if isinstance(params_, list):
-                            params.append(and_(*params_))
-                        else:
-                            params.append(params_)
-            params_len = len(params)
-            if params_len == 1:
-                data.append(params[0])
-            elif params_len > 1:
-                data.append(or_(*params))
-    is_use = len(data) > 0
-    return data, is_use
+            params = handle_param_primary(column_name, val, True)
+            if not params is None:
+                data.append(params)
+    data_len = len(data)
+    if data_len == 1:
+        return data[0]
+    elif data_len > 1:
+        return or_(*data) if is_or else and_(*data)
+
+def handle_keys(column_name, keys_string):
+    """
+    处理
+    """
+    key_set = set()
+    keys = keys_string.split(",")
+    is_block = False
+    for key in keys:
+        if key != "" and key[0] == "-":
+            is_block = True
+            key = key[1:]
+        if key in column_name:
+            key_set.add(key)
+    if is_block:
+        key_arr = [column for key, column in column_name.items() if key not in key_set]
+    else:
+        key_arr = [column_name[key] for key in key_set]
+    if len(key_arr) > 0:
+        return key_arr
+
+
+def generate_openapi_by_column(column):
+    """
+    处理column生成openapi propertie对象
+    """
+    propertie = {}
+    column_type = column.type
+    type_string = None
+    if isinstance(column_type, sa.BigInteger):
+        propertie['format'] = "int64"
+        type_string = "integer"
+    elif isinstance(column_type, sa.Integer):
+        propertie['format'] = "int32"
+        type_string = "integer"
+    elif isinstance(column_type, sa.Float):
+        propertie['format'] = "float"
+        type_string = "number"
+    elif isinstance(column_type, sa.Boolean):
+        type_string = "boolean"
+    elif isinstance(column_type, sa.Date):
+        type_string = "string"
+        propertie['format'] = "float"
+    elif isinstance(column_type, sa.Time):
+        propertie['format'] = "time"
+        type_string = "string"
+    elif isinstance(column_type, (sa.DateTime, sa.TIMESTAMP)):
+        propertie['format'] = "data-time"
+        type_string = "string"
+    elif isinstance(column_type, sa.String):
+        propertie['maxLength'] = column_type.length
+        type_string = "string"
+    elif isinstance(column_type, sa.Text):
+        type_string = "string"
+    propertie['type'] = type_string
+    return propertie
+
+def generate_openapi_by_table(table):
+    """
+    把model转为openapi的schema
+    """
+    schema = {
+        "type": "object",
+        "properties": [],
+        "required": []
+    }
+    for column in table.columns:
+        column_name = str(column.name)
+        if not column.nullable and not column.primary_key:
+            schema['required'].append(column_name)
+        schema['properties'].append({column_name: generate_openapi_by_column(column)})
+    return schema
+

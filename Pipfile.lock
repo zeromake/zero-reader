@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5666d510b3f11822f70100de7981406597e033a8f2650024b0980f5fde5eff6d"
+            "sha256": "22ddfe094a12c92db41553c87ad009d1620462e0039913a388338e70e0ee15b5"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -103,6 +103,10 @@
             "hashes": [],
             "version": "==3.0"
         },
+        "pyyaml": {
+            "hashes": [],
+            "version": "==3.12"
+        },
         "requests": {
             "hashes": [],
             "version": "==2.18.4"
@@ -146,6 +150,10 @@
         "websockets": {
             "hashes": [],
             "version": "==4.0.1"
+        },
+        "xmltodict": {
+            "hashes": [],
+            "version": "==0.11.0"
         }
     },
     "develop": {}

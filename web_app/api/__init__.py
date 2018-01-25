@@ -2,21 +2,56 @@
 将model转换为resetful api模式
 by zeromake 2018.01.12
 """
-from web_app.utils import make_columns, handle_param, handle_param_primary
+import xmltodict
+import yaml
+from web_app.utils import make_columns, handle_param, handle_param_primary, handle_keys, generate_openapi_by_table
 from sanic.views import HTTPMethodView
 from sanic import response, Blueprint
 from web_app import app
 import ujson as json
-from sqlalchemy import func, sql as sa_sql, desc
+from sqlalchemy import func, sql as sa_sql, desc, and_
 
 __all__ = [
     "ApiView",
     "Api"
 ]
 
+def json_dumps(res, **kwargs):
+    """
+    json格式化
+    """
+    return json.dumps(res, **kwargs)
+
+def xml_dumps(res, root="root", **kwargs):
+    """
+    xml格式化
+    """
+    return xmltodict.unparse({root: res}, **kwargs)
+
+def yaml_dumps(res, **kwargs):
+    """
+    yaml格式化
+    """
+    return yaml.dump(res, **kwargs)
+
+def model_row_to_dict(row):
+    """
+    把model查询出的row转换为dict
+    """
+    return {key: val for key, val in row.items()}
+
+HANDLE_RESPONSE = {
+    "application/json": json_dumps,
+    "application/xml": xml_dumps,
+    "text/yaml": yaml_dumps,
+}
+
 class ApiView(HTTPMethodView):
+    """
+    自动化model转换api
+    """
     __model__ = None
-    __method__ = None
+    methods = None
 
     def __init__(self, *args, **kwargs):
         """
@@ -26,7 +61,7 @@ class ApiView(HTTPMethodView):
             raise TypeError("self.__model__ is None")
         else:
             self._columns = make_columns(self.__model__)
-            self._columns_name = {column.name: column for column in self._columns}
+            self._columns_name = {str(column.name): column for column in self._columns}
             self._key = None
             for column in self.__model__.columns:
                 if column.primary_key:
@@ -35,16 +70,25 @@ class ApiView(HTTPMethodView):
 
     async def dispatch_request(self, request, *args, **kwargs):
         method = request.method.lower()
-        content_type = request.headers.get("content-type")
+        raw_type = request.headers.get("content-type", "application/json")
+        if raw_type not in HANDLE_RESPONSE:
+            raw_type = "application/json"
         handler = None
-        if self.__method__ is None:
+        if self.methods is None:
             handler = getattr(self, method, None)
         else:
-            if method in self.__method__:
+            if method in self.methods:
                 handler = getattr(self, method, None)
         if handler is None:
-            return response.json({"status": 405, "message": "not support method"}, status=405)
-        return await handler(request, *args, **kwargs)
+            res = {"status": 405, "message": "not support method"}
+        else:
+            res = await handler(request, *args, **kwargs)
+        # 自动根据Content-Type请求头格式化响应
+        return  response.text(
+            HANDLE_RESPONSE[raw_type](res),
+            headers={'Content-Type': raw_type},
+            status=res['status']
+        )
 
     @classmethod
     def as_view(cls, *class_args, **class_kwargs):
@@ -73,6 +117,8 @@ class ApiView(HTTPMethodView):
         添加路由
         """
         view = cls.as_view(*class_args, **class_kwargs)
+        self = view.self
+        print(yaml_dumps(generate_openapi_by_table(self.__model__)))
         app_.add_route(view, url)
         app_.add_route(view, url + "/<primary_key:int>")
         return view
@@ -124,14 +170,15 @@ class ApiView(HTTPMethodView):
         """
         form_data = request.json
         添加model
+        ---
         """
         form_data = request.json
         sql = self.insert(form_data)
         if sql is None:
-            return response.json({'status': 400, 'message': 'param is error'})
+            return {'status': 400, 'message': 'param is error'}
         if isinstance(form_data, list):
-            return response.json(await self.execute_dml(sql, "insert ok"))
-        return response.json(await self.execute_insert(sql, "insert ok", form_data))
+            return await self.execute_dml(sql, "insert ok")
+        return await self.execute_insert(sql, "insert ok", form_data)
 
     def insert(self, form_data):
         """
@@ -153,8 +200,8 @@ class ApiView(HTTPMethodView):
                 form_data[self._key.name] = kwargs['primary_key']
         sql = self.delete_sql(form_data)
         if sql is None:
-            return response.json({'status': 400, 'message': 'param is error'})
-        return response.json(await self.execute_dml(sql, "delete ok"))
+            return {'status': 400, 'message': 'param is error'}
+        return await self.execute_dml(sql, "delete ok")
 
     def delete_sql(self, form_data):
         """
@@ -162,10 +209,10 @@ class ApiView(HTTPMethodView):
         """
         if not form_data:
             return
-        data, is_use = handle_param_primary(self._columns, form_data)
+        data = handle_param_primary(self._columns_name, form_data)
         sql = None
-        if is_use:
-            sql = self.__model__.delete().where(*data)
+        if not data is None:
+            sql = self.__model__.delete().where(data)
         return sql
 
     async def put(self, request, *args, **kwargs):
@@ -180,8 +227,8 @@ class ApiView(HTTPMethodView):
                 from_data[self._key.name] = kwargs['primary_key']
         sql = self.update_sql(form_data)
         if sql is None:
-            return response.json({'status': 400, 'message': 'param is error'})
-        return response.json(await self.execute_dml(sql, "update ok"))
+            return {'status': 400, 'message': 'param is error'}
+        return await self.execute_dml(sql, "update ok")
 
     async def patch(self, request, *args, **kwargs):
         """
@@ -200,17 +247,16 @@ class ApiView(HTTPMethodView):
             # 生成批量更新语句
             sql = []
             for row in form_data:
-                where, is_use = handle_param_primary(self._columns, row.get("where", {}))
-                data = row.get("data")
-                if is_use and data and isinstance(data, dict):
-                    sql.append(self.__model__.update().where(*where).values(data))
+                row_sql = self.update_sql(row)
+                if not row_sql is None:
+                    sql.append(row_sql)
             if len(sql) == 0:
                 sql = None
         else:
-            where, is_use = handle_param_primary(self._columns, form_data.get("where", {}))
+            where = handle_param_primary(self._columns_name, form_data.get("where", {}))
             data = form_data.get("data")
-            if is_use and data and isinstance(data, dict):
-                sql = self.__model__.update().where(*where).values(data)
+            if not where is None and data and isinstance(data, dict):
+                sql = self.__model__.update().where(where).values(data)
         return sql
 
     async def get(self, request, *args_, **kwargs):
@@ -225,25 +271,30 @@ class ApiView(HTTPMethodView):
                 where_data = {}
         else:
             where_data = {}
+        use_primary = False
         if 'primary_key' in kwargs:
             if not self._key is None:
+                use_primary = True
                 where_data[self._key.name] = kwargs['primary_key']
         try:
             limit = [int(args.get("skip", 0)), int(args.get("limit", 50))]
         except ValueError:
             limit = [0, 50]
         engine = app.engine
-        where, is_use = handle_param_primary(self._columns, where_data)
+        where = handle_param_primary(self._columns_name, where_data)
         limit_sql = None
         count_sql = None
-        if is_use:
-            sql = self.__model__.select().where(*where)
-        else:
-            sql = self.__model__.select()
+        sql = self.__model__.select()
+        if "keys" in args:
+            keys = handle_keys(self._columns_name, args['keys'])
+            if keys:
+                sql = sa_sql.select(keys)
+        if not where is None:
+            sql = sql.where(where)
         if limit:
             count_sql = sa_sql.select([func.count(self._columns[0]).label("count")])
-            if is_use:
-                count_sql = count_sql.where(*where)
+            if not where is None:
+                count_sql = count_sql.where(where)
             limit_sql = sql.offset(limit[0]).limit(limit[1])
         if "order" in args:
             orders = args['order'].split(",")
@@ -269,30 +320,33 @@ class ApiView(HTTPMethodView):
 
         try:
             async with engine.acquire() as conn:
-                if limit_sql is None:
+                if limit_sql is None or use_primary:
                     async with conn.execute(sql) as cursor:
+                        if use_primary:
+                            row = await cursor.first()
+                            data = row if row is None else model_row_to_dict(row)
+                            return {'status': 200, 'message': "ok", 'data': data}
                         data = await cursor.fetchall()
-                        data = [{key: val for key, val in row.items()}for row in data]
-                        return response.json({'status': 200, 'message': "ok", 'data': data})
+                        data = [model_row_to_dict(row) for row in data]
+                        return {'status': 200, 'message': "ok", 'data': data}
                 else:
                     count = 0
-                    print(limit_sql)
                     async with conn.execute(count_sql) as cursor:
                         count = (await cursor.first()).count
                     async with conn.execute(limit_sql) as cursor:
                         data = await cursor.fetchall()
-                        data = [{key: val for key, val in row.items()}for row in data]
-                        return response.json({
+                        data = [model_row_to_dict(row) for row in data]
+                        return {
                             'status': 200,
                             'message': "ok",
                             'data': data,
                             'count': count,
                             'skip': limit[0],
                             'limit': limit[1]
-                        })
+                        }
         except Exception as e:
-            return response.json({'status': 500, 'message': str(e)})
-        return response.json({'status': 400, 'message': 'param is error'})
+            return {'status': 500, 'message': str(e)}
+        return {'status': 400, 'message': 'param is error'}
 
 
 Api = Blueprint("api", url_prefix='/api')

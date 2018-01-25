@@ -31,49 +31,56 @@ User = sa.Table(
         sa.Integer,
         autoincrement=True,
         primary_key=True,
-        nullable=False
+        nullable=False,
+        doc="id"
     ),
-    # 帐号
     sa.Column(
         'account',
         sa.String(16),
-        nullable=False
+        nullable=False,
+        doc="帐号"
     ),
-    # 昵称
     sa.Column(
         'role_name',
         sa.String(16),
-        nullable=False
+        nullable=False,
+        doc="昵称"
     ),
-    # 邮箱
     sa.Column(
         'email',
         sa.String(256),
-        nullable=False
+        nullable=False,
+        doc="邮箱"
     ),
-    # 密码
     sa.Column(
         'password',
         sa.String(128),
-        nullable=False
+        nullable=False,
+        doc="密码"
     ),
-    # 用户状态
     sa.Column(
         'status',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="用户状态"
     ),
-    # 用户权限
     sa.Column(
         'permissions',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="用户权限"
     ),
-    # 是否为管理员
     sa.Column(
         'admin',
         sa.Boolean,
-        nullable=False
+        nullable=False,
+        doc="是否为管理员"
+    ),
+    sa.Column(
+        'create_time',
+        sa.BigInteger,
+        nullable=False,
+        doc="创建时间"
     ),
     sqlite_autoincrement=True
 )

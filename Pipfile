@@ -19,6 +19,8 @@ ipfsapi = "*"
 aiomysql = "*"
 aiopg = "*"
 gunicorn = "*"
+xmltodict = "*"
+pyyaml = "*"
 
 
 [dev-packages]
