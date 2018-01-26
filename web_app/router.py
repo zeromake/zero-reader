@@ -10,7 +10,7 @@ from .utils import root_resolve
 
 app.static("/", root_resolve("../dist/index.html"), name="index")
 app.static("/assets/", root_resolve("../dist/assets"), name="static")
-app.static("/librarys/", root_resolve("../library"), name="librarys")
+app.static("/librarys/", root_resolve("../librarys"), name="librarys")
 app.static("/ui/", root_resolve("./assets/ui"), name="ui")
 
 @app.exception(NotFound)

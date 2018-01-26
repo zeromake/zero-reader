@@ -8,10 +8,10 @@ import os
 import sys
 import asyncio
 from sanic import Sanic, response
-from apispec import APISpec
 # from sanic_graphql import GraphQLView
 from .config import CONFIG
 from .db import DateBase
+from .apispec import ApiSpec
 
 app = Sanic(__name__)
 app.__model__ = {}
@@ -34,20 +34,32 @@ async def before_server_stop(app, loop):
         await app.engine.wait_closed()
         app.engine = None
 
-OPEN_API = {
-    "openapi": "3.0.0",
-    "info": {
-        "title": "zero-reader api",
-        "description": "",
-        "version": "0.1.0"
-    },
-    "paths": {},
-    "components": {
-        "schemas": {}
+
+
+OPEN_API = ApiSpec(
+    "zero-reader api",
+    "api doc",
+    "0.1.0"
+)
+OPEN_API.add_schema("baseResponse", {
+    "type": "object",
+    "properties": {
+        "status": {
+            "description": "状态码",
+            "type": "integer"
+        },
+        "message": {
+            "description": "消息",
+            "type": "string"
+        }
     }
-}
-@app.route("/openapi", methods=["GET"])
+})
+
+@app.route("/ui.json", methods=["GET"])
 def openapi(request):
-    return response.json(OPEN_API)
+    """
+    api文档
+    """
+    return response.json(OPEN_API.to_dict())
 
 from . import router

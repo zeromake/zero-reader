@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "60874acfc251a6f906301efa74d2c0a04ebe54c63fc1b24f2379ac23e006768c"
+            "sha256": "22ddfe094a12c92db41553c87ad009d1620462e0039913a388338e70e0ee15b5"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -42,10 +42,6 @@
         "aiosqlite3": {
             "hashes": [],
             "version": "==0.1.1"
-        },
-        "apispec": {
-            "hashes": [],
-            "version": "==0.28.0"
         },
         "argparse": {
             "hashes": [],

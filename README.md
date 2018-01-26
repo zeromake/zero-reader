@@ -19,6 +19,12 @@ web reader
 + [ ] 更多的全按键操作支持
     - [ ] 书库按键支持
     - [ ] 目录dialog按键支持
++ [ ] model api化
+    - [x] model create api化
+    - [x] model delete api化
+    - [x] model update api化
+    - [x] model get api化
+    - [ ] model to openapi-ui
 + [ ] 书库及筛选
     - [ ] 书名模糊搜索
     - [ ] 作者及译者模糊搜索

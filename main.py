@@ -53,7 +53,7 @@ def add_args():
         '--dist',
         type=str,
         help='dist file dir',
-        default="library"
+        default="librarys"
     )
     parser.add_argument(
         '-m',

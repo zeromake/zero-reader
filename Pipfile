@@ -21,7 +21,6 @@ aiopg = "*"
 gunicorn = "*"
 xmltodict = "*"
 pyyaml = "*"
-apispec = "*"
 
 
 [dev-packages]
