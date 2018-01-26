@@ -9,10 +9,12 @@ class ApiSpec():
     """
     def __init__(self, title, description, version):
         """
-        
+        仅支持openapi:3.0.0
         """
         self._schemas = {}
         self._paths = {}
+        self._tags = {}
+        self._parameters = {}
         self._spec = {
             "openapi": "3.0.0",
             "info": {
@@ -22,7 +24,8 @@ class ApiSpec():
             },
             "paths": self._paths,
             "components": {
-                "schemas": self._schemas
+                "schemas": self._schemas,
+                "parameters": self._parameters
             }
         }
 
@@ -31,13 +34,19 @@ class ApiSpec():
         添加schema
         """
         self._schemas[name] = schema
-    
+
     def add_path(self, name, path):
         """
         添加path
         """
         self._paths[name] = path
-    
+
+    def add_parameters(self, name, parameter):
+        """
+        添加全局参数
+        """
+        self._parameters[name] = parameter
+
     def to_dict(self):
         """
         提取字典

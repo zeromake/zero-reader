@@ -122,49 +122,91 @@ class ApiView(HTTPMethodView):
             table_name = str(self.__model__.name)
             OPEN_API.add_schema(table_name, generate_openapi_by_table(self.__model__))
             base_url = app_.url_prefix + url
-            OPEN_API.add_path(base_url+"/{primary_key}", {
-                "get": {
-                    "parameters": [{
-                        "in": "path",
-                        "name": "primary_key",
-                        "required": True,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }],
-                    "summary": "Returns a list of users.",
-                    "description": "",
-                    "responses": {
-                        "200": {
-                            "description": "OK",
-                            "content": {
-                                "application/json": {
-                                    "schema": {
-                                        "allOf": [
-                                            {
-                                                "$ref": "#/components/schemas/baseResponse"
-                                            },
-                                            {
-                                                "type": "object",
-                                                "properties": {
-                                                    "data": {
-                                                        "oneOf": [
-                                                            {"$ref": '#/components/schemas/%s' % table_name},
-                                                            {"type": "null"}
-                                                        ]
+            OPEN_API.add_path(
+                base_url+"/{primary_key}", 
+                {
+                    "get": {
+                        "parameters": [{
+                            "in": "path",
+                            "name": "primary_key",
+                            "required": True,
+                            "schema": {
+                                "type": "integer"
+                            }
+                        }],
+                        "summary": "Returns a list of users.",
+                        "description": "",
+                        "responses": {
+                            "200": {
+                                "description": "OK",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/baseResponse"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "data": {
+                                                            "oneOf": [
+                                                                {"$ref": '#/components/schemas/%s' % table_name},
+                                                                {"type": "null"}
+                                                            ]
+                                                        }
                                                     }
                                                 }
-                                            }
-                                        ]
-                                        
+                                            ]
+                                            
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
-        )
+            )
+            OPEN_API.add_path(
+                base_url, 
+                {
+                    "get": {
+                        "parameters": [{
+                            "$ref": "#/components/parameters/where"
+                        }],
+                        "summary": "Returns a list of users.",
+                        "description": "",
+                        "responses": {
+                            "200": {
+                                "description": "OK",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/baseResponse"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "data": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": '#/components/schemas/%s' % table_name
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                            
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            )
         app_.add_route(view, url)
         app_.add_route(view, url + "/<primary_key:int>")
         return view

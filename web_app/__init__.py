@@ -41,6 +41,24 @@ OPEN_API = ApiSpec(
     "api doc",
     "0.1.0"
 )
+OPEN_API.add_parameters("where", {
+    "in": "query",
+    "name": "where",
+    "content": {
+        "application/json":
+        {
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                    }
+                }
+            }
+        }
+    }
+
+})
 OPEN_API.add_schema("baseResponse", {
     "type": "object",
     "properties": {

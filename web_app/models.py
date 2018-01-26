@@ -32,7 +32,7 @@ User = sa.Table(
         autoincrement=True,
         primary_key=True,
         nullable=False,
-        doc="id"
+        doc="主键"
     ),
     sa.Column(
         'account',
@@ -96,17 +96,17 @@ Permissions = sa.Table(
         primary_key=True,
         nullable=False
     ),
-    # 权限名
     sa.Column(
         'name',
         sa.String(16),
-        nullable=False
+        nullable=False,
+        doc="权限名"
     ),
-    # 权限配置文本
     sa.Column(
         'permission',
         sa.Text,
-        nullable=False
+        nullable=False,
+        doc="权限配置文本"
     ),
     sqlite_autoincrement=True
 )
@@ -122,39 +122,41 @@ Library = sa.Table(
         primary_key=True,
         nullable=False
     ),
-    # 书籍唯一编码通过文件hash获取
     sa.Column(
         'hash',
         sa.String(256),
-        nullable=False
+        nullable=False,
+        doc="书籍唯一编码通过文件hash获取,其它书籍通过uuid"
     ),
-    # 书籍标题
     sa.Column(
         'title',
         sa.String(128),
-        nullable=False
+        nullable=False,
+        doc="书籍标题"
     ),
-    # 文件名
     sa.Column(
         'file_name',
         sa.String(128),
-        nullable=False
+        nullable=False,
+        doc="文件名"
     ),
-    # 文件类型
     sa.Column(
         'type',
         sa.String(8),
-        nullable=False
+        nullable=False,
+        doc="文件类型"
     ),
     sa.Column(
         'create_time',
         sa.BigInteger,
-        nullable=False
+        nullable=False,
+        doc="创建时间"
     ),
     sa.Column(
         'update_time',
         sa.BigInteger,
-        nullable=False
+        nullable=False,
+        doc="更新时间"
     ),
     sqlite_autoincrement=True
 )
@@ -170,11 +172,11 @@ Tags = sa.Table(
         primary_key=True,
         nullable=False
     ),
-    # tag名
     sa.Column(
         'name',
         sa.String(16),
-        nullable=False
+        nullable=False,
+        doc="tag名"
     )
 )
 
@@ -192,12 +194,14 @@ LibraryBindTag = sa.Table(
     sa.Column(
         'tag_id',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="标签"
     ),
     sa.Column(
         'library_id',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="书籍"
     ),
     sqlite_autoincrement=True
 )
@@ -215,8 +219,9 @@ Authors = sa.Table(
     ),
     sa.Column(
         'name',
-        sa.String(16),
-        nullable=False
+        sa.String(32),
+        nullable=False,
+        doc="名字"
     ),
     sqlite_autoincrement=True
 )
@@ -235,12 +240,14 @@ LibraryBindAuthor = sa.Table(
     sa.Column(
         'library_id',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="书籍"
     ),
     sa.Column(
         'type_id',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="作者类型"
     ),
     sqlite_autoincrement=True
 )
@@ -259,22 +266,26 @@ ReadHistory = sa.Table(
     sa.Column(
         'library_id',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="书籍"
     ),
     sa.Column(
         'page',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="页数"
     ),
     sa.Column(
         'offset',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="滚动高度或epub视图offset"
     ),
     sa.Column(
         'create_time',
         sa.BigInteger,
-        nullable=False
+        nullable=False,
+        doc="创建时间"
     ),
     sqlite_autoincrement=True
 )
@@ -292,17 +303,20 @@ BookShelf = sa.Table(
     sa.Column(
         'library_id',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="书籍"
     ),
     sa.Column(
         'sort',
         sa.String(32),
-        nullable=False
+        nullable=False,
+        doc="分类"
     ),
     sa.Column(
         'create_time',
         sa.BigInteger,
-        nullable=False
+        nullable=False,
+        doc="创建时间"
     ),
     sqlite_autoincrement=True
 )
@@ -320,13 +334,15 @@ UserConfig = sa.Table(
     sa.Column(
         'user_id',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="用户"
     ),
     # 配置
     sa.Column(
         'config',
         sa.Text,
-        nullable=False
+        nullable=False,
+        doc="配置文本"
     ),
     sqlite_autoincrement=True
 )
@@ -344,18 +360,21 @@ BookConfig = sa.Table(
     sa.Column(
         'user_id',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="用户"
     ),
     sa.Column(
         'library_id',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="书籍"
     ),
     # 配置
     sa.Column(
         'config',
         sa.Text,
-        nullable=False
+        nullable=False,
+        doc="配置文本"
     ),
     sqlite_autoincrement=True
 )
@@ -373,27 +392,32 @@ BookNotes = sa.Table(
     sa.Column(
         'user_id',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="用户"
     ),
     sa.Column(
         'library_id',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="书籍"
     ),
     sa.Column(
         'update_time',
         sa.BigInteger,
-        nullable=False
+        nullable=False,
+        doc="更新时间"
     ),
     sa.Column(
         'page',
         sa.Integer,
-        nullable=False
+        nullable=False,
+        doc="页数"
     ),
     sa.Column(
         'note',
         sa.Text,
-        nullable=False
+        nullable=False,
+        doc="笔记"
     ),
     sqlite_autoincrement=True
 )

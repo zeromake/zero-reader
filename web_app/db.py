@@ -1,8 +1,6 @@
 import os
 import asyncio
 
-from .utils import import_string
-
 DRIVER_NAME = (
     "sqlite",
     "mysql",
@@ -41,11 +39,12 @@ class DateBase:
         """
         if self._tables:
             return
+        import web_app.models as model
         from .models import __all__ as models
         self._tables = []
         for table in models:
-            import_name = "web_app.models.%s" % table
-            self._tables.append(import_string(import_name))
+            if hasattr(model, table):
+                self._tables.append(getattr(model, table))
 
     async def create_engine(self):
         """
