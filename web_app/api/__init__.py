@@ -70,7 +70,7 @@ class ApiView(HTTPMethodView):
 
     async def dispatch_request(self, request, *args, **kwargs):
         method = request.method.lower()
-        raw_type = request.headers.get("content-type", "application/json")
+        raw_type = request.headers.get("accept", "application/json")
         if raw_type not in HANDLE_RESPONSE:
             raw_type = "application/json"
         handler = None
@@ -112,13 +112,56 @@ class ApiView(HTTPMethodView):
         return view
 
     @classmethod
-    def add_route(cls, app_, url, *class_args, **class_kwargs):
+    def add_route(cls, app_, url, OPEN_API=None, *class_args, **class_kwargs):
         """
         添加路由
         """
         view = cls.as_view(*class_args, **class_kwargs)
         self = view.self
-        print(yaml_dumps(generate_openapi_by_table(self.__model__)))
+        if OPEN_API:
+            table_name = str(self.__model__.name)
+            OPEN_API['components']['schemas'][table_name] = generate_openapi_by_table(self.__model__)
+            base_url = app_.url_prefix + url
+            OPEN_API['paths'][base_url+"/{primary_key}"] = {
+                "get": {
+                    "parameters": [{
+                        "in": "path",
+                        "name": "primary_key",
+                        "required": True,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }],
+                    "summary": "Returns a list of users.",
+                    "description": "",
+                    "responses": {
+                        "200": {
+                            "description": "OK",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "integer"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "oneOf": [
+                                                    {"$ref": '#/components/schemas/%s' % table_name},
+                                                    {"type": "null"}
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         app_.add_route(view, url)
         app_.add_route(view, url + "/<primary_key:int>")
         return view

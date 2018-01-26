@@ -165,7 +165,10 @@ def generate_openapi_by_column(column):
     """
     处理column生成openapi propertie对象
     """
-    propertie = {}
+    propertie = {
+        "description": column.doc
+    }
+
     column_type = column.type
     type_string = None
     if isinstance(column_type, sa.BigInteger):
@@ -202,13 +205,13 @@ def generate_openapi_by_table(table):
     """
     schema = {
         "type": "object",
-        "properties": [],
+        "properties": {},
         "required": []
     }
     for column in table.columns:
         column_name = str(column.name)
         if not column.nullable and not column.primary_key:
             schema['required'].append(column_name)
-        schema['properties'].append({column_name: generate_openapi_by_column(column)})
+        schema['properties'][column_name] = generate_openapi_by_column(column)
     return schema
 

@@ -7,7 +7,8 @@ web服务
 import os
 import sys
 import asyncio
-from sanic import Sanic
+from sanic import Sanic, response
+from apispec import APISpec
 # from sanic_graphql import GraphQLView
 from .config import CONFIG
 from .db import DateBase
@@ -32,5 +33,21 @@ async def before_server_stop(app, loop):
         app.engine.close()
         await app.engine.wait_closed()
         app.engine = None
+
+OPEN_API = {
+    "openapi": "3.0.0",
+    "info": {
+        "title": "zero-reader api",
+        "description": "",
+        "version": "0.1.0"
+    },
+    "paths": {},
+    "components": {
+        "schemas": {}
+    }
+}
+@app.route("/openapi", methods=["GET"])
+def openapi(request):
+    return response.json(OPEN_API)
 
 from . import router
