@@ -134,8 +134,7 @@ class ApiView(HTTPMethodView):
                                 "type": "integer"
                             }
                         }],
-                        "summary": "Returns a list of users.",
-                        "description": "",
+                        "summary": self.get.__doc__,
                         "responses": {
                             "200": {
                                 "description": "OK",
@@ -167,40 +166,66 @@ class ApiView(HTTPMethodView):
                     }
                 }
             )
+            schema = {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/baseResponse"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "data": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": '#/components/schemas/%s' % table_name
+                                }
+                            },
+                            "count": {
+                                "type": "integer",
+                                "description": "总条数"
+                            },
+                            "limit": {
+                                "type": "integer",
+                                "description": "取出多少条"
+                            },
+                            "skip": {
+                                "type": "integer",
+                                "description": "略过多少条"
+                            }
+                        }
+                    }
+                ]
+                
+            }
+            response = {
+                "schema": schema
+            }
             OPEN_API.add_path(
                 base_url, 
                 {
                     "get": {
-                        "parameters": [{
-                            "$ref": "#/components/parameters/where"
-                        }],
-                        "summary": "Returns a list of users.",
-                        "description": "",
+                        "parameters": [
+                            {"$ref": "#/components/parameters/where"},
+                            {"$ref": "#/components/parameters/order"},
+                            {"$ref": "#/components/parameters/keys"},
+                            {"$ref": "#/components/parameters/limit"},
+                            {"$ref": "#/components/parameters/skip"}
+                        ],
+                        "summary": self.get.__doc__,
                         "responses": {
                             "200": {
                                 "description": "OK",
                                 "content": {
-                                    "application/json": {
+                                    "application/json": response,
+                                    "application/xml": {
                                         "schema": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/components/schemas/baseResponse"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "data": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": '#/components/schemas/%s' % table_name
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                            
+                                            "type": "object",
+                                            "properties": {
+                                                "root": schema
+                                            }
                                         }
-                                    }
+                                    },
+                                    "text/yaml": response
                                 }
                             }
                         }

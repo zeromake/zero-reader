@@ -41,9 +41,99 @@ OPEN_API = ApiSpec(
     "api doc",
     "0.1.0"
 )
+OPEN_API.add_schema("whereParam", {
+    "type": "object",
+    "properties": {
+        "val": {
+            "description": "数值",
+            "oneOf":[
+                {
+                    "type": "integer"
+                },
+                {
+                    "type": "float"
+                },
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "oneOf": [
+                            {"type": "integer"},
+                            {"type": "float"},
+                            {"type": "string"}
+                        ]
+                    }
+                }
+            ]
+        },
+        "opt": {
+            "type": "string",
+            "description": "运算符",
+            "enum": [
+                "$raw",
+                "$ne",
+                "$te",
+                "$lt",
+                "$lte",
+                "$gt",
+                "$gte",
+                "$like",
+                "$in",
+                "$nin"
+            ]
+        }
+    }
+})
+OPEN_API.add_parameters("order", {
+    "in": "query",
+    "name": "order",
+    "description": "排序字段,带 `-` 为倒序",
+    "schema": {
+        "type": "array",
+        "items": {
+            "type": "string"
+        }
+    },
+    "style": "form",
+    "explode": False
+})
+OPEN_API.add_parameters("keys", {
+    "in": "query",
+    "name": "keys",
+    "description": "过滤字段,带 `-` 为黑名单",
+    "schema": {
+        "type": "array",
+        "items": {
+            "type": "string"
+        }
+    },
+    "style": "form",
+    "explode": False
+})
+OPEN_API.add_parameters("limit", {
+    "in": "query",
+    "name": "limit",
+    "description": "取出多少条",
+    "schema": {
+        "type": "integer",
+        "default": 50
+    }
+})
+OPEN_API.add_parameters("skip", {
+    "in": "query",
+    "name": "skip",
+    "description": "略过多少条",
+    "schema": {
+        "type": "integer",
+        "default": 0
+    }
+})
 OPEN_API.add_parameters("where", {
     "in": "query",
     "name": "where",
+    "description": "过滤条件",
     "content": {
         "application/json":
         {
@@ -51,7 +141,7 @@ OPEN_API.add_parameters("where", {
                 "type": "object",
                 "properties": {
                     "id": {
-                        "type": "integer",
+                        "$ref": "#/components/schemas/whereParam",
                     }
                 }
             }

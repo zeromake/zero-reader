@@ -63,12 +63,12 @@ def handle_param(column, data):
     """
     处理where条件
     """
-    opt = data.get('opt', '$lt')
+    opt = data.get('opt', '$te')
     if 'val' in data:
         value = data['val']
         if opt == '$ne': # 不等于
             return column != value
-        if opt == '$lt': # 等于
+        if opt == '$te': # 等于
             return column == value
         elif opt == '$lt': # 小于
             return column < value
