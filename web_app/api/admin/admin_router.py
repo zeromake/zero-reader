@@ -1,9 +1,11 @@
 from web_app import app, OPEN_API
 from . import AdminApi
-from .user_service import UserService
-
-UserService.add_route(AdminApi, "/user", OPEN_API)
-app.blueprint(AdminApi, url_prefix=AdminApi.url_prefix)
+# from .user_service import UserService
+# from .library_service import LibraryService
+app.db.model_add_view(AdminApi, OPEN_API)
+# UserService.add_route(AdminApi, OPEN_API)
+# LibraryService.add_route(AdminApi, OPEN_API)
+app.blueprint(AdminApi)
 # AdminApi.add_route(UserService.as_view(), "/user")
 # AdminApi.add_route(UserService.as_view(), "/user/<primary_key:int>")
 

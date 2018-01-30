@@ -21,6 +21,9 @@ aiopg = "*"
 gunicorn = "*"
 xmltodict = "*"
 pyyaml = "*"
+psutil = "*"
+pyjwt = "*"
+passlib = "*"
 
 
 [dev-packages]

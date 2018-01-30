@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "22ddfe094a12c92db41553c87ad009d1620462e0039913a388338e70e0ee15b5"
+            "sha256": "2e022fa8742cdc7242f47e964965becda54bc8522c7c05450c7a14c826a36da8"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -83,13 +83,25 @@
             "hashes": [],
             "version": "==4.1.1"
         },
+        "passlib": {
+            "hashes": [],
+            "version": "==1.7.1"
+        },
         "promise": {
             "hashes": [],
             "version": "==2.1"
         },
+        "psutil": {
+            "hashes": [],
+            "version": "==5.4.2"
+        },
         "psycopg2": {
             "hashes": [],
             "version": "==2.7.3.2"
+        },
+        "pyjwt": {
+            "hashes": [],
+            "version": "==1.5.3"
         },
         "pymysql": {
             "hashes": [],

@@ -13,7 +13,7 @@ class ApiSpec():
         """
         self._schemas = {}
         self._paths = {}
-        self._tags = {}
+        self._tags = []
         self._parameters = {}
         self._spec = {
             "openapi": "3.0.0",
@@ -23,6 +23,7 @@ class ApiSpec():
                 "version": version
             },
             "paths": self._paths,
+            "tags": self._tags,
             "components": {
                 "schemas": self._schemas,
                 "parameters": self._parameters
@@ -46,6 +47,15 @@ class ApiSpec():
         添加全局参数
         """
         self._parameters[name] = parameter
+
+    def add_tag(self, name, doc):
+        """
+        添加标签
+        """
+        self._tags.append({
+            "name": name,
+            "description": doc
+        })
 
     def to_dict(self):
         """

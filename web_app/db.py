@@ -11,17 +11,19 @@ class DateBase:
     """
     各种数据库切换
     """
-    def __init__(self, database, loop=None, **args):
+    def __init__(self, database, **args):
         """
         初始化
         """
         from sqlalchemy import engine
         self._args = args
         self._url = engine.url.make_url(database)
-        self._loop = loop or asyncio.get_event_loop()
+        self._loop = None
         self._tables = None
         self._driver = None
         self._load_driver()
+        self._models = {}
+        self.load_table()
 
     def _load_driver(self):
         """
@@ -46,7 +48,7 @@ class DateBase:
             if hasattr(model, table):
                 self._tables.append(getattr(model, table))
 
-    async def create_engine(self):
+    async def create_engine(self, loop):
         """
         创建engine
         """
@@ -55,19 +57,18 @@ class DateBase:
             # init = os.path.exists(self._url.database)
             return await create_engine(
                 self._url.database,
-                loop=self._loop,
+                loop=loop,
                 **self._args
             )
         elif self._driver == "mysql":
             from aiomysql.sa import create_engine
-            print(self._url.translate_connect_args(), self._loop)
             return await create_engine(
                 user=self._url.username,
                 db=self._url.database,
                 host=self._url.host,
                 password=self._url.password,
                 port=self._url.port,
-                loop=self._loop
+                loop=loop
                 # **self._args
             )
         elif self._driver == "postgresql":
@@ -78,7 +79,7 @@ class DateBase:
                 host=self._url.host,
                 port=self._url.port,
                 password=self._url.password,
-                loop=self._loop,
+                loop=loop,
                 **self._args
             )
 
@@ -87,7 +88,6 @@ class DateBase:
         创建表
         """
         from sqlalchemy.sql.ddl import CreateTable
-        self.load_table()
         async with engine.acquire() as conn:
             if await self.exists_table(conn, self._tables[0].name):
                 await self.drop_table(conn)
@@ -99,7 +99,6 @@ class DateBase:
         删除表
         """
         from sqlalchemy.sql.ddl import DropTable
-        self.load_table()
         # async with engine.acquire() as conn:
         for table in self._tables:
             await conn.execute(DropTable(table))
@@ -136,3 +135,31 @@ class DateBase:
         if sql:
             cursor = await conn.execute(sql)
             return (await cursor.first()).id
+
+    def generate_model_class(self, model):
+        """
+        生成class
+        """
+        from .api import ApiView
+        class TempClass(ApiView):
+            """
+            自动生成
+            """
+            __model__ = model
+        return TempClass
+
+    def model_add_view(self, router, open_api):
+        """
+        挂载视图
+        """
+        for model in self._tables:
+            table_name = model.name
+            if table_name not in self._models:
+                view = self.generate_model_class(model).add_route(router, open_api)
+                self._models[table_name] = view.self
+
+    def get_model(self, name):
+        """
+        获取model操作对象
+        """
+        return self._models[name] if name in self._models else None

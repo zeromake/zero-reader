@@ -112,16 +112,19 @@ class ApiView(HTTPMethodView):
         return view
 
     @classmethod
-    def add_route(cls, app_, url, OPEN_API=None, *class_args, **class_kwargs):
+    def add_route(cls, app_, OPEN_API=None, *class_args, **class_kwargs):
         """
         添加路由
         """
         view = cls.as_view(*class_args, **class_kwargs)
         self = view.self
+        table_name = str(self.__model__.name)
+        url = "/" + table_name
         if OPEN_API:
-            table_name = str(self.__model__.name)
             OPEN_API.add_schema(table_name, generate_openapi_by_table(self.__model__))
             base_url = app_.url_prefix + url
+            doc = self.__model__.__doc__ + self.get.__doc__
+            OPEN_API.add_tag(table_name, self.__model__.__doc__)
             OPEN_API.add_path(
                 base_url+"/{primary_key}", 
                 {
@@ -129,12 +132,14 @@ class ApiView(HTTPMethodView):
                         "parameters": [{
                             "in": "path",
                             "name": "primary_key",
+                            "description": "主键",
                             "required": True,
                             "schema": {
                                 "type": "integer"
                             }
                         }],
-                        "summary": self.get.__doc__,
+                        "summary": doc + "单条",
+                        "tags": [table_name],
                         "responses": {
                             "200": {
                                 "description": "OK",
@@ -211,7 +216,8 @@ class ApiView(HTTPMethodView):
                             {"$ref": "#/components/parameters/limit"},
                             {"$ref": "#/components/parameters/skip"}
                         ],
-                        "summary": self.get.__doc__,
+                        "summary": doc + "多条",
+                        "tags": [table_name],
                         "responses": {
                             "200": {
                                 "description": "OK",
@@ -279,11 +285,18 @@ class ApiView(HTTPMethodView):
         except Exception as e:
             return {'status': 500, 'message': str(e)}
 
+    async def execute_one(self, sql):
+        """
+        执行sql取出一条记录
+        """
+        engine = app.engine
+        async with engine.acquire() as conn:
+            async with conn.execute(sql) as cursor:
+                return await cursor.first()
+
     async def post(self, request, *args, **kwargs):
         """
-        form_data = request.json
         添加model
-        ---
         """
         form_data = request.json
         sql = self.insert(form_data)
@@ -372,18 +385,10 @@ class ApiView(HTTPMethodView):
                 sql = self.__model__.update().where(where).values(data)
         return sql
 
-    async def get(self, request, *args_, **kwargs):
+    def select(self, args={}, where_data={}, kwargs={}):
         """
-        查询
+        生成查询语句
         """
-        args = request.raw_args
-        if "where" in args:
-            try:
-                where_data = json.loads(args["where"])
-            except ValueError:
-                where_data = {}
-        else:
-            where_data = {}
         use_primary = False
         if 'primary_key' in kwargs:
             if not self._key is None:
@@ -393,7 +398,6 @@ class ApiView(HTTPMethodView):
             limit = [int(args.get("skip", 0)), int(args.get("limit", 50))]
         except ValueError:
             limit = [0, 50]
-        engine = app.engine
         where = handle_param_primary(self._columns_name, where_data)
         limit_sql = None
         count_sql = None
@@ -430,7 +434,31 @@ class ApiView(HTTPMethodView):
                     sql = sql.order_by(*order_by)
                 else:
                     limit_sql = limit_sql.order_by(*order_by)
+        if limit_sql is None:
+            return sql, use_primary, None
+        else:
+            return limit_sql, count_sql, limit
 
+    async def get(self, request, *args_, **kwargs):
+        """
+        查询
+        """
+        args = request.raw_args
+        if "where" in args:
+            try:
+                where_data = json.loads(args["where"])
+            except ValueError:
+                where_data = {}
+        else:
+            where_data = {}
+        engine = app.engine
+        limit_sql, count_sql, limit = self.select(args, where_data, kwargs)
+        use_primary = False
+        sql = None
+        if limit is None:
+            sql = limit_sql
+            limit_sql = None
+            use_primary = count_sql
         try:
             async with engine.acquire() as conn:
                 if limit_sql is None or use_primary:

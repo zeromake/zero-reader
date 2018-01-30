@@ -82,8 +82,9 @@ User = sa.Table(
         nullable=False,
         doc="创建时间"
     ),
-    sqlite_autoincrement=True
+    sqlite_autoincrement=True,
 )
+User.__doc__ = "用户"
 
 # 权限表
 Permissions = sa.Table(
@@ -110,6 +111,7 @@ Permissions = sa.Table(
     ),
     sqlite_autoincrement=True
 )
+Permissions.__doc__ = "权限"
 
 # 书库表
 Library = sa.Table(
@@ -160,6 +162,7 @@ Library = sa.Table(
     ),
     sqlite_autoincrement=True
 )
+Library.__doc__ = "书库"
 
 # 书籍标签表
 Tags = sa.Table(
@@ -179,6 +182,7 @@ Tags = sa.Table(
         doc="tag名"
     )
 )
+Tags.__doc__ = "标签"
 
 # 书籍标签关联表
 LibraryBindTag = sa.Table(
@@ -205,6 +209,7 @@ LibraryBindTag = sa.Table(
     ),
     sqlite_autoincrement=True
 )
+LibraryBindTag.__doc__ = "标签关联"
 
 # 作者或翻译者
 Authors = sa.Table(
@@ -225,6 +230,7 @@ Authors = sa.Table(
     ),
     sqlite_autoincrement=True
 )
+Authors.__doc__ = "作者|翻译者"
 
 # 作者或翻译者关联
 LibraryBindAuthor = sa.Table(
@@ -251,6 +257,7 @@ LibraryBindAuthor = sa.Table(
     ),
     sqlite_autoincrement=True
 )
+LibraryBindAuthor.__doc__ = "作者关联"
 
 # 阅读记录
 ReadHistory = sa.Table(
@@ -289,6 +296,7 @@ ReadHistory = sa.Table(
     ),
     sqlite_autoincrement=True
 )
+ReadHistory.__doc__ = "阅读记录"
 # 书架
 BookShelf = sa.Table(
     'book_shelf',
@@ -320,6 +328,7 @@ BookShelf = sa.Table(
     ),
     sqlite_autoincrement=True
 )
+BookShelf.__doc__ = "书架"
 # 用户偏好设置
 UserConfig = sa.Table(
     'user_config',
@@ -346,6 +355,7 @@ UserConfig = sa.Table(
     ),
     sqlite_autoincrement=True
 )
+UserConfig.__doc__ = "用户设置"
 
 BookConfig = sa.Table(
     'book_config',
@@ -378,6 +388,7 @@ BookConfig = sa.Table(
     ),
     sqlite_autoincrement=True
 )
+BookConfig.__doc__ = "书籍设置"
 
 BookNotes = sa.Table(
     'book_notes',
@@ -421,3 +432,4 @@ BookNotes = sa.Table(
     ),
     sqlite_autoincrement=True
 )
+BookNotes.__doc__ = "笔记"

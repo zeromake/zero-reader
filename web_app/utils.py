@@ -2,49 +2,28 @@ import os
 import sys
 import sqlalchemy as sa
 from sqlalchemy import or_, and_
+import jwt
+from web_app.config import CONFIG
+import passlib.hash as passlib_hash
 
-__all__ = ["import_string", "ROOT_PATH"]
+custom_app_context = getattr(passlib_hash, CONFIG.get('HASH', "md5_crypt"))
 
-def import_string(import_name, silent=False):
-    """Imports an object based on a string.  This is useful if you want to
-    use import paths as endpoints or something similar.  An import path can
-    be specified either in dotted notation (``xml.sax.saxutils.escape``)
-    or with a colon as object delimiter (``xml.sax.saxutils:escape``).
-    If `silent` is True the return value will be `None` if the import fails.
-    :param import_name: the dotted name for the object to import.
-    :param silent: if set to `True` import errors are ignored and
-                   `None` is returned instead.
-    :return: imported object
-    """
-    # force the import name to automatically convert to strings
-    # __import__ is not able to handle unicode strings in the fromlist
-    # if the module is a package
-    import_name = str(import_name).replace(':', '.')
-    try:
-        try:
-            __import__(import_name)
-        except ImportError:
-            if '.' not in import_name:
-                raise
-        else:
-            return sys.modules[import_name]
+__all__ = [
+    "ROOT_PATH",
+    "root_resolve",
+    "make_columns",
+    "handle_param",
+    "handle_param_desc",
+    "handle_param_primary",
+    "handle_keys",
+    "generate_openapi_by_column",
+    "generate_openapi_by_table",
+    "encode_token",
+    "decode_token",
+    "hash_string",
+    "verify_hash"
+]
 
-        module_name, obj_name = import_name.rsplit('.', 1)
-        try:
-            module = __import__(module_name, None, None, [obj_name])
-        except ImportError:
-            # support importing modules not yet set up by the parent module
-            # (or package for that matter)
-            module = import_string(module_name)
-
-        try:
-            return getattr(module, obj_name)
-        except AttributeError as e:
-            raise ImportError(e)
-
-    except ImportError as e:
-        if not silent:
-            raise e
 ROOT_PATH = os.path.abspath(os.path.dirname(__file__))
 
 def root_resolve(path):
@@ -191,10 +170,10 @@ def generate_openapi_by_column(column):
     elif isinstance(column_type, (sa.DateTime, sa.TIMESTAMP)):
         propertie['format'] = "data-time"
         type_string = "string"
+    elif isinstance(column_type, sa.Text):
+        type_string = "string"
     elif isinstance(column_type, sa.String):
         propertie['maxLength'] = column_type.length
-        type_string = "string"
-    elif isinstance(column_type, sa.Text):
         type_string = "string"
     propertie['type'] = type_string
     return propertie
@@ -206,6 +185,7 @@ def generate_openapi_by_table(table):
     schema = {
         "type": "object",
         "properties": {},
+        "description": table.__doc__,
         "required": []
     }
     for column in table.columns:
@@ -215,3 +195,26 @@ def generate_openapi_by_table(table):
         schema['properties'][column_name] = generate_openapi_by_column(column)
     return schema
 
+def encode_token(payload, algorithm='HS256', **kwargs):
+    """
+    生成token
+    """
+    return jwt.encode(payload, CONFIG['SECRET'], algorithm=algorithm, **kwargs)
+
+def decode_token(jwt_payload, algorithm='HS256', **kwargs):
+    """
+    读取payload
+    """
+    return jwt.decode(jwt_payload, CONFIG['SECRET'], algorithm=algorithm, **kwargs)
+
+def hash_string(string):
+    """
+    hash密码
+    """
+    return custom_app_context.hash(string)
+
+def verify_hash(string, hash_str):
+    """
+    校验hash与当前的密码
+    """
+    return custom_app_context.verify(string, hash_str)
