@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2e022fa8742cdc7242f47e964965becda54bc8522c7c05450c7a14c826a36da8"
+            "sha256": "7cd8bc717c1f2e1afae637ac3fc0035a231ca0e42e15616414c667b5a25d7e35"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -82,10 +82,6 @@
         "lxml": {
             "hashes": [],
             "version": "==4.1.1"
-        },
-        "passlib": {
-            "hashes": [],
-            "version": "==1.7.1"
         },
         "promise": {
             "hashes": [],

@@ -4,7 +4,8 @@ import sqlalchemy as sa
 from sqlalchemy import or_, and_
 import jwt
 from web_app.config import CONFIG
-import passlib.hash as passlib_hash
+from . import crypt_zero as passlib_hash
+from datetime import datetime, timedelta, timezone
 
 custom_app_context = getattr(passlib_hash, CONFIG.get('HASH', "md5_crypt"))
 
@@ -218,3 +219,14 @@ def verify_hash(string, hash_str):
     校验hash与当前的密码
     """
     return custom_app_context.verify(string, hash_str)
+def to_timestamp(obj):
+    """
+    毫秒值
+    """
+    return int(obj.timestamp() * 1000)
+
+def get_offset_timestamp(**kwargs):
+    """
+    获取偏移时间戳
+    """
+    return to_timestamp(datetime.now(timezone.utc) + timedelta(**kwargs))

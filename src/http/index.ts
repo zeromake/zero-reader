@@ -1,3 +1,5 @@
+import { customHistory, route } from "react-import";
+
 let baseUrl = "/librarys";
 
 if (process.env.platform === "cordova" && process.env.NODE_ENV !== "production") {
@@ -10,15 +12,99 @@ if (process.env.platform === "cordova" && process.env.NODE_ENV === "production")
         localStorage.setItem("baseUrl", baseUrl);
     }
 }
-
+interface ITokenInfo {
+    token?: string;
+    exp?: number;
+    refresh_token?: string;
+    refresh_exp?: number;
+}
+const AUTH_HEADER = "Authorization";
+const TokenArr = [
+    "token",
+    "exp",
+    "refresh_token",
+    "refresh_exp",
+];
+function getToken(): ITokenInfo {
+    const info: ITokenInfo = {};
+    for (const name of TokenArr) {
+        let value: any = localStorage.getItem(name);
+        if (value && value !== "") {
+            if (name === "exp" || name === "refresh_exp") {
+                value = +value;
+            }
+            info[name] = value;
+        } else {
+            break;
+        }
+    }
+    return info;
+}
+function clearToken() {
+    for (const name of TokenArr) {
+        localStorage.removeItem(name);
+    }
+}
 const json = (res: Response) => res.json();
 const text = (res: Response) => res.text();
 
-export function get_json(url: string) {
+function raw_fetch(url, options?: RequestInit) {
     if (baseUrl && baseUrl !== "") {
         url = baseUrl + url;
     }
-    return fetch(url).then(json);
+    return fetch(url, options);
+}
+function verifyToken() {
+    const tokenInfo = getToken();
+    const timeNow = new Date().getTime();
+    if (tokenInfo.exp - timeNow >= 2000) {
+        if (tokenInfo.refresh_exp - timeNow >= 2000) {
+            return Promise.reject("token已过期！");
+        } else {
+            return raw_fetch("/api/refresh_token", {
+                headers: {
+                    [AUTH_HEADER]: tokenInfo.refresh_token,
+                },
+            }).then(json).then((res: any) => {
+                const token: string = res.data.token;
+                const exp: number = res.data.exp;
+                tokenInfo.token = token;
+                tokenInfo.exp = exp;
+                localStorage.setItem("token", token);
+                localStorage.setItem("exp", String(exp));
+                return Promise.resolve(token);
+            });
+        }
+    } else {
+        return Promise.resolve(tokenInfo.token);
+    }
+}
+
+function baseFetch(url: string, options?: RequestInit) {
+    verifyToken().then((token: string) => {
+        if (options && options.headers) {
+            options.headers[AUTH_HEADER] = token;
+        } else if (options) {
+            options.headers = {
+                [AUTH_HEADER]: token,
+            };
+        } else {
+            options = {
+                headers: {
+                    [AUTH_HEADER]: token,
+                },
+            };
+        }
+        return raw_fetch(url, options);
+    }).catch((reason) => {
+        clearToken();
+        route(customHistory.origin + "?href=" +  encodeURIComponent(customHistory.href) + "&error=" + String(reason));
+    });
+}
+(window as any).baseFetch = baseFetch;
+
+export function get_json(url: string) {
+    return raw_fetch(url).then(json);
 }
 
 function createObject() {

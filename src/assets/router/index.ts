@@ -388,5 +388,5 @@ class Router extends Component<any, any> {
     }
 }
 
-export { subscribers, getCurrentUrl, route, Router, Route, Link };
+export { subscribers, getCurrentUrl, route, Router, Route, Link, customHistory };
 export default Router;

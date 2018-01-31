@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@types/lodash@^4.14.95":
-  version "4.14.95"
-  resolved "http://registry.npm.taobao.org/@types/lodash/download/@types/lodash-4.14.95.tgz#02c170690719bbaca8293d9c8cdcccb565728081"
+"@types/lodash@^4.14.98":
+  version "4.14.98"
+  resolved "http://registry.npm.taobao.org/@types/lodash/download/@types/lodash-4.14.98.tgz#aaf012ae443e657e7885e605a4c1b340db160609"
 
 "@types/node@*":
   version "9.3.0"
@@ -17,9 +17,13 @@
     "@types/node" "*"
     "@types/react" "*"
 
-"@types/react@*", "@types/react@^16.0.31":
+"@types/react@*":
   version "16.0.34"
   resolved "http://registry.npm.taobao.org/@types/react/download/@types/react-16.0.34.tgz#7a8f795afd8a404a9c4af9539b24c75d3996914e"
+
+"@types/react@^16.0.35":
+  version "16.0.35"
+  resolved "http://registry.npm.taobao.org/@types/react/download/@types/react-16.0.35.tgz#7ce8a83cad9690fd965551fc513217a74fc9e079"
 
 abbrev@1:
   version "1.1.1"
@@ -46,7 +50,7 @@ acorn@^5.0.0, acorn@^5.1.1:
   version "5.3.0"
   resolved "http://registry.npm.taobao.org/acorn/download/acorn-5.3.0.tgz#7446d39459c54fb49a80e6ee6478149b940ec822"
 
-ajv-keywords@^2.0.0:
+ajv-keywords@^2.0.0, ajv-keywords@^2.1.0:
   version "2.1.1"
   resolved "http://registry.npm.taobao.org/ajv-keywords/download/ajv-keywords-2.1.1.tgz#617997fc5f60576894c435f940d819e135b80762"
 
@@ -4933,6 +4937,13 @@ schema-utils@^0.3.0:
   dependencies:
     ajv "^5.0.0"
 
+schema-utils@^0.4.3:
+  version "0.4.3"
+  resolved "http://registry.npm.taobao.org/schema-utils/download/schema-utils-0.4.3.tgz#e2a594d3395834d5e15da22b48be13517859458e"
+  dependencies:
+    ajv "^5.0.0"
+    ajv-keywords "^2.1.0"
+
 screenfull@^3.3.2:
   version "3.3.2"
   resolved "http://registry.npm.taobao.org/screenfull/download/screenfull-3.3.2.tgz#a6adf3b3f5556da812725385880600f5b39fbf25"
@@ -5369,12 +5380,12 @@ strip-json-comments@2.0.1, strip-json-comments@~2.0.1:
   version "2.0.1"
   resolved "http://registry.npm.taobao.org/strip-json-comments/download/strip-json-comments-2.0.1.tgz#3c531942e908c2697c0ec344858c286c7ca0a60a"
 
-style-loader@^0.19.1:
-  version "0.19.1"
-  resolved "http://registry.npm.taobao.org/style-loader/download/style-loader-0.19.1.tgz#591ffc80bcefe268b77c5d9ebc0505d772619f85"
+style-loader@^0.20.1:
+  version "0.20.1"
+  resolved "http://registry.npm.taobao.org/style-loader/download/style-loader-0.20.1.tgz#33ac2bf4d5c65a8906bc586ad253334c246998d0"
   dependencies:
-    loader-utils "^1.0.2"
-    schema-utils "^0.3.0"
+    loader-utils "^1.1.0"
+    schema-utils "^0.4.3"
 
 stylint@^1.5.9:
   version "1.5.9"
@@ -5582,9 +5593,9 @@ trim-right@^1.0.1:
   version "1.0.1"
   resolved "http://registry.npm.taobao.org/trim-right/download/trim-right-1.0.1.tgz#cb2e1203067e0c8de1f614094b9fe45704ea6003"
 
-ts-loader@^3.3.1:
-  version "3.3.1"
-  resolved "http://registry.npm.taobao.org/ts-loader/download/ts-loader-3.3.1.tgz#5d24b425876cfed094f8da95375c9fd1e598faec"
+ts-loader@^3.4.0:
+  version "3.4.0"
+  resolved "http://registry.npm.taobao.org/ts-loader/download/ts-loader-3.4.0.tgz#c376bc0538d4c441ea8790c3fd841ebfdbfb99d0"
   dependencies:
     chalk "^2.3.0"
     enhanced-resolve "^3.0.0"
