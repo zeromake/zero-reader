@@ -8,6 +8,7 @@ import "./css/main.styl";
 import "./css/base.css";
 import "./assets/icons/index";
 import { initDevTools } from "zreact/devtools";
+// import "sakura.css";
 
 render(<MainRouter/>, document.getElementById("app"));
 

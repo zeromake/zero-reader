@@ -1,5 +1,6 @@
 import BookLayout from "@/components/book-layout";
 import Library from "@/components/library";
+import Login from "@/components/login"; 
 import { h, Router, Route, Link } from "react-import";
 import Animate from "preact-animate";
 import { togglerFullScreen } from "./utils";
@@ -43,9 +44,7 @@ const MainRouter = () => (
             >
             <Route
                 key="1"
-                component={(props: any) => {
-                    return <Link href="/libary" to="/libary">测试</Link>;
-                }}
+                component={Login}
                 path="/"
                 transitionName={{ enter: "fadeInLeft", leave: "fadeOutLeft" }}
             >
@@ -53,7 +52,7 @@ const MainRouter = () => (
             <Route
                 key="1"
                 component={Library}
-                path="/libary"
+                path="/library"
                 transitionName={{ enter: "fadeInLeft", leave: "fadeOutLeft" }}
             >
             </Route>

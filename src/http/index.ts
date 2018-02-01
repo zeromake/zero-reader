@@ -1,14 +1,14 @@
-import { customHistory, route } from "react-import";
-
-let baseUrl = "/librarys";
+import { customHistory, route, getCurrentUrl } from "react-import";
+import qs from "qs";
+let baseUrl = "";
 
 if (process.env.platform === "cordova" && process.env.NODE_ENV !== "production") {
-    baseUrl = location.origin + "/librarys";
+    baseUrl = location.origin;
 }
 if (process.env.platform === "cordova" && process.env.NODE_ENV === "production") {
     baseUrl = localStorage.getItem("baseUrl");
     if (!baseUrl || baseUrl === "") {
-        baseUrl = prompt("填写服务器地址", "http://192.168.2.103:8080/librarys");
+        baseUrl = prompt("填写服务器地址", "http://192.168.2.103:8080");
         localStorage.setItem("baseUrl", baseUrl);
     }
 }
@@ -57,31 +57,45 @@ function raw_fetch(url, options?: RequestInit) {
 function verifyToken() {
     const tokenInfo = getToken();
     const timeNow = new Date().getTime();
-    if (tokenInfo.exp - timeNow >= 2000) {
-        if (tokenInfo.refresh_exp - timeNow >= 2000) {
-            return Promise.reject("token已过期！");
+    if (tokenInfo.exp && tokenInfo.exp - timeNow >= 2000) {
+        if (tokenInfo.refresh_exp && tokenInfo.refresh_exp - timeNow >= 2000) {
+            return Promise.reject("token已过期!");
         } else {
             return raw_fetch("/api/refresh_token", {
                 headers: {
                     [AUTH_HEADER]: tokenInfo.refresh_token,
                 },
             }).then(json).then((res: any) => {
-                const token: string = res.data.token;
-                const exp: number = res.data.exp;
-                tokenInfo.token = token;
-                tokenInfo.exp = exp;
-                localStorage.setItem("token", token);
-                localStorage.setItem("exp", String(exp));
-                return Promise.resolve(token);
+                if (res.status === 200) {
+                    const token: string = res.data.token;
+                    const exp: number = res.data.exp;
+                    tokenInfo.token = token;
+                    tokenInfo.exp = exp;
+                    localStorage.setItem("token", token);
+                    localStorage.setItem("exp", String(exp));
+                    return Promise.resolve(token);
+                } else {
+                    return Promise.reject(res.message);
+                }
             });
         }
-    } else {
+    } else if (tokenInfo.token && tokenInfo.token !== "") {
         return Promise.resolve(tokenInfo.token);
+    } else {
+        return Promise.reject("token不存在!");
     }
 }
 
 function baseFetch(url: string, options?: RequestInit) {
-    verifyToken().then((token: string) => {
+    if (url === "/api/login") {
+        return raw_fetch(url, options);
+    }
+    const catchToken = (reason) => {
+        clearToken();
+        const customLocation = (customHistory && customHistory.location) || location;
+        route("/?href=" +  encodeURIComponent(getCurrentUrl()) + "&error=" + encodeURIComponent(String(reason)));
+    };
+    return verifyToken().then((token: string) => {
         if (options && options.headers) {
             options.headers[AUTH_HEADER] = token;
         } else if (options) {
@@ -96,10 +110,7 @@ function baseFetch(url: string, options?: RequestInit) {
             };
         }
         return raw_fetch(url, options);
-    }).catch((reason) => {
-        clearToken();
-        route(customHistory.origin + "?href=" +  encodeURIComponent(customHistory.href) + "&error=" + String(reason));
-    });
+    }).catch(catchToken);
 }
 (window as any).baseFetch = baseFetch;
 
@@ -199,10 +210,11 @@ const cache = (max: number = 10) => {
 const cacheData = cache(20);
 
 export function libraryData(sha: string) {
+    const libraryBaseUrl = baseUrl ? baseUrl + "/librarys" : "/librarys";
     return {
         get(url: string, callback) {
-            if (baseUrl && baseUrl !== "") {
-                url = baseUrl + url;
+            if (libraryBaseUrl) {
+                url = libraryBaseUrl + url;
             }
             const cacheValue = cacheData.get(url);
             if (cacheValue) {
@@ -223,7 +235,7 @@ export function libraryData(sha: string) {
             return this.get(`/${sha}/${url}`, text);
         },
         css(url: string) {
-            return `${baseUrl}/${sha}/${url}`;
+            return `${libraryBaseUrl}/${sha}/${url}`;
         },
         image(url: string) {
             return this.css(url);
@@ -236,3 +248,47 @@ export function libraryData(sha: string) {
         },
     };
 }
+function $ajaxRaw(url: string, options?: RequestInit) {
+    if (baseUrl && baseUrl !== "") {
+        url = baseUrl + url;
+    }
+    return baseFetch(url, options);
+}
+function $ajaxBody(url, method: string, params?: {[name: string]: string} | null, init?: RequestInit) {
+    let options: RequestInit;
+    if (init) {
+        options = {
+            method,
+            ...init,
+        };
+    } else {
+        options = {
+            method,
+        };
+    }
+    if (params) {
+        options.body = JSON.stringify(params);
+    }
+    return $ajaxRaw(url, options);
+}
+export const $ajax = {
+    raw: $ajaxRaw,
+    get(url, params?: {[name: string]: string} | null, init?: RequestInit) {
+        if (params) {
+            url += "?" + qs.stringify(params);
+        }
+        return $ajaxRaw(url, init);
+    },
+    post(url, params?: {[name: string]: string} | null, init?: RequestInit) {
+        return $ajaxBody(url, "POST", params, init);
+    },
+    delete(url, params?: {[name: string]: string} | null, init?: RequestInit) {
+        return $ajaxBody(url, "DELETE", params, init);
+    },
+    put(url, params?: {[name: string]: string} | null, init?: RequestInit) {
+        return $ajaxBody(url, "PUT", params, init);
+    },
+    patch(url, params?: {[name: string]: string} | null, init?: RequestInit) {
+        return $ajaxBody(url, "PATCH", params, init);
+    },
+};

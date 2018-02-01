@@ -388,5 +388,9 @@ class Router extends Component<any, any> {
     }
 }
 
+// function getCustomHistory() {
+//     return customHistory;
+// }
+
 export { subscribers, getCurrentUrl, route, Router, Route, Link, customHistory };
 export default Router;

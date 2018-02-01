@@ -93,11 +93,10 @@ export function filterPropsComponent(props) {
     return vnode;
 }
 
-
 declare const AndroidFullScreen: any;
 export function togglerFullScreen(show: boolean) {
     if (typeof AndroidFullScreen !== "undefined") {
-        AndroidFullScreen.isSupported(function() {
+        AndroidFullScreen.isSupported(function _() {
             // console.log("--------", show);
             if (show) {
                 AndroidFullScreen.showSystemUI();
@@ -105,5 +104,76 @@ export function togglerFullScreen(show: boolean) {
                 AndroidFullScreen.immersiveMode();
             }
         });
-    } 
+    }
+}
+
+function _updateForm(component: Component<any, any>, attName: string) {
+    // form.account
+    return function updateForm(e: any) {
+        const attrsArr = attName.split(".");
+        const updateData = {};
+        let state = component.state;
+        let data = updateData;
+        const value = (e.target as HTMLInputElement).value;
+        for (let i = 0, len = attrsArr.length; i < len; i ++) {
+            const attr = attrsArr[i];
+            if (attr && attr !== "") {
+                let old: any = null;
+                if (state) {
+                    old = state[attr];
+                    state = old;
+                }
+                if (i === len - 1) {
+                    data[attr] = value;
+                } else {
+                    if (old) {
+                        data = data[attr] = {...old};
+                    } else {
+                        data = data[attr] = {};
+                    }
+                }
+            }
+        }
+        // const old = component.state[formName] || {};
+        component.setState(updateData);
+    };
+}
+
+export function updateFormFunction(component: Component<any, any>, attName: string) {
+    let $formUpdate: {[name: string]: any} = (component as any).$formUpdate;
+    let updateFun: ((e: any) => void) | null | undefined = null;
+    const attrsArr = attName.split(".");
+    if (!$formUpdate) {
+        $formUpdate = (component as any).$formUpdate = {};
+    }
+    let $form: {[attName: string]: any} | null = $formUpdate;
+
+    for (let i = 0, len = attrsArr.length; i < len; i ++) {
+        const attr = attrsArr[i];
+        if (attr && attr !== "") {
+            if (i === len - 1) {
+                updateFun = $form[attr];
+                if (!updateFun) {
+                    updateFun = _updateForm(component, attName);
+                    $form[attr] = updateFun;
+                }
+            } else {
+                let temp = $form[attr];
+                if (!temp) {
+                    temp = $form[attr] = {};
+                }
+                $form = temp;
+            }
+        }
+    }
+    return updateFun;
+}
+
+export function bindUpdateForm(component: Component<any, any>, formName?: string) {
+    return (attName: string) =>  {
+        if (formName && formName !== "") {
+            return updateFormFunction(component, formName + "." + attName);
+        }
+        return updateFormFunction(component, attName);
+    };
 }

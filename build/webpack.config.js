@@ -54,7 +54,7 @@ const strftime = function(date) {
     return date_str
 }
 
-const serverIp = '127.0.0.1'
+const serverIp = '0.0.0.0'
 const serverPort = 8089
 
 const outPath = isCordova ? resolve('../www') : resolve('../dist');
@@ -165,7 +165,10 @@ const config = {
         port: serverPort,
         inline: true,
         // hot: true,
-        historyApiFallback: true
+        historyApiFallback: true,
+        proxy: {
+            "/api": "http://127.0.0.1:8000"
+        }
     },
     module: {
         rules: [

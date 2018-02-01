@@ -10,6 +10,10 @@
   version "9.3.0"
   resolved "http://registry.npm.taobao.org/@types/node/download/@types/node-9.3.0.tgz#3a129cda7c4e5df2409702626892cb4b96546dd5"
 
+"@types/qs@^6.5.1":
+  version "6.5.1"
+  resolved "http://registry.npm.taobao.org/@types/qs/download/@types/qs-6.5.1.tgz#a38f69c62528d56ba7bd1f91335a8004988d72f7"
+
 "@types/react-dom@^16.0.3":
   version "16.0.3"
   resolved "http://registry.npm.taobao.org/@types/react-dom/download/@types/react-dom-16.0.3.tgz#8accad7eabdab4cca3e1a56f5ccb57de2da0ff64"
@@ -4548,7 +4552,7 @@ q@^1.1.2, q@^1.4.1:
   version "1.5.1"
   resolved "http://registry.npm.taobao.org/q/download/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
 
-qs@6.5.1:
+qs@6.5.1, qs@^6.5.1:
   version "6.5.1"
   resolved "http://registry.npm.taobao.org/qs/download/qs-6.5.1.tgz#349cdf6eef89ec45c12d7d5eb3fc0c870343a6d8"
 
@@ -4918,6 +4922,10 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
 safe-buffer@5.1.1, safe-buffer@^5.0.1, safe-buffer@^5.1.0, safe-buffer@^5.1.1, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.1"
   resolved "http://registry.npm.taobao.org/safe-buffer/download/safe-buffer-5.1.1.tgz#893312af69b2123def71f57889001671eeb2c853"
+
+sakura.css@^1.0.0:
+  version "1.0.0"
+  resolved "http://registry.npm.taobao.org/sakura.css/download/sakura.css-1.0.0.tgz#d16e673e7a7d16b3ec41c9555be152d960c329b2"
 
 sax@0.3.5:
   version "0.3.5"

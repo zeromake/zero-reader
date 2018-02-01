@@ -12,7 +12,7 @@ export default class Library extends Component<any, any> {
         };
     }
     public componentDidMount() {
-        get_json("/db.json").then((data: any) => {
+        get_json("/librarys/db.json").then((data: any) => {
             this.setState({ library: data });
         });
     }
