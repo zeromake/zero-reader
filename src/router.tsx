@@ -20,11 +20,9 @@ let onAfterEnter = null;
 if (process.env.platform === "cordova") {
     onAfterEnter = function _(component) {
         if (component && component.props) {
-            let flag = null;
-            if (component.props.rawKey === "2") {
+            let flag = true;
+            if (component.props.rawKey !== "3") {
                 flag = false;
-            } else if (component.props.rawKey === "1") {
-                flag = true;
             }
             requestAnimationFrame(() => togglerFullScreen(flag));
         }
@@ -36,31 +34,49 @@ const text = (props) => {
 };
 
 const MainRouter = () => (
-    <Router history={tmpHistory}>
+    <Router history={tmpHistory} beforeEach={(to: string, form: string, next: (url?: string) => boolean) => {
+        const raw = to;
+        if (to.lastIndexOf("?") !== -1) {
+            to = to.split("?")[0];
+        }
+        if (to !== "/") {
+            const token = localStorage.getItem("token");
+            if (token && token !== "") {
+                next();
+            } else {
+                next(`/?href=${encodeURIComponent(raw)}&error=未登录!`);
+            }
+        } else {
+            next();
+        }
+    }}>
         <Animate
             component="div"
             componentProps={{className: "main"}}
             onAfterEnter={onAfterEnter}
+            transitionEnter={true}
+            transitionLeave={true}
+            transitionName={{ enter: "fadeIn", leave: "fadeOut"  }}
             >
             <Route
                 key="1"
                 component={Login}
                 path="/"
-                transitionName={{ enter: "fadeInLeft", leave: "fadeOutLeft" }}
-            >
-            </Route>
-            <Route
-                key="1"
-                component={Library}
-                path="/library"
-                transitionName={{ enter: "fadeInLeft", leave: "fadeOutLeft" }}
+                // transitionName={{ enter: "fadeInLeft", leave: "fadeOutLeft"  }}
             >
             </Route>
             <Route
                 key="2"
+                component={Library}
+                path="/library"
+                // transitionName={{ enter: "fadeInRight", leave: "fadeOutRight" }}
+            >
+            </Route>
+            <Route
+                key="3"
                 component={BookLayout}
                 path="/library/:sha/"
-                transitionName={{ enter: "fadeInRight", leave: "fadeOutRight" }}
+                // transitionName={{ enter: "fadeInRight", leave: "fadeOutRight" }}
             >
             </Route>
         </Animate>

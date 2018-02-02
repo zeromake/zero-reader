@@ -4462,9 +4462,9 @@ posthtml@^0.9.2:
     posthtml-parser "^0.2.0"
     posthtml-render "^1.0.5"
 
-preact-animate@^2.6.0:
-  version "2.6.0"
-  resolved "http://registry.npm.taobao.org/preact-animate/download/preact-animate-2.6.0.tgz#c4d00ade272e8be11002509a3a06e99551239ca1"
+preact-animate@^2.6.1:
+  version "2.6.1"
+  resolved "http://registry.npm.taobao.org/preact-animate/download/preact-animate-2.6.1.tgz#68ed2df2a00436f99c1774f87ad63d6483b89516"
 
 preact@^8.2.7:
   version "8.2.7"

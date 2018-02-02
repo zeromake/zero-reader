@@ -32,7 +32,7 @@
     "lodash.throttle": "^4.1.1",
     "mobx": "^3.4.1",
     "mobx-preact": "^1.1.0",
-    "preact-animate": "^2.6.0",
+    "preact-animate": "^2.6.1",
     "qs": "^6.5.1",
     "sakura.css": "^1.0.0",
     "screenfull": "^3.3.2",

@@ -93,6 +93,9 @@ if (isProd) {
         beautify: false,
         // 删除所有的注释
         comments: false,
+        mangle: {
+            safari10: true
+        },
         compress: {
             // 在UglifyJs删除没有用到的代码时不输出警告
             warnings: false,
@@ -119,14 +122,14 @@ const config = {
     },
     resolve: {
         // 只采用 main 字段作为入口文件描述字段，以减少搜索步骤
-        mainFields: ['jsnext:main', 'main'],
+        mainFields: ['jsnext:main', 'module', 'main'],
         // 只使用当前项目下的node_modules
         modules: [path.resolve(__dirname, '../node_modules')],
         alias: Object.assign({
             'zreact/devtools': isProd || isCordova ? resolve('../src/import/devtools.ts') : 'zreact/devtools',
             'history/createHashHistory': isCordova ? 'history/createHashHistory' : resolve('../src/import/history.ts'),
             '@': resolve('../src')
-        }, zreactAlias),
+        }, reactAlias),
         extensions: ['.js', '.ts', '.tsx']
     },
     plugins: [
@@ -280,11 +283,11 @@ const config = {
 //             }
 //         })
 //     )
-//     // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-//     // config.plugins.push(
-//     //     new BundleAnalyzerPlugin({
-//     //         analyzerPort: 9999
-//     //     })
-//     // )
+    // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+    // config.plugins.push(
+    //     new BundleAnalyzerPlugin({
+    //         analyzerPort: 9999
+    //     })
+    // )
 // }
 module.exports = config;

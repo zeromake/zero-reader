@@ -16,6 +16,8 @@ const ROUTERS = [];
 
 const subscribers = [];
 
+let beforeEach: ((to: string, form: string, next: () => void) => void) | null = null;
+
 const EMPTY = {};
 
 function isPreactElement(node) {
@@ -41,8 +43,7 @@ function getCurrentUrl() {
     }
     return `${url.pathname || ""}${url.search || ""}`;
 }
-
-function route(url, replace = false) {
+function _route(url, replace) {
     if (typeof url !== "string" && url.url) {
         replace = url.replace;
         url = url.url;
@@ -54,6 +55,23 @@ function route(url, replace = false) {
     }
 
     return routeTo(url);
+}
+function route(url, replace = false) {
+    return new Promise<boolean>(function _(resolve) {
+        const next = (newUrl?: string, newReplace?: boolean) => {
+            let temp: boolean;
+            if (newUrl) {
+                temp = _route(newUrl, newReplace);
+            } else {
+                temp = _route(url, replace);
+            }
+            resolve(temp);
+            return temp;
+        };
+        if (beforeEach) {
+            beforeEach(url, getCurrentUrl(), next);
+        }
+    });
 }
 
 /** Check if the given URL can be handled by any router instances. */
@@ -118,7 +136,7 @@ function prevent(e) {
     return false;
 }
 
-function delegateLinkHandler(e) {
+async function delegateLinkHandler(e) {
     // ignore events the browser takes care of already:
     if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.button !== 0) {
         return;
@@ -131,7 +149,8 @@ function delegateLinkHandler(e) {
                 return;
             }
             // if link is handled by the router, prevent browser defaults
-            if (routeFromLink(t)) {
+            const temp: boolean = await routeFromLink(t);
+            if (temp) {
                 return prevent(e);
             }
         }
@@ -188,6 +207,9 @@ class Router extends Component<any, any> {
         };
 
         initEventListeners();
+        if (props.beforeEach) {
+            beforeEach = props.beforeEach;
+        }
     }
     public shouldComponentUpdate(props) {
         if (props.static !== true) {
@@ -222,12 +244,20 @@ class Router extends Component<any, any> {
     public componentWillMount() {
         ROUTERS.push(this);
         this.updating = true;
+        if (this.props.beforeEach) {
+            this.props.beforeEach(this.state.url, this.state.url, (newUrl: string) => {
+                if (newUrl) {
+                    _route(newUrl, false);
+                }
+            });
+        }
     }
 
     public componentDidMount() {
         if (customHistory) {
             this.unlisten = customHistory.listen((location) => {
-                this.routeTo(`${location.pathname || ""}${location.search || ""}`);
+                const url: string = `${location.pathname || ""}${location.search || ""}`;
+                this.routeTo(url);
             });
         }
         this.updating = false;
