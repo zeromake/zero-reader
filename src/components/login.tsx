@@ -41,7 +41,9 @@ export default class Login extends Component<ILoginProps, ILoginState> {
         this.login = this.login.bind(this);
         this.$alert = null;
         if (props && props.matches && props.matches[Matche.ERROR]) {
-            this.togglerAlert(props.matches[Matche.ERROR]);
+            const message = props.matches[Matche.ERROR];
+            console.warn("route to login page is error: ", message);
+            this.togglerAlert(message);
         }
     }
     private refreshCode() {
@@ -50,8 +52,16 @@ export default class Login extends Component<ILoginProps, ILoginState> {
         });
     }
     private async login() {
-        const res = await $ajax.post("/api/login", this.state.form);
-        const jsonObj = res && await res.json();
+        let jsonObj: any = null;
+        let res: any = null;
+        try {
+            res = await $ajax.post("/api/login", this.state.form);
+            jsonObj = res && await res.json();
+        } catch (e) {
+            console.error(e);
+            this.togglerAlert((res && res.statusText) + ": " + e.message);
+            return;
+        }
         if (jsonObj && jsonObj.status === 200) {
             for (const name in jsonObj.data) {
                 localStorage.setItem(name, jsonObj.data[name]);
@@ -83,25 +93,12 @@ export default class Login extends Component<ILoginProps, ILoginState> {
                     <div className={styl.title}>
                         <h1>登录</h1>
                     </div>
-                    {/* {
-                        this.props && this.props.matches && this.props.matches[Matche.ERROR] ? <div>
-                            <span style={{color: "red"}}>{this.props.matches[Matche.ERROR]}</span>
-                        </div> : null
-                    } */}
                     <div className={styl.form_item}>
                         <input className={styl.input} type="text" name="account" placeholder="用户" onChange={this.bindUpdateForm("account")} required={true}/>
                     </div>
                     <div className={styl.form_item}>
                         <input className={styl.input} type="password" name="password" placeholder="密码" onChange={this.bindUpdateForm("password")} required={true}/>
                     </div>
-                    {/* <div className={styl.form_item}>
-                        <div className={styl.verify_input}>
-                            <input className={styl.input} type="text" name="verify" placeholder="验证码" onChange={this.bindUpdateForm("verify")} required={true}/>
-                        </div>
-                        <div className={styl.verify_img}>
-                            <img src={this.state.verifyImgUrl} alt="点击刷新" title="点击刷新" onClick={this.refreshCode}/>
-                        </div>
-                    </div> */}
                     <div className={styl.form_item}>
                         <div className={styl.button_item}>
                             <button className={styl.button} type="submit" onClick={this.login}>登录</button>
