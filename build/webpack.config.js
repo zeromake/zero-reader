@@ -62,6 +62,7 @@ const zreactAlias = {
     'preact': 'zreact',
     'module-react': resolve('../src/import/module-zreact.ts'),
     'react-import': resolve('../src/import/zreact-import.ts'),
+    'preact-animate': 'preact-animate/dist/zreact-animate-esm.js',
 }
 const reactAlias = {
     'zreact/devtools': resolve('../src/import/devtools.ts'),
@@ -69,7 +70,7 @@ const reactAlias = {
     'preact': resolve('../src/import/module-react.ts'),
     'module-react': resolve('../src/import/module-react.ts'),
     'react-import': resolve('../src/import/react-import.ts'),
-    'preact-animate': 'preact-animate/dist/react-animate',
+    'preact-animate': 'preact-animate/dist/react-animate-esm.js',
 }
 const preactAlias = {
     'zreact': 'preact',

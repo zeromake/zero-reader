@@ -188,6 +188,7 @@ class Router extends Component<any, any> {
     private _didRoute: boolean;
     private unlisten: any;
     private previousUrl: string;
+    private initRoute: boolean;
 
     public static subscribers = subscribers;
     public static getCurrentUrl = getCurrentUrl;
@@ -201,7 +202,7 @@ class Router extends Component<any, any> {
         if (props.history) {
             customHistory = props.history;
         }
-
+        this.initRoute = true;
         this.state = {
             url: props.url || getCurrentUrl(),
         };
@@ -210,6 +211,7 @@ class Router extends Component<any, any> {
         if (props.beforeEach) {
             beforeEach = props.beforeEach;
         }
+        this._componentWillMount();
     }
     public shouldComponentUpdate(props) {
         if (props.static !== true) {
@@ -230,18 +232,23 @@ class Router extends Component<any, any> {
     /** Re-render children with a new URL to match against. */
     public routeTo(url) {
         this._didRoute = false;
-        this.setState({ url });
+        if (this.initRoute) {
+            this.state.url = url;
+        } else {
+            this.setState({ url });
+        }
 
         // if we"re in the middle of an update, don"t synchronously re-route.
         if (this.updating) {
             return this.canRoute(url);
         }
-
-        this.forceUpdate();
+        if (!this.initRoute) {
+            this.forceUpdate();
+        }
         return this._didRoute;
     }
 
-    public componentWillMount() {
+    public _componentWillMount() {
         ROUTERS.push(this);
         this.updating = true;
         if (this.props.beforeEach) {
