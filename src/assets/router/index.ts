@@ -180,7 +180,10 @@ const Link = (props) => (
     h("a", assign({ onClick: handleLinkClick }, props))
 );
 
-const Route = (props: any) => h(props.component, props);
+function Route(props: any) {
+    const { component, ...filterProps } = props;
+    return h(props.component, filterProps);
+}
 
 class Router extends Component<any, any> {
     public updating: boolean;
@@ -261,6 +264,7 @@ class Router extends Component<any, any> {
     }
 
     public componentDidMount() {
+        this.initRoute = false;
         if (customHistory) {
             this.unlisten = customHistory.listen((location) => {
                 const url: string = `${location.pathname || ""}${location.search || ""}`;

@@ -2,17 +2,17 @@ import "es6-promise/auto";
 import "unfetch/polyfill";
 import { h, render } from "react-import";
 import "intersection-observer";
-import MainRouter from "./router";
 import "animate.css";
 import "./css/main.styl";
 import "./css/base.css";
 import "./assets/icons/index";
 import { initDevTools } from "zreact/devtools";
+import MainRouter from "./router";
 // import "sakura.css";
 
 render(<MainRouter/>, document.getElementById("app"));
 
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== "production" && initDevTools) {
     initDevTools();
 }
 // import "font-awesome/css/font-awesome.min.css";

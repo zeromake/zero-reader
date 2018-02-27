@@ -15,7 +15,7 @@
     <% if (!htmlWebpackPlugin.options.isProd){%>
     <script>
         ;(function () {
-            var src = 'https://cdn.bootcss.com/eruda/1.3.2/eruda.min.js';
+            var src = 'https://cdn.bootcss.com/eruda/1.4.3/eruda.min.js';
             if (!/console=true/.test(window.location) && localStorage.getItem('active-eruda') != 'true'){
                 return;
             }
@@ -29,7 +29,6 @@
                 }
                 document.head.appendChild(script);
             }
-            
         })();
     </script>
     <%}%>

@@ -12,6 +12,23 @@ const isProd = process.env.NODE_ENV === 'production';
 const isCordova = process.env.platform === "cordova";
 const resolve = file => path.resolve(__dirname, file);
 const assetsPath = "assets";
+const isWebpackNext = false
+
+function buildCss(use) {
+    if (!isWebpackNext) {
+        return ExtractTextPlugin.extract({
+            fallback: "style-loader",
+            use,
+            publicPath: '../'
+        })
+    }
+    return [
+        {
+            loader: "style-loader"
+        },
+        ...use
+    ]
+}
 
 const fullZero = function(date, funName) {
     let res = date[funName]()
@@ -80,36 +97,41 @@ const preactAlias = {
 }
 
 const basePlugin = [
-    new ModuleConcatenationPlugin(),
-    new webpack.DefinePlugin({
+]
+if (!isWebpackNext) {
+    basePlugin.push(new ModuleConcatenationPlugin())
+    basePlugin.push(new webpack.DefinePlugin({
         'process.env': {
             NODE_ENV: isProd ? '"production"' : '"development"',
             platform: JSON.stringify(process.env.platform)
         }
-    })
-]
-if (isProd) {
-    basePlugin.push(new webpack.optimize.UglifyJsPlugin({
-        // 最紧凑的输出
-        beautify: false,
-        // 删除所有的注释
-        comments: false,
-        mangle: {
-            safari10: true
-        },
-        compress: {
-            // 在UglifyJs删除没有用到的代码时不输出警告
-            warnings: false,
-            // 删除所有的 `console` 语句，可以兼容ie浏览器
-            drop_console: true,
-            // 内嵌定义了但是只用到一次的变量
-            collapse_vars: true,
-            // 提取出出现多次但是没有定义成变量去引用的静态值
-            reduce_vars: true,
-            // warnings: false,
-        }
-    }));
+    }))
+    basePlugin.push(new ExtractTextPlugin("css/common.[chunkhash].css"))
+    basePlugin.push(new HardSourceWebpackPlugin())
+    if (isProd) {
+        basePlugin.push(new webpack.optimize.UglifyJsPlugin({
+            // 最紧凑的输出
+            beautify: false,
+            // 删除所有的注释
+            comments: false,
+            mangle: {
+                safari10: true
+            },
+            compress: {
+                // 在UglifyJs删除没有用到的代码时不输出警告
+                warnings: false,
+                // 删除所有的 `console` 语句，可以兼容ie浏览器
+                drop_console: true,
+                // 内嵌定义了但是只用到一次的变量
+                collapse_vars: true,
+                // 提取出出现多次但是没有定义成变量去引用的静态值
+                reduce_vars: true,
+                // warnings: false,
+            }
+        }));
+    }
 }
+
 
 const config = {
     devtool: isProd ? false : "#source-map",
@@ -141,6 +163,9 @@ const config = {
             isCordova,
             filename: ((assetsPath === "" || !isProd) ? "" : "../") +'index.html',
             template: 'src/index.ejs',
+            minify: isProd ? {
+                collapseWhitespace: true
+            }: false,
             inject: true
         }),
         // new AutoDllPlugin({
@@ -160,8 +185,6 @@ const config = {
         //         ]
         //     }
         // }),
-        new ExtractTextPlugin("css/common.[chunkhash].css"),
-        new HardSourceWebpackPlugin(),
     ].concat(basePlugin),
     devServer: {
         contentBase: outPath,
@@ -193,52 +216,44 @@ const config = {
             },
             {
                 test: /.styl$/,
-                use: ExtractTextPlugin.extract({
-                    fallback: "style-loader",
-                    use: [
-                        {
-                            loader: "css-loader",
-                            options: {
-                                sourceMap: !isProd,
-                                modules: true,
-                            }
-                        },
-                        {
-                            loader: 'postcss-loader',
-                            options: {
-                                sourceMap: !isProd
-                            }
-                        },
-                        {
-                            loader: 'stylus-loader',
-                            options: {
-                                sourceMap: !isProd
-                            }
+                use: buildCss([
+                    {
+                        loader: "css-loader",
+                        options: {
+                            sourceMap: !isProd,
+                            modules: true,
                         }
-                    ],
-                    publicPath: '../'
-                })
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            sourceMap: !isProd
+                        }
+                    },
+                    {
+                        loader: 'stylus-loader',
+                        options: {
+                            sourceMap: !isProd
+                        }
+                    }
+                ])
             },
             {
                 test: /\.css$/,
-                use: ExtractTextPlugin.extract({
-                    fallback: "style-loader",
-                    use: [
-                        {
-                            loader: "css-loader",
-                            options: {
-                                sourceMap: !isProd,
-                            }
-                        },
-                        {
-                            loader: 'postcss-loader',
-                            options: {
-                                sourceMap: !isProd
-                            }
+                use: buildCss([
+                    {
+                        loader: "css-loader",
+                        options: {
+                            sourceMap: !isProd,
                         }
-                    ],
-                    publicPath: '../'
-                })
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            sourceMap: !isProd
+                        }
+                    }
+                ])
             },
             {
                 test: /\.(png|jpe?g|gif)(\?.*)?$/,

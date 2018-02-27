@@ -337,9 +337,8 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         return <Animate
                 component="div"
                 componentProps={{
-                    onClick: this.pageClick,
                     // ref: ((vdom: any) => this.page = findDOMNode(vdom)),
-                    className: `${styl.content} ${styl[this.state.bg]} ${this.state.isScroll ? styl.is_scroll : ""}`,
+                    className: `${styl.body}`,
                 }}
                 transitionEnter={true}
                 transitionLeave={true}
@@ -358,7 +357,17 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                         },
                         this.renderToc(),
                     ),
-                    h(filterPropsComponent, { "key": "content", "data-show": true}, this.renderContent()),
+                    h(
+                        filterPropsComponent,
+                        { "key": "content", "data-show": true},
+                        <div
+                            ref={((vdom: any) => this.page = findDOMNode(vdom))}
+                            onClick={this.pageClick}
+                            className={`${styl.content} ${styl[this.state.bg]} ${this.state.isScroll ? styl.is_scroll : ""}`}
+                        >
+                            {this.renderContent()}
+                        </div>,
+                    ),
                     h(filterPropsComponent, {
                         "key": "footer",
                         "transitionName": { enter: "fadeInUp", leave: "fadeOutDown" },

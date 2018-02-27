@@ -3,7 +3,6 @@ import styl from "@/css/login.styl";
 import { $ajax } from "../http/index";
 import { bindUpdateForm } from "../utils";
 import AlertZero from "./alert-zero";
-
 interface ILoginProps {
     matches: {[name: string]: string};
 }
@@ -24,7 +23,7 @@ const verifyImgUrl = "/api/verify_code";
 
 export default class Login extends Component<ILoginProps, ILoginState> {
     private bindUpdateForm: (attrName: string) => (e: any) => void;
-    private $alert: null | AlertZero;
+    private $alert: null | any;
     constructor(props, content) {
         super(props, content);
         this.state = {
@@ -88,7 +87,7 @@ export default class Login extends Component<ILoginProps, ILoginState> {
     public render() {
         return (
             <div className={styl.content + " bg animated"}>
-                <AlertZero ref={(c: AlertZero) => this.$alert = c} message={this.state.message} level={1}/>
+                <AlertZero ref={(c: any) => this.$alert = c} message={this.state.message} level={1}/>
                 <div className={styl.form}>
                     <div className={styl.title}>
                         <h1>登录</h1>

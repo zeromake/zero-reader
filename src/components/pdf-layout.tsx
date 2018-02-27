@@ -9,6 +9,7 @@ import { IPdfMeta, IAbcToc } from "@/types/index";
 import PdfContent from "./pdf-content";
 import hotkeys from "hotkeys-js";
 import TopBar from "./top-bar";
+import BScroll from "better-scroll";
 
 interface IZoom {
     select: string;
@@ -97,6 +98,11 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                         }
                         this.resize();
                         this.mountCss.push("zoom_style");
+                        if (this.page && !this.bscroll) {
+                            this.bscroll = new BScroll(this.page, {
+                                mouseWheel: true,
+                            });
+                        }
                     });
                 });
             }

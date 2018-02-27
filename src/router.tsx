@@ -1,7 +1,7 @@
 import BookLayout from "@/components/book-layout";
 import Library from "@/components/library";
-import Login from "@/components/login"; 
-import { h, Router, Route, Link } from "react-import";
+import Login from "@/components/login";
+import { h, Router, Route, Link, AsyncRoute } from "react-import";
 import Animate from "preact-animate";
 import { togglerFullScreen } from "./utils";
 // import AsyncRoute from "./assets/router/async-route";
@@ -13,9 +13,10 @@ if (process.env.platform === "cordova") {
     tmpHistory = createHashHistory();
 }
 
-// const Library = () => import("./components/library").then((modul) => modul.default);
+// const Library = () => import("@/components/library").then((modul) => modul.default);
+// const BookLayout = () => import("@/components/book-layout").then((modul) => modul.default);
+// const Login = () => import("@/components/login").then((modul) => modul.default);
 
-// const BookLayout = () => import("./components/book-layout").then((modul) => modul.default);
 let onAfterEnter = null;
 if (process.env.platform === "cordova") {
     onAfterEnter = function _(component) {
@@ -60,6 +61,8 @@ const MainRouter = () => (
             >
             <Route
                 key="1"
+                // component={AsyncRoute}
+                // getComponent={Login}
                 component={Login}
                 path="/"
                 // transitionName={{ enter: "fadeInLeft", leave: "fadeOutLeft"  }}
@@ -67,6 +70,8 @@ const MainRouter = () => (
             </Route>
             <Route
                 key="2"
+                // component={AsyncRoute}
+                // getComponent={Library}
                 component={Library}
                 path="/library"
                 // transitionName={{ enter: "fadeInRight", leave: "fadeOutRight" }}
@@ -74,6 +79,8 @@ const MainRouter = () => (
             </Route>
             <Route
                 key="3"
+                // component={AsyncRoute}
+                // getComponent={BookLayout}
                 component={BookLayout}
                 path="/library/:sha/"
                 // transitionName={{ enter: "fadeInRight", leave: "fadeOutRight" }}

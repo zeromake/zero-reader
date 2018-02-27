@@ -2,8 +2,21 @@ import { h, findDOMNode, Component } from "react-import";
 import styl from "@/css/alert-zero.styl";
 import Animate from "preact-animate";
 import SvgIcon from "./svg-icon";
-import { shallowDiffers } from "../utils";
+// import { shallowDiffers } from "../utils";
 
+function shallowDiffers(a: any, b: any): boolean {
+    for (const i in a) {
+        if (!(i in b)) {
+            return true;
+        }
+    }
+    for (const i in b) {
+        if (a[i] !== b[i]) {
+            return true;
+        }
+    }
+    return false;
+}
 enum Level {
     INFO = 0,
     ERROR = 1,
