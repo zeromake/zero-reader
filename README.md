@@ -82,3 +82,9 @@ web reader
 3. webpack-bundle-analyzer: module rely
 4. stylus: css pre processor
 5. typescript: script pre processor
+
+## webpack4.0 support
+- [x] extract-text-webpack-plugin v4.0.0-beta.0
+- [x] html-webpack-plugin v3.0.3
+- [x] hard-source-webpack-plugin v0.6.0
+- [ ] svg-sprite-loader v3.6.1

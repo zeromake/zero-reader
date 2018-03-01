@@ -93,16 +93,16 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                         page,
                         zoom,
                     }, () => {
+                        this.resize();
+                        this.mountCss.push("zoom_style");
                         if (callback) {
                             callback();
                         }
-                        this.resize();
-                        this.mountCss.push("zoom_style");
-                        if (this.page && !this.bscroll) {
-                            this.bscroll = new BScroll(this.page, {
-                                mouseWheel: true,
-                            });
-                        }
+                        // if (this.page && !this.bscroll) {
+                        //     this.bscroll = new BScroll(this.page, {
+                        //         mouseWheel: true,
+                        //     });
+                        // }
                     });
                 });
             }
@@ -147,7 +147,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                 const pageData = JSON.parse(dataHref);
                 this.setPage(pageData.index);
             } else {
-                console.log("out link", href);
+                console.warn("out link", href);
             }
         } else {
             event.preventDefault();

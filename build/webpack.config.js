@@ -2,7 +2,6 @@ const webpack = require('webpack')
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require("extract-text-webpack-plugin")
-const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin');
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 // const AutoDllPlugin = require("autodll-webpack-plugin");
 
@@ -12,10 +11,10 @@ const isProd = process.env.NODE_ENV === 'production';
 const isCordova = process.env.platform === "cordova";
 const resolve = file => path.resolve(__dirname, file);
 const assetsPath = "assets";
-const isWebpackNext = false
+const isWebpackNext = true
 
 function buildCss(use) {
-    if (!isWebpackNext) {
+    if (isWebpackNext) {
         return ExtractTextPlugin.extract({
             fallback: "style-loader",
             use,
@@ -98,7 +97,10 @@ const preactAlias = {
 
 const basePlugin = [
 ]
+basePlugin.push(new ExtractTextPlugin("css/common.[chunkhash].css"))
+basePlugin.push(new HardSourceWebpackPlugin())
 if (!isWebpackNext) {
+    const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin');
     basePlugin.push(new ModuleConcatenationPlugin())
     basePlugin.push(new webpack.DefinePlugin({
         'process.env': {
@@ -106,8 +108,6 @@ if (!isWebpackNext) {
             platform: JSON.stringify(process.env.platform)
         }
     }))
-    basePlugin.push(new ExtractTextPlugin("css/common.[chunkhash].css"))
-    basePlugin.push(new HardSourceWebpackPlugin())
     if (isProd) {
         basePlugin.push(new webpack.optimize.UglifyJsPlugin({
             // 最紧凑的输出
