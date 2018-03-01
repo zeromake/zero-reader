@@ -169,11 +169,34 @@ export function updateFormFunction(component: Component<any, any>, attName: stri
     return updateFun;
 }
 
+function getDeepValue(obj: {[name: string]: any}, attName: string): any {
+    const attrsArr = attName.split(".");
+    let tempObj = obj;
+    let value: any;
+    for (let i = 0, len = attrsArr.length; i < len; i ++) {
+        const attr = attrsArr[i];
+        if (tempObj && attr in tempObj) {
+            if (i === len - 1) {
+                value = tempObj[attr];
+            } else {
+                tempObj = tempObj[attr];
+            }
+        } else {
+            break;
+        }
+    }
+    return value;
+}
+
 export function bindUpdateForm(component: Component<any, any>, formName?: string) {
     return (attName: string) =>  {
+        let attr = attName;
         if (formName && formName !== "") {
-            return updateFormFunction(component, formName + "." + attName);
+            attr = formName + "." + attName;
         }
-        return updateFormFunction(component, attName);
+        return {
+            value: getDeepValue(component.state, attr),
+            onChange: updateFormFunction(component, attr),
+        };
     };
 }

@@ -22,7 +22,7 @@ enum Matche {
 const verifyImgUrl = "/api/verify_code";
 
 export default class Login extends Component<ILoginProps, ILoginState> {
-    private bindUpdateForm: (attrName: string) => (e: any) => void;
+    private bindUpdateForm: (attrName: string) => {value: any, onChange: (e: any) => void};
     private $alert: null | any;
     constructor(props, content) {
         super(props, content);
@@ -87,16 +87,16 @@ export default class Login extends Component<ILoginProps, ILoginState> {
     public render() {
         return (
             <div className={styl.content + " bg animated"}>
-                <AlertZero ref={(c: any) => this.$alert = c} message={this.state.message} level={1}/>
+                { h(AlertZero, {ref: (c: any) => this.$alert = c, message: this.state.message, level: 1}) }
                 <div className={styl.form}>
                     <div className={styl.title}>
                         <h1>登录</h1>
                     </div>
                     <div className={styl.form_item}>
-                        <input className={styl.input} type="text" name="account" placeholder="用户" onChange={this.bindUpdateForm("account")} required={true}/>
+                        <input className={styl.input} type="text" placeholder="用户" pattern="\w+" title="必须为英文或数字" {...this.bindUpdateForm("account")} required={true}/>
                     </div>
                     <div className={styl.form_item}>
-                        <input className={styl.input} type="password" name="password" placeholder="密码" onChange={this.bindUpdateForm("password")} required={true}/>
+                        <input className={styl.input} type="password" placeholder="密码" pattern="\w+" title="必须为英文或数字" {...this.bindUpdateForm("password")} required={true}/>
                     </div>
                     <div className={styl.form_item}>
                         <div className={styl.button_item}>
