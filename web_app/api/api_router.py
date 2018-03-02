@@ -55,6 +55,13 @@ async def login(request):
             res = {"status": 400, "message": "密码错误!"}
     return response.json(res, status=res['status'])
 
+@Api.route("/sign_up", methods=['POST'])
+async def sign_up(request):
+    """
+    注册
+    """
+    
+
 @Api.route("/refresh_token", methods=['POST', 'GET'])
 async def refresh_token(request):
     """

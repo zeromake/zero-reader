@@ -96,7 +96,7 @@
 }
 
 .animated {
-  animation-duration: 375ms;
+  animation-duration: 375ms !important;
 }
 /* #main, body, html{
   height: 100%;

@@ -132,6 +132,15 @@ if (!isWebpackNext) {
     }
 }
 
+if (isProd) {
+    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+    basePlugin.push(
+        new BundleAnalyzerPlugin({
+            analyzerPort: 9999
+        })
+    )
+}
+        
 
 const config = {
     devtool: isProd ? false : "#source-map",
@@ -196,6 +205,32 @@ const config = {
         proxy: {
             "/api": "http://127.0.0.1:8000"
         }
+    },
+    optimization: {
+        runtimeChunk: {
+            name: "manifest"
+        },
+        splitChunks: {
+            // chunks: "async",
+            // minSize: 10000,
+            // minChunks: 1,
+            // maxAsyncRequests: 5,
+            // maxInitialRequests: 3,
+            // name: true,
+            cacheGroups: {
+                // default: {
+                //     minChunks: 2,
+                //     priority: -20,
+                //     reuseExistingChunk: true,
+                // },
+                vendors: {
+                    test: /[\\/]node_modules[\\/].+\.js$/,
+                    chunks: "all",
+                    name: "vendor"
+                    // priority: -10
+                }
+            }
+        },
     },
     module: {
         rules: [
@@ -299,11 +334,5 @@ const config = {
 //             }
 //         })
 //     )
-    // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-    // config.plugins.push(
-    //     new BundleAnalyzerPlugin({
-    //         analyzerPort: 9999
-    //     })
-    // )
 // }
 module.exports = config;

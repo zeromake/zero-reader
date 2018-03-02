@@ -1,0 +1,37 @@
+{
+    "account": {
+        "type": "text",
+        "pattern": "\\w{4, 32}",
+        "title": "必须为英文或者数字且在4-32长度之间!",
+        "required": true,
+        "placeholder": "用户"
+    },
+    "password": {
+        "type": "password",
+        "pattern": "\\w{8, 32}",
+        "title": "必须为英文或者数字且在8-32长度之间!",
+        "required": true,
+        "placeholder": "密码"
+    },
+    "re_password": {
+        "type": "password",
+        "equal": "password",
+        "title": "必须与上面的密码相同!",
+        "required": true,
+        "placeholder": "确认密码"
+    },
+    "role_name": {
+        "type": "text",
+        "pattern": ".{3, 16}",
+        "title": "任意字符且在3-16长度之间!",
+        "required": true,
+        "placeholder": "昵称"
+    },
+    "email": {
+        "type": "text",
+        "pattern": "^[A-Za-z0-9\\u4e00-\\u9fa5]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$",
+        "required": true,
+        "title": "请输入正确的邮箱格式",
+        "placeholder": "邮箱"
+    }
+}

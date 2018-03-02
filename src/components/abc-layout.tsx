@@ -175,15 +175,15 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     }
     public componentWillUnmount() {
         window.removeEventListener("resize", this.resize);
-        const keys = [];
+        // const keys = [];
         for (const key in this.hotkey) {
             if (key) {
-                keys.push(key);
+                hotkeys.unbind(key);
             }
         }
-        if (keys.length > 0) {
-            hotkeys.unbind(keys.join(", "));
-        }
+        // if (keys.length > 0) {
+        //     hotkeys.unbind(keys.join(", "));
+        // }
         if (this.mountCss.length > 0) {
             let cssId = this.mountCss.pop();
             while (cssId) {

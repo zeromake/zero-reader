@@ -1,0 +1,16 @@
+{
+    "account": {
+        "type": "text",
+        "pattern": "\\w{4, 32}",
+        "title": "必须为英文或者数字且在4-32长度之间!",
+        "required": true,
+        "placeholder": "用户"
+    },
+    "password": {
+        "type": "password",
+        "pattern": "\\w{8, 32}",
+        "title": "必须为英文或者数字且在8-32长度之间!",
+        "required": true,
+        "placeholder": "密码"
+    }
+}

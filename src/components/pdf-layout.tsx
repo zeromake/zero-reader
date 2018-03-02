@@ -42,6 +42,8 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         this.load = false;
         this.tocClick = this.tocClick.bind(this);
         this.resize = throttle(this.resize.bind(this), 100);
+        this.scrollDown = this.scrollDown.bind(this);
+        this.scrollUp = this.scrollUp.bind(this);
     }
 
     public resize() {
@@ -64,15 +66,18 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         }
     }
 
-    public componentDidMount() {
-        this.hotkey["up, j"] = () => {
+    public scrollUp() {
+        if (this.page) {
             const height = (this.isBlock as any).height;
             const scrollTop = this.page.scrollTop;
             if (scrollTop > 0) {
                 this.page.scrollTop = scrollTop > height ? scrollTop - height : 0;
             }
-        };
-        this.hotkey["down, k"] = () => {
+        }
+    }
+
+    public scrollDown() {
+        if (this.page) {
             const scrollTop = this.page.scrollTop;
             const height = (this.isBlock as any).height;
             const pageHeight = this.height * this.state.zoom;
@@ -84,7 +89,12 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                     this.page.scrollTop = scrollTop + height;
                 }
             }
-        };
+        }
+    }
+
+    public componentDidMount() {
+        this.hotkey["up, j"] = this.scrollUp;
+        this.hotkey["down, k"] = this.scrollDown;
         this.init().then(({ pageHtml, page, callback }) => {
             if (this.props.meta.zoom) {
                 this.getZoom(this.props.meta.zoom).then((zoom: number) => {
@@ -164,20 +174,20 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         return h(BottomBar, {click: this.bottomBarClick});
     }
     protected  renderContent() {
+        // <div className={styl.pageHtml}>
+        // </div>
         const state = this.state;
-        return <div className={styl.pageHtml}>
-                <div
-                    className={styl.view}
-                    style={{ width: this.width * state.zoom || 0 }}
-                    >
-                    {h(
-                        PdfContent,
-                        {
-                            pageHtml: state.pageHtml,
-                            library: this.library,
-                        },
-                    )}
-                </div>
+        return <div
+                className={styl.view + " " + styl.pageHtml}
+                style={{ width: this.width * state.zoom || 0 }}
+                >
+                {h(
+                    PdfContent,
+                    {
+                        pageHtml: state.pageHtml,
+                        library: this.library,
+                    },
+                )}
             </div>;
     }
     private getZoom(zoom: string) {
