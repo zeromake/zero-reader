@@ -4,11 +4,21 @@ by zeromake 2018.01.12
 """
 import xmltodict
 import yaml
-from web_app.utils import make_columns, handle_param, handle_param_primary, handle_keys, generate_openapi_by_table
+from web_app.utils import (
+    make_columns,
+    handle_param,
+    handle_param_primary,
+    handle_keys,
+    generate_openapi_by_table,
+    generate_openapi_by_column
+)
 from sanic.views import HTTPMethodView
 from sanic import response, Blueprint
 from web_app import app
-import ujson as json
+try:
+    import ujson as json
+except ImportError:
+    import json
 from sqlalchemy import func, sql as sa_sql, desc, and_
 
 __all__ = [
@@ -84,7 +94,7 @@ class ApiView(HTTPMethodView):
         else:
             res = await handler(request, *args, **kwargs)
         # 自动根据Content-Type请求头格式化响应
-        return  response.text(
+        return response.text(
             HANDLE_RESPONSE[raw_type](res),
             headers={'Content-Type': raw_type},
             status=res['status']
@@ -121,23 +131,70 @@ class ApiView(HTTPMethodView):
         table_name = str(self.__model__.name)
         url = "/" + table_name
         if OPEN_API:
-            OPEN_API.add_schema(table_name, generate_openapi_by_table(self.__model__))
+            OPEN_API.add_schema(table_name, generate_openapi_by_table(self.__model__, None, {"id"}))
             base_url = app_.url_prefix + url
-            doc = self.__model__.__doc__ + self.get.__doc__
-            OPEN_API.add_tag(table_name, self.__model__.__doc__)
+            table_doc = self.__model__.__doc__
+            doc = table_doc + self.get.__doc__
+            OPEN_API.add_tag(table_name, table_doc)
+            primary_key = {
+                "in": "path",
+                "name": "primary_key",
+                "description": "主键",
+                "required": True,
+                "schema": {
+                    "type": generate_openapi_by_column(self._key)["type"]
+                }
+            }
+            default_responses = {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/baseResponse"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "count": {
+                                                "type": "integer",
+                                                "description": "执行sql条数"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                    }
+                },
+                "400": {
+                    "description": "Parameters Error!",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/baseResponse"
+                            }
+                        },
+                    }
+                },
+                "500": {
+                    "description": "Error!",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/baseResponse"
+                            }
+                        },
+                    }
+                }
+            }
             OPEN_API.add_path(
-                base_url+"/{primary_key}", 
+                base_url+"/{primary_key}",
                 {
                     "get": {
-                        "parameters": [{
-                            "in": "path",
-                            "name": "primary_key",
-                            "description": "主键",
-                            "required": True,
-                            "schema": {
-                                "type": "integer"
-                            }
-                        }],
+                        "parameters": [primary_key],
                         "summary": doc + "单条",
                         "tags": [table_name],
                         "responses": {
@@ -168,6 +225,12 @@ class ApiView(HTTPMethodView):
                                 }
                             }
                         }
+                    },
+                    "delete": {
+                        "parameters": [primary_key],
+                        "tags": [table_name],
+                        "summary": table_doc + self.delete.__doc__,
+                        "responses": default_responses
                     }
                 }
             )
@@ -235,6 +298,33 @@ class ApiView(HTTPMethodView):
                                 }
                             }
                         }
+                    },
+                    "post": {
+                        "requestBody": {
+                            "description": table_doc,
+                            "required": True,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "oneOf": [
+                                            {
+                                                "type": "object",
+                                                "$ref": '#/components/schemas/%s' % table_name
+                                            },
+                                            {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": '#/components/schemas/%s' % table_name
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [table_name],
+                        "summary": table_doc + self.post.__doc__,
+                        "responses": default_responses
                     }
                 }
             )
@@ -296,7 +386,7 @@ class ApiView(HTTPMethodView):
 
     async def post(self, request, *args, **kwargs):
         """
-        添加model
+        添加
         """
         form_data = request.json
         sql = self.insert(form_data)
@@ -343,7 +433,7 @@ class ApiView(HTTPMethodView):
 
     async def put(self, request, *args, **kwargs):
         """
-        全量更新(支持部分更新)
+        全量更新
         """
         form_data = request.json
         if 'primary_key' in kwargs:

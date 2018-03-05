@@ -12,7 +12,6 @@ lxml = "*"
 argparse = "*"
 "pypdf2" = "*"
 sanic = "*"
-"aiosqlite3" = "*"
 sanic-graphql = "*"
 sqlalchemy = "*"
 ipfsapi = "*"
@@ -23,6 +22,8 @@ xmltodict = "*"
 pyyaml = "*"
 psutil = "*"
 pyjwt = "*"
+"aiosqlite3" = {file = "https://pypi.python.org/packages/bb/fe/5b64890c0d1cde3174d15392a203bf940339d7c5cc47079886e6e615750f/aiosqlite3-0.1.2-py3-none-any.whl"}
+"jinja2" = "*"
 
 
 [dev-packages]

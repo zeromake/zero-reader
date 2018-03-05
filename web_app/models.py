@@ -321,10 +321,10 @@ BookShelf = sa.Table(
         doc="分类"
     ),
     sa.Column(
-        'create_time',
+        'update_time',
         sa.BigInteger,
         nullable=False,
-        doc="创建时间"
+        doc="更新时间"
     ),
     sqlite_autoincrement=True
 )

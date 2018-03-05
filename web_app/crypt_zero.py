@@ -1,5 +1,8 @@
 import hashlib
-from crypt import crypt as _crypt
+try:
+    from crypt import crypt as _crypt
+except ImportError:
+    _crypt = None
 import random
 
 __all__ = [
@@ -76,8 +79,11 @@ def crypt(word, salt):
     """
     hash_method = get_hash(salt)
     if hash_method is None:
-        hash_str = _crypt(word, salt)
-        hash_str = hash_str[hash_str.rindex("$")+1:]
+        if _crypt is None:
+            raise TypeError("not crypt module!")
+        else:
+            hash_str = _crypt(word, salt)
+            hash_str = hash_str[hash_str.rindex("$")+1:]
     else:
         hash_obj = hash_method()
         hash_obj.update((salt + word + salt).encode())
@@ -85,6 +91,26 @@ def crypt(word, salt):
     if salt[-1] == "$":
         return salt + hash_str
     return "%s$%s" % (salt, hash_str)
+
+def generate_salt_helper(count, letters, charset):
+    """
+    生成器
+    """
+    value = rng.randrange(0, letters**count)
+    i = 0
+    while i < count:
+        yield charset[value % letters]
+        value //= letters
+        i += 1
+
+def generate_salt(salt_size):
+    """
+    生成盐
+    """
+    count = salt_size
+    charset = HASH64_CHARS
+    letters = len(charset)
+    return join_byte_elems(generate_salt_helper(count, letters, charset)).decode()
 
 class AbcCrypt:
     """
@@ -97,20 +123,7 @@ class AbcCrypt:
         """
         生成salt
         """
-        count = cls.default_salt_size
-        charset = HASH64_CHARS
-        letters = len(charset)
-        def helper():
-            """
-            生成器
-            """
-            value = rng.randrange(0, letters**count)
-            i = 0
-            while i < count:
-                yield charset[value % letters]
-                value //= letters
-                i += 1
-        return join_byte_elems(helper()).decode()
+        return generate_salt(cls.default_salt_size)
 
     @classmethod
     def hash(cls, word):
@@ -127,6 +140,7 @@ class AbcCrypt:
         """
         salt = hash_string[:hash_string.rindex("$")]
         return hash_string == crypt(word, salt)
+
 class sha256_crypt(AbcCrypt):
     """
     sha256

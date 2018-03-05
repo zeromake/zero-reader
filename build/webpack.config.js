@@ -132,14 +132,14 @@ if (!isWebpackNext) {
     }
 }
 
-if (isProd) {
-    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-    basePlugin.push(
-        new BundleAnalyzerPlugin({
-            analyzerPort: 9999
-        })
-    )
-}
+// if (isProd) {
+//     const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+//     basePlugin.push(
+//         new BundleAnalyzerPlugin({
+//             analyzerPort: 9999
+//         })
+//     )
+// }
         
 
 const config = {
@@ -166,6 +166,10 @@ const config = {
     },
     plugins: [
         new HtmlWebpackPlugin({
+            config: isCordova && isProd ? false : isProd ? "{{ config|safe }}" : JSON.stringify({
+                "sign_up": true,
+                "sign_up_code": true
+            }),
             version: pkg.version,
             buildTime: strftime(new Date()),
             isProd,

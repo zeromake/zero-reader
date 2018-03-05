@@ -3,12 +3,18 @@ import sys
 import sqlalchemy as sa
 from sqlalchemy import or_, and_
 import jwt
+from sanic import response
 from web_app.config import CONFIG
 from . import crypt_zero as passlib_hash
 from datetime import datetime, timedelta, timezone
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 custom_app_context = getattr(passlib_hash, CONFIG.get('HASH', "md5_crypt"))
 
+jinja2_env = Environment(
+    loader=PackageLoader('web_app', '../dist'),
+    autoescape=select_autoescape(['html'])
+)
 __all__ = [
     "ROOT_PATH",
     "root_resolve",
@@ -179,7 +185,7 @@ def generate_openapi_by_column(column):
     propertie['type'] = type_string
     return propertie
 
-def generate_openapi_by_table(table):
+def generate_openapi_by_table(table, blacklist=None, whitelist=None):
     """
     把model转为openapi的schema
     """
@@ -189,11 +195,21 @@ def generate_openapi_by_table(table):
         "description": table.__doc__,
         "required": []
     }
+    filterlist = blacklist or whitelist
+    is_black = blacklist is not None
     for column in table.columns:
         column_name = str(column.name)
-        if not column.nullable and not column.primary_key:
-            schema['required'].append(column_name)
-        schema['properties'][column_name] = generate_openapi_by_column(column)
+        flag = True
+        if filterlist:
+            if column_name in filterlist:
+                if is_black:
+                    flag = False
+            elif not is_black:
+                flag = False
+        if flag:
+            if not column.nullable and not column.primary_key:
+                schema['required'].append(column_name)
+            schema['properties'][column_name] = generate_openapi_by_column(column)
     return schema
 
 def encode_token(payload, algorithm='HS256', **kwargs):
@@ -230,3 +246,10 @@ def get_offset_timestamp(**kwargs):
     获取偏移时间戳
     """
     return to_timestamp(datetime.now(timezone.utc) + timedelta(**kwargs))
+
+def template(name, **kwargs):
+    """
+    jinja2_env
+    """
+    template_obj = jinja2_env.get_template(name)
+    return response.html(template_obj.render(kwargs))

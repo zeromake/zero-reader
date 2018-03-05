@@ -6,6 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta version="<%= htmlWebpackPlugin.options.version %>" buildTime="<%= htmlWebpackPlugin.options.buildTime %>">
     <title>zero-reader</title>
+    <% if (htmlWebpackPlugin.options.config){%>
+    <script type="text/javascript">
+        window.projectConfig = <%= htmlWebpackPlugin.options.config %>;function _(){var e;(e=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(e)}();
+    </script>
+    <%}%>
 </head>
 <body>
     <div id="app"></div>
