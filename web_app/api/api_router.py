@@ -1,17 +1,69 @@
 """
 无需登录的api 如登录，注册，验证码，email验证，安装引导
 """
-from web_app import app
+from web_app import app, OPEN_API
 from . import Api
 from sanic import response
-from ..utils import encode_token, decode_token, verify_hash, hash_string, get_offset_timestamp
+from ..utils import (
+    encode_token,
+    decode_token,
+    verify_hash,
+    hash_string,
+    get_offset_timestamp,
+    add_route
+)
 from datetime import datetime, timedelta, timezone
 # from .admin import AdminApi
 
-@Api.route("/login", methods=['POST'])
+# @Api.route("/login", methods=['POST'])
 async def login(request):
     """
     登录
+    ---
+    post:
+      summary: 登录
+      requestBody:
+        description: 帐号密码
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account:
+                  type: string
+                  description: 帐号
+                password:
+                  type: string
+                  description: 密码
+      responses:
+        200:
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/baseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: token数据
+                        properties:
+                          token:
+                            type: string
+                            description: 认证token
+                          refresh_token:
+                            type: string
+                            description: 刷新token
+                          exp:
+                            type: integer
+                            description: token过期时间
+                          refresh_exp:
+                            type: integer
+                            description: token过期时间
+        default:
+          $ref: '#/components/responses/baseResponse'
     """
     form_data = request.json
     account = form_data.get("account")
@@ -22,6 +74,8 @@ async def login(request):
     # print("----", hash_string(password))
     if item is None:
         res = {"status": 400, "message": "未找到该用户!"}
+    elif item.status == 0:
+        res = {"status": 401, "message": "该用户未验证!"}
     else:
         try:
             is_verify = verify_hash(password, item.password)
@@ -55,14 +109,14 @@ async def login(request):
             res = {"status": 400, "message": "密码错误!"}
     return response.json(res, status=res['status'])
 
-@Api.route("/sign_up", methods=['POST'])
+# @Api.route("/sign_up", methods=['POST'])
 async def sign_up(request):
     """
     注册
     """
     
 
-@Api.route("/refresh_token", methods=['POST', 'GET'])
+# @Api.route("/refresh_token", methods=['POST', 'GET'])
 async def refresh_token(request):
     """
     刷新token
@@ -109,8 +163,11 @@ async def refresh_token(request):
         }
     return response.json(res, status=res['status'])
 
+add_route(Api, login, "/login", ["POST"], OPEN_API)
+add_route(Api, sign_up, "/sign_up", ["POST"], OPEN_API)
+add_route(Api, refresh_token, "/refresh_token", ['POST', 'GET'], OPEN_API)
 
-app.blueprint(Api, url_prefix='/api')
+app.blueprint(Api, url_prefix=Api.url_prefix)
 # app.blueprint(AdminApi, url_prefix='/api/admin')
 
 from .admin import admin_router

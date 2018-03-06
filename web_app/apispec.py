@@ -15,6 +15,9 @@ class ApiSpec():
         self._paths = {}
         self._tags = []
         self._parameters = {}
+        self._responses = {}
+        self._security_schemes = {}
+        self._security = []
         self._spec = {
             "openapi": "3.0.0",
             "info": {
@@ -26,9 +29,26 @@ class ApiSpec():
             "tags": self._tags,
             "components": {
                 "schemas": self._schemas,
-                "parameters": self._parameters
+                "parameters": self._parameters,
+                "responses": self._responses,
+                "securitySchemes": self._security_schemes
             }
         }
+
+    def add_security_schemes(self, name, security_scheme):
+        """
+        添加security_scheme
+        """
+        self._security_schemes[name] = security_scheme
+        self._security.append({
+            "name": []
+        })
+
+    def add_response(self, name, response):
+        """
+        添加response
+        """
+        self._responses[name] = response
 
     def add_schema(self, name, schema):
         """

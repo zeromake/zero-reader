@@ -8,6 +8,8 @@ from web_app.config import CONFIG
 from . import crypt_zero as passlib_hash
 from datetime import datetime, timedelta, timezone
 from jinja2 import Environment, PackageLoader, select_autoescape
+from io import StringIO
+import yaml
 
 custom_app_context = getattr(passlib_hash, CONFIG.get('HASH', "md5_crypt"))
 
@@ -30,6 +32,13 @@ __all__ = [
     "hash_string",
     "verify_hash"
 ]
+
+OPEN_METHOD = {
+    "get:",
+    "post:",
+    "delete:",
+    "put:"
+}
 
 ROOT_PATH = os.path.abspath(os.path.dirname(__file__))
 
@@ -253,3 +262,39 @@ def template(name, **kwargs):
     """
     template_obj = jinja2_env.get_template(name)
     return response.html(template_obj.render(kwargs))
+
+def generate_openapi_by_def(handler):
+    """
+    生成
+    """
+    doc = StringIO(handler.__doc__)
+    line = doc.readline()
+    gen = []
+    space = 0
+    flag = False
+    while line:
+        if line.endswith("---\n"):
+            space = len(line) - 4
+            flag = True
+            line = doc.readline()
+        if flag:
+            if space > 0 and len(line) > space:
+                line = line[space:]
+            gen.append(line)
+        line = doc.readline()
+    if len(gen) > 0:
+        text = "".join(gen)
+        return yaml.load(text)
+    return None
+
+
+def add_route(context, handler, url, methods=None, openApi=None):
+    """
+    添加路由
+    """
+    if openApi:
+        doc = generate_openapi_by_def(handler)
+        url_prefix = context.url_prefix
+        if doc:
+            openApi.add_path(url_prefix + url, doc)
+    context.add_route(handler, url, methods)

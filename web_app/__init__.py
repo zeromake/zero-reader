@@ -12,10 +12,51 @@ from sanic import Sanic, response
 from .config import CONFIG
 from .db import DateBase
 from .apispec import ApiSpec
-from .utils import root_resolve
+from .utils import root_resolve, decode_token, get_offset_timestamp
 
 app = Sanic(__name__)
 app.db = DateBase(CONFIG['DB'])
+
+@app.middleware("request")
+async def admin_request(request):
+    """
+    校验token
+    """
+    is_admin = request.path.startswith("/api/admin")
+    if is_admin or request.path.startswith("/api/public"):
+        authorization = request.headers.get("authorization")
+        if authorization is None:
+            return response.json({
+                "status": 401,
+                "message": "token没有传递!"
+            }, status=401)
+        res = None
+        try:
+            payload = decode_token(authorization)
+            timestamp_now = get_offset_timestamp()
+            if payload.get("refresh", False):
+                res = {
+                    "status": 401,
+                    "message": "refresh_token无法用于认证!"
+                }
+            elif timestamp_now >= payload["exp"]:
+                res = {
+                    "status": 401,
+                    "message": "token已过期请重新登录!"
+                }
+            elif not payload["admin"] and is_admin:
+                res = {
+                    "status": 401,
+                    "message": "只有管理员才能直接访问该接口!"
+                }
+        except Exception as e:
+            print(e)
+            res = {
+                "status": 500,
+                "message": "无法解析token!"
+            }
+        if res:
+            return response.json(res, status=res['status'])
 
 @app.listener('before_server_start')
 async def before_server_start(app, loop):
@@ -160,6 +201,21 @@ if CONFIG['OPEN_API']:
                 "type": "string"
             }
         }
+    })
+    OPEN_API.add_response("baseResponse", {
+        "description": "通用响应",
+        "content": {
+            "application/json": {
+                "schema": {
+                   "$ref": "#/components/schemas/baseResponse"
+                }
+            }
+        }
+    })
+    OPEN_API.add_security_schemes("TokenAuth", {
+        "type": "apiKey",
+        "in": "header",
+        "name": "authorization"
     })
     @app.route("/ui.json", methods=["GET"])
     def openapi(request):

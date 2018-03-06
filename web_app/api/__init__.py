@@ -131,7 +131,7 @@ class ApiView(HTTPMethodView):
         table_name = str(self.__model__.name)
         url = "/" + table_name
         if OPEN_API:
-            OPEN_API.add_schema(table_name, generate_openapi_by_table(self.__model__, None, {"id"}))
+            OPEN_API.add_schema(table_name, generate_openapi_by_table(self.__model__))
             base_url = app_.url_prefix + url
             table_doc = self.__model__.__doc__
             doc = table_doc + self.get.__doc__
@@ -194,9 +194,12 @@ class ApiView(HTTPMethodView):
                 base_url+"/{primary_key}",
                 {
                     "get": {
-                        "parameters": [primary_key],
+                        "parameters": [primary_key, {"$ref": "#/components/parameters/keys"}],
                         "summary": doc + "单条",
                         "tags": [table_name],
+                        "security":[
+                            {"TokenAuth": []}
+                        ],
                         "responses": {
                             "200": {
                                 "description": "OK",
@@ -230,6 +233,9 @@ class ApiView(HTTPMethodView):
                         "parameters": [primary_key],
                         "tags": [table_name],
                         "summary": table_doc + self.delete.__doc__,
+                        "security":[
+                            {"TokenAuth": []}
+                        ],
                         "responses": default_responses
                     }
                 }
@@ -281,6 +287,9 @@ class ApiView(HTTPMethodView):
                         ],
                         "summary": doc + "多条",
                         "tags": [table_name],
+                        "security":[
+                            {"TokenAuth": []}
+                        ],
                         "responses": {
                             "200": {
                                 "description": "OK",
@@ -324,6 +333,9 @@ class ApiView(HTTPMethodView):
                         },
                         "tags": [table_name],
                         "summary": table_doc + self.post.__doc__,
+                        "security":[
+                            {"TokenAuth": []}
+                        ],
                         "responses": default_responses
                     }
                 }
@@ -484,10 +496,10 @@ class ApiView(HTTPMethodView):
             if not self._key is None:
                 use_primary = True
                 where_data[self._key.name] = kwargs['primary_key']
-        try:
-            limit = [int(args.get("skip", 0)), int(args.get("limit", 50))]
-        except ValueError:
-            limit = [0, 50]
+        if "skip" in args and "limit" in args:
+            limit = [int(args["skip"]), int(args["limit"])]
+        else:
+            limit = None
         where = handle_param_primary(self._columns_name, where_data)
         limit_sql = None
         count_sql = None
