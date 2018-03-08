@@ -16,7 +16,7 @@ const bottomMenu = [
 ];
 
 const BottomBar = function render(props) {
-        return <div className={`${styl.bottom_bar} animated`} onClick={(event) => event.stopPropagation()}>
+        return <div className={`${styl.bottom_bar} animated`}>
             <ul className={styl.menus}>
             {
                 bottomMenu.map((menu) => {

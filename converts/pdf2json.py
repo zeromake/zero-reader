@@ -70,6 +70,7 @@ class Pdf2Json(object):
         self.meta_data = None
         self.links_zoom = {}
         self.links_css = {}
+        self.del_css = set()
 
     async def run(self):
         """
@@ -191,7 +192,7 @@ class Pdf2Json(object):
                 '--font-format', 'woff',
                 '--bg-format', 'png',
                 '--optimize-text', '1',
-                '--space-as-offset', '1',
+                '--space-as-offset', '0',
                 '--embed-css', '0',
                 '--embed-font', '0',
                 '--embed-image', '0',
@@ -393,6 +394,10 @@ class Pdf2Json(object):
             if old_class:
                 tmp += " " + old_class
             root.set('class', tmp)
+            # for span_class in self.del_css:
+            #     for span in tree.xpath('//span[@class=\'_ %s\']' % span_class):
+            #         parent_span = span.getparent()
+            #         parent_span.remove(span)
             for img in tree.xpath('//img'):
                 # parent = img.getparent()
                 # div = lxml.etree.Element('div')
@@ -527,6 +532,9 @@ class Pdf2Json(object):
                                 zoom['height'] = item['size']
                             item['media_print'] = media_print
                             select = item['select']
+                            # if select.startswith("._") and item['attribute'] == "margin-left":
+                            #     self.del_css.add(select[1:])
+                            # else:
                             del item['select']
                             if select not in zoom_arr:
                                 zoom_arr[select] = []

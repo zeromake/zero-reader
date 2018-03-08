@@ -17,7 +17,7 @@ class ApiSpec():
         self._parameters = {}
         self._responses = {}
         self._security_schemes = {}
-        self._security = []
+        # self._security = []
         self._spec = {
             "openapi": "3.0.0",
             "info": {
@@ -40,9 +40,6 @@ class ApiSpec():
         添加security_scheme
         """
         self._security_schemes[name] = security_scheme
-        self._security.append({
-            "name": []
-        })
 
     def add_response(self, name, response):
         """

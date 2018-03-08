@@ -199,7 +199,11 @@ class Router extends Component<any, any> {
     public static Router = Router;
     public static Route = Route;
     public static Link = Link;
-
+    public static getDerivedStateFromProps?(nextProps: any, previousState: any): null {
+        const self = previousState.self;
+        self.updating = true;
+        return null;
+    }
     constructor(props) {
         super(props);
         if (props.history) {
@@ -208,6 +212,7 @@ class Router extends Component<any, any> {
         this.initRoute = true;
         this.state = {
             url: props.url || getCurrentUrl(),
+            self: this,
         };
 
         initEventListeners();
@@ -281,8 +286,9 @@ class Router extends Component<any, any> {
         ROUTERS.splice(ROUTERS.indexOf(this), 1);
     }
 
-    public componentWillUpdate() {
-        this.updating = true;
+    public componentWillUpdate(nextProps: any) {
+        Router.getDerivedStateFromProps(nextProps, this.state);
+        // this.updating = true;
     }
 
     public componentDidUpdate() {

@@ -12,6 +12,9 @@ interface ITocProps {
 }
 
 export default class TocItem extends Component<ITocProps, IAbcToc> {
+    public static getDerivedStateFromProps?(nextProps: ITocProps, previousState: IAbcToc): IAbcToc {
+        return { ...nextProps.toc};
+    }
     public base;
     constructor(p: ITocProps, c: any) {
         super(p, c);
@@ -20,9 +23,7 @@ export default class TocItem extends Component<ITocProps, IAbcToc> {
         this.itemToggler = this.itemToggler.bind(this);
     }
     public componentWillReceiveProps(props: ITocProps, context: any) {
-        this.setState({
-            ...props.toc,
-        });
+        this.setState(TocItem.getDerivedStateFromProps(props, this.state));
     }
 
     public shouldComponentUpdate(nextProps: ITocProps, nextState: IAbcToc, nextContext: any): boolean {

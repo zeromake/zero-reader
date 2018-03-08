@@ -47,7 +47,7 @@ async def admin_request(request):
             elif not payload["admin"] and is_admin:
                 res = {
                     "status": 401,
-                    "message": "只有管理员才能直接访问该接口!"
+                    "message": "只有管理员才能访问该接口!"
                 }
         except Exception as e:
             print(e)

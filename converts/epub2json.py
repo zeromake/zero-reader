@@ -189,7 +189,7 @@ class Epub2Json(object):
         保存文件到临时文件夹
         """
         name = os.path.join(self.temp_dir, output_path)
-        return save_xml_path(xml, name)
+        return save_xml_path(xml, name, None)
 
     def open_temp_file(self, output_path, *args, **k):
         """
@@ -399,7 +399,7 @@ class Epub2Json(object):
             tree = html.parse(html_file)
             self.find_head_css(epub_file, tree, container_dir)
             body = tree.find('//body')
-            page_xml = lxml.html.Element('div')
+            page_xml = html.Element('div')
             for child in body.iterchildren():
                 page_xml.append(child)
             self.save_html(page_xml, container_count)
@@ -415,8 +415,9 @@ class Epub2Json(object):
         """
         切割html
         """
+        from lxml import etree
         with epub_file.open(zip_path) as html_file:
-            tree = lxml.html.parse(html_file)
+            tree = etree.parse(html_file)
             self.find_head_css(epub_file, tree, container_dir)
             body = tree.find('//body')
             children = body.getchildren()
@@ -564,7 +565,7 @@ class Epub2Json(object):
                 'r',
                 encoding='utf8'
             ) as page_file:
-                tree = lxml.html.parse(page_file)
+                tree = lxml.etree.parse(page_file)
                 links = tree.findall('//a[@href]')
                 for link in links:
                     href = link.get('href')
@@ -654,14 +655,17 @@ class Epub2Json(object):
                         del img.attrib[name_spaces]
                         img.set('data-src', img_out_name)
                 with file_open(os.path.join(self.dist, new_page_path), 'wb') as xml_file:
-                    root_tree = tree.find("//div")
+                    # print(dir(tree))
+                    root_tree = tree.getroot()
+                    # print(root_tree)
                     for child in root_tree.iterchildren():
-                        string_ = lxml.html.tostring(
+                        string_ = lxml.etree.tostring(
                             child,
                             pretty_print=True,
                             method="html",
                             encoding='utf-8'
                         )
+                        # print(string_)
                         xml_file.write(
                             string_
                         )
