@@ -1,15 +1,15 @@
 {
     "account": {
         "type": "text",
-        "pattern": "\\w{4, 32}",
-        "title": "必须为英文或者数字且在4-32长度之间!",
+        "pattern": "[A-z0-9]{4,32}",
+        "title": "英文,数字,_ 且在4-32长度之间!",
         "required": true,
         "placeholder": "用户"
     },
     "password": {
         "type": "password",
-        "pattern": "\\w{8, 32}",
-        "title": "必须为英文或者数字且在8-32长度之间!",
+        "pattern": ".{8,32}",
+        "title": "任意字符且在8-32长度之间!",
         "required": true,
         "placeholder": "密码"
     }

@@ -1,14 +1,14 @@
 {
     "account": {
         "type": "text",
-        "pattern": "\\w{4, 32}",
+        "pattern": "\\w{4,32}",
         "title": "必须为英文或者数字且在4-32长度之间!",
         "required": true,
         "placeholder": "用户"
     },
     "password": {
         "type": "password",
-        "pattern": "\\w{8, 32}",
+        "pattern": "\\.{8,32}",
         "title": "必须为英文或者数字且在8-32长度之间!",
         "required": true,
         "placeholder": "密码"
@@ -22,7 +22,7 @@
     },
     "role_name": {
         "type": "text",
-        "pattern": ".{3, 16}",
+        "pattern": ".{3,16}",
         "title": "任意字符且在3-16长度之间!",
         "required": true,
         "placeholder": "昵称"

@@ -188,15 +188,51 @@ function getDeepValue(obj: {[name: string]: any}, attName: string): any {
     return value;
 }
 
-export function bindUpdateForm(component: Component<any, any>, formName?: string) {
+interface IForm {
+    type: string;
+    pattern: string;
+    title: string;
+    required: boolean;
+    placeholder: string;
+}
+function createObject(proto: any = null): any {
+    const obj = {};
+    (obj as any).__proto__ = null;
+    return obj
+}
+const FormList = [
+    "type",
+    "pattern",
+    "title",
+    "required",
+    "placeholder",
+];
+
+export function bindUpdateForm(component: Component<any, any>, formConfig: {[name: string]: IForm}, formName?: string) {
     return (attName: string) =>  {
         let attr = attName;
         if (formName && formName !== "") {
             attr = formName + "." + attName;
         }
+        const deep = createObject();
+        const form = formConfig[attName];
+        if (form != null) {
+            for(const name of FormList) {
+                if (name in form) {
+                    deep[name] = form[name];
+                }
+            }
+        }
+        
         return {
             value: getDeepValue(component.state, attr),
             onChange: updateFormFunction(component, attr),
+            // onInvalid: console.log,
+            ...deep
         };
     };
+}
+
+export function deepForm() {
+
 }

@@ -4,6 +4,14 @@ declare module "*.styl" {
     };
     export default style;
 }
+
+declare module "*.json" {
+    const json: {
+        [name: string]: any;
+    }
+    export default json;
+}
+
 declare module "preact-router" {
     const style: any;
     export const Link: any;

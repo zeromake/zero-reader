@@ -217,3 +217,6 @@ label, legend, fieldset {
 		linear-gradient(225deg, hsla(178, 94%, 47%, 1) 10%, hsla(178, 94%, 47%, 0) 80%),
 		linear-gradient(315deg, hsla(324, 96%, 46%, 1) 100%, hsla(324, 96%, 46%, 0) 70%);
 }
+
+input:invalid { border-color: red; }
+input, input:valid { border-color: #ccc; }

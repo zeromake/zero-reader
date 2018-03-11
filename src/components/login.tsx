@@ -3,6 +3,8 @@ import styl from "@/css/login.styl";
 import { $ajax } from "../http/index";
 import { bindUpdateForm } from "../utils";
 import AlertZero from "./alert-zero";
+import LoginForm from "@/../form/login.json";
+
 interface ILoginProps {
     matches: {[name: string]: string};
 }
@@ -26,6 +28,7 @@ export default class Login extends Component<ILoginProps, ILoginState> {
     private $alert: null | any;
     constructor(props, content) {
         super(props, content);
+        console.log(LoginForm);
         this.state = {
             verifyImgUrl: verifyImgUrl + "?_=" + new Date().getTime(),
             form: {
@@ -36,7 +39,7 @@ export default class Login extends Component<ILoginProps, ILoginState> {
             message: null,
         };
         this.refreshCode = this.refreshCode.bind(this);
-        this.bindUpdateForm = bindUpdateForm(this, "form");
+        this.bindUpdateForm = bindUpdateForm(this, LoginForm, "form");
         this.login = this.login.bind(this);
         this.$alert = null;
         if (props && props.matches && props.matches[Matche.ERROR]) {
@@ -89,14 +92,15 @@ export default class Login extends Component<ILoginProps, ILoginState> {
             <div className={styl.content + " bg animated"}>
                 { h(AlertZero, {ref: (c: any) => this.$alert = c, message: this.state.message, level: 1}) }
                 <div className={styl.form}>
+                    <form action="post">
                     <div className={styl.title}>
                         <h1>登录</h1>
                     </div>
                     <div className={styl.form_item}>
-                        <input className={styl.input} type="text" placeholder="用户" pattern="\w+" title="必须为英文或数字" {...this.bindUpdateForm("account")} required={true}/>
+                        <input className={styl.input} {...this.bindUpdateForm("account")}  onInvalid={console.log}/>
                     </div>
                     <div className={styl.form_item}>
-                        <input className={styl.input} type="password" placeholder="密码" pattern="\w+" title="必须为英文或数字" {...this.bindUpdateForm("password")} required={true}/>
+                        <input className={styl.input} {...this.bindUpdateForm("password")}/>
                     </div>
                     <div className={styl.form_item}>
                         <div className={styl.button_item}>
@@ -107,6 +111,7 @@ export default class Login extends Component<ILoginProps, ILoginState> {
                             <button className={styl.button} type="submit">注册</button>
                         </div>
                     </div>
+                    </form>
                 </div>
             </div>
         );
