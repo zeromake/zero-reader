@@ -66,6 +66,9 @@ async def login(request):
           $ref: '#/components/responses/baseResponse'
     """
     form_data = request.json
+    res = app.form.verify("login", form_data)
+    if res:
+        return response.json(res, status=res['status'])
     account = form_data.get("account")
     password = form_data.get("password")
     model = app.db.get_model("user")

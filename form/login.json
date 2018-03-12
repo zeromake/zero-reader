@@ -1,7 +1,7 @@
 {
     "account": {
         "type": "text",
-        "pattern": "[A-z0-9]{4,32}",
+        "pattern": "[A-z0-9_]{4,32}",
         "title": "英文,数字,_ 且在4-32长度之间!",
         "required": true,
         "placeholder": "用户"
