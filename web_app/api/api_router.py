@@ -123,6 +123,33 @@ async def sign_up(request):
 async def refresh_token(request):
     """
     刷新token
+    ---
+    post:
+      summary: 刷新token
+      security:
+        - TokenAuth: []
+      responses:
+        200:
+          description: 续期成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/baseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: token数据
+                        properties:
+                          token:
+                            type: string
+                            description: 认证token
+                          exp:
+                            type: integer
+                            description: token过期时间
+        default:
+          $ref: '#/components/responses/baseResponse'
     """
     authorization = request.headers.get("authorization", "")
     try:
@@ -168,7 +195,7 @@ async def refresh_token(request):
 
 add_route(Api, login, "/login", ["POST"], OPEN_API)
 add_route(Api, sign_up, "/sign_up", ["POST"], OPEN_API)
-add_route(Api, refresh_token, "/refresh_token", ['POST', 'GET'], OPEN_API)
+add_route(Api, refresh_token, "/refresh_token", ['POST'], OPEN_API)
 
 app.blueprint(Api, url_prefix=Api.url_prefix)
 # app.blueprint(AdminApi, url_prefix='/api/admin')
