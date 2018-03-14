@@ -14,10 +14,13 @@ from .db import DateBase
 from .apispec import ApiSpec
 from .utils import root_resolve, decode_token, get_offset_timestamp
 from .form import Form
+import psutil
 
 app = Sanic(__name__)
 app.db = DateBase(CONFIG['DB'])
 app.form = Form(root_resolve("../form"))
+app.process = psutil.Process()
+
 
 @app.middleware("request")
 async def admin_request(request):

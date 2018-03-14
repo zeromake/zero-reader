@@ -4,6 +4,7 @@ try:
 except ImportError:
     _crypt = None
 import random
+import base64
 
 __all__ = [
     "crypt",
@@ -22,32 +23,31 @@ rng = random.SystemRandom()
 join_byte_elems = b''.join
 HASH64_CHARS = [raw.encode() for raw in "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"]
 
-
-def _encode_bytes_little(next_value, chunks, tail):
-    """
-    helper used by encode_bytes() to handle little-endian encoding
-    """
-    idx = 0
-    while idx < chunks:
-        v1 = next_value()
-        v2 = next_value()
-        v3 = next_value()
-        yield v1 & 0x3f
-        yield ((v2 & 0x0f)<<2)|(v1>>6)
-        yield ((v3 & 0x03)<<4)|(v2>>4)
-        yield v3>>2
-        idx += 1
-    if tail:
-        v1 = next_value()
-        if tail == 1:
-            yield v1 & 0x3f
-            yield v1>>6
-        else:
-            assert tail == 2
-            v2 = next_value()
-            yield v1 & 0x3f
-            yield ((v2 & 0x0f)<<2)|(v1>>6)
-            yield v2>>4
+# def _encode_bytes_little(next_value, chunks, tail):
+#     """
+#     helper used by encode_bytes() to handle little-endian encoding
+#     """
+#     idx = 0
+#     while idx < chunks:
+#         v1 = next_value()
+#         v2 = next_value()
+#         v3 = next_value()
+#         yield v1 & 0x3f
+#         yield ((v2 & 0x0f)<<2)|(v1>>6)
+#         yield ((v3 & 0x03)<<4)|(v2>>4)
+#         yield v3>>2
+#         idx += 1
+#     if tail:
+#         v1 = next_value()
+#         if tail == 1:
+#             yield v1 & 0x3f
+#             yield v1>>6
+#         else:
+#             assert tail == 2
+#             v2 = next_value()
+#             yield v1 & 0x3f
+#             yield ((v2 & 0x0f)<<2)|(v1>>6)
+#             yield v2>>4
 
 def encode_bytes(source):
     """
@@ -55,15 +55,16 @@ def encode_bytes(source):
     :arg source: byte string to encode.
     :returns: byte string containing encoded data.
     """
-    chunks, tail = divmod(len(source), 3)
-    next_value = iter(source).__next__
-    gen = _encode_bytes_little(next_value, chunks, tail)
-    data = []
-    for index in gen:
-        obj = HASH64_CHARS[index]
-        data.append(obj)
-    out = join_byte_elems(data)
-    return out
+    return base64.b64encode(source)
+    # chunks, tail = divmod(len(source), 3)
+    # next_value = iter(source).__next__
+    # gen = _encode_bytes_little(next_value, chunks, tail)
+    # data = []
+    # for index in gen:
+    #     obj = HASH64_CHARS[index]
+    #     data.append(obj)
+    # out = join_byte_elems(data)
+    # return out
 
 
 def get_hash(salt):
@@ -87,7 +88,8 @@ def crypt(word, salt):
     else:
         hash_obj = hash_method()
         hash_obj.update((salt + word + salt).encode())
-        hash_str = encode_bytes(hash_obj.digest()).decode()
+        pwd = hash_obj.digest()
+        hash_str = encode_bytes(pwd).decode()
     if salt[-1] == "$":
         return salt + hash_str
     return "%s$%s" % (salt, hash_str)

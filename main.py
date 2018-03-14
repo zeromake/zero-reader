@@ -83,17 +83,19 @@ def main():
     file_name = options['file']
     options['css'] = 'style.css'
     options['compress'] = bool(options['compress'])
-
-    if not os.path.exists(options['dist']):
-        os.makedirs(options['dist'])
+    if file_name is None:
+        options['web'] = 1
     loop = asyncio.get_event_loop()
     if options['web'] == 1:
         from web_app import app
-        app.run(workers=1, access_log=True)
+        app.run(workers=2, access_log=True)
     else:
         from converts.utils import logger
         from converts.epub2json import Epub2Json
         from converts.pdf2json import Pdf2Json
+
+        if not os.path.exists(options['dist']):
+            os.makedirs(options['dist'])
         convert = None
         if file_name.endswith('.epub'):
             convert = Epub2Json
