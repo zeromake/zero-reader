@@ -96,7 +96,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             },
         };
         this.state = {
-            bg: "white",
+            bg: "sepia",
             barShow: false,
             tocShow: false,
             isScroll: true,

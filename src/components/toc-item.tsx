@@ -3,6 +3,7 @@ import styl from "@/css/toc.styl";
 import Animate from "preact-animate";
 import { IAbcToc, IEpubToc, IPdfToc } from "@/types/index";
 import { shallowDiffers } from "@/utils";
+import SvgIcon from "./svg-icon";
 
 interface ITocProps {
     key: string;
@@ -52,11 +53,13 @@ export default class TocItem extends Component<ITocProps, IAbcToc> {
             {
                 toc.children ? (
                 <div className={styl.tocItemToggler} onClick={this.itemToggler}>
-                    <i className={"fa" + (toc.disable ? " fa-chevron-down " + styl.none : " fa-chevron-right")}>
-                    </i>
+                    {h(SvgIcon, {className: styl.icon, name: toc.disable ? "icon-expand_less" : "icon-expand_more" })}
+                    {/* <i className={"fa" + (toc.disable ? " fa-chevron-down " + styl.none : " fa-chevron-right")}>
+                    </i> */}
                 </div>) : null
             }
-            <a className={styl.toc_text} title={String(toc.page)} onClick={this.itemClick}>{toc.text}</a>
+            <a className={styl.toc_text} title={String(toc.page)} onClick={this.itemClick}>{toc.text}
+            </a>
             { toc.children ? <Animate
                     showProp="data-show"
                     component={null}

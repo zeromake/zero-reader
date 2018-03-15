@@ -195,10 +195,13 @@ interface IForm {
     required: boolean;
     placeholder: string;
 }
-function createObject(proto: any = null): any {
+export function createObject(proto: any = null): any {
+    if (Object.create) {
+        return Object.create(proto);
+    }
     const obj = {};
     (obj as any).__proto__ = null;
-    return obj
+    return obj;
 }
 const FormList = [
     "type",
@@ -214,21 +217,31 @@ export function bindUpdateForm(component: Component<any, any>, formConfig: {[nam
         if (formName && formName !== "") {
             attr = formName + "." + attName;
         }
-        const deep = createObject();
-        const form = formConfig[attName];
-        if (form != null) {
-            for(const name of FormList) {
-                if (name in form) {
-                    deep[name] = form[name];
+        let $formProps: {[name: string]: any} = (component as any).$formProps;
+        let deep = null;
+        if ($formProps) {
+            deep = $formProps[attr];
+        } else {
+            $formProps = createObject();
+            (component as any).$formProps = $formProps;
+        }
+        if (!deep) {
+            deep = createObject();
+            const form = formConfig[attName];
+            if (form != null) {
+                for (const name of FormList) {
+                    if (name in form) {
+                        deep[name] = form[name];
+                    }
                 }
             }
+            $formProps[attr] = deep;
         }
-        
         return {
             value: getDeepValue(component.state, attr),
             onChange: updateFormFunction(component, attr),
             // onInvalid: console.log,
-            ...deep
+            ...deep,
         };
     };
 }

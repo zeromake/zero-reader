@@ -4,6 +4,7 @@ import { $ajax } from "../http/index";
 import { bindUpdateForm } from "../utils";
 import AlertZero from "./alert-zero";
 import LoginForm from "@/../form/login.json";
+import SignUpForm from "@/../form/sign_up.json";
 
 interface ILoginProps {
     matches: {[name: string]: string};
@@ -25,10 +26,10 @@ const verifyImgUrl = "/api/verify_code";
 
 export default class Login extends Component<ILoginProps, ILoginState> {
     private bindUpdateForm: (attrName: string) => {value: any, onChange: (e: any) => void};
+    private bindUpdateSignUpForm: (attrName: string) => {value: any, onChange: (e: any) => void};
     private $alert: null | any;
     constructor(props, content) {
         super(props, content);
-        console.log(LoginForm);
         this.state = {
             verifyImgUrl: verifyImgUrl + "?_=" + new Date().getTime(),
             form: {
@@ -40,6 +41,7 @@ export default class Login extends Component<ILoginProps, ILoginState> {
         };
         this.refreshCode = this.refreshCode.bind(this);
         this.bindUpdateForm = bindUpdateForm(this, LoginForm, "form");
+        this.bindUpdateSignUpForm = bindUpdateForm(this, SignUpForm, "form");
         this.login = this.login.bind(this);
         this.$alert = null;
         if (props && props.matches && props.matches[Matche.ERROR]) {
@@ -53,7 +55,8 @@ export default class Login extends Component<ILoginProps, ILoginState> {
             verifyImgUrl: verifyImgUrl + "?_=" + new Date().getTime(),
         });
     }
-    private async login() {
+    private async login(e: Event) {
+        e.preventDefault();
         let jsonObj: any = null;
         let res: any = null;
         try {
@@ -88,27 +91,28 @@ export default class Login extends Component<ILoginProps, ILoginState> {
         });
     }
     public render() {
+        const bindUpdateFormObj = this.bindUpdateForm;
         return (
             <div className={styl.content + " bg animated"}>
                 { h(AlertZero, {ref: (c: any) => this.$alert = c, message: this.state.message, level: 1}) }
                 <div className={styl.form}>
-                    <form action="post">
+                    <form action="post" onSubmit={this.login}>
                     <div className={styl.title}>
                         <h1>登录</h1>
                     </div>
                     <div className={styl.form_item}>
-                        <input className={styl.input} {...this.bindUpdateForm("account")}  onInvalid={console.log}/>
+                        <input className={styl.input} {...bindUpdateFormObj("account")}/>
                     </div>
                     <div className={styl.form_item}>
-                        <input className={styl.input} {...this.bindUpdateForm("password")}/>
+                        <input className={styl.input} {...bindUpdateFormObj("password")}/>
                     </div>
                     <div className={styl.form_item}>
                         <div className={styl.button_item}>
-                            <button className={styl.button} type="submit" onClick={this.login}>登录</button>
+                            <button className={styl.button} type="submit">登录</button>
                         </div>
                         <div className={styl.button_void}></div>
                         <div className={styl.button_item}>
-                            <button className={styl.button} type="submit">注册</button>
+                            <button className={styl.button}>注册</button>
                         </div>
                     </div>
                     </form>

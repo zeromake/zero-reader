@@ -69,7 +69,7 @@ export default class EpubContent extends Component<any, any> {
             } else {
                 htmlPage = pageNum;
             }
-            console.log("----setHtmlPage---", htmlPage);
+            // console.log("----setHtmlPage---", htmlPage);
             this.props.setHtmlPage(htmlPage);
         }
     }
@@ -80,7 +80,7 @@ export default class EpubContent extends Component<any, any> {
                 element.src = this.props.library.image(dataSrc);
             }
         });
-        Array.prototype.forEach.call(findDOMNode(this).querySelectorAll("image.lozad"), (element: SVGImageElement) => {
+        Array.prototype.forEach.call(findDOMNode(this).querySelectorAll("image"), (element: SVGImageElement) => {
             const nameSpace = "http://www.w3.org/1999/xlink";
             const dataSrc = element.getAttribute("data-src");
             if (dataSrc) {

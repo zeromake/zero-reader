@@ -113,12 +113,11 @@
 hr {
   border-color: #2c8898;
 }
-
-a {
+form a {
   text-decoration: none;
   color: #2c8898;
 }
-a:hover {
+form a:hover {
   color: #982c61;
   border-bottom: 2px solid #4a4a4a;
 }

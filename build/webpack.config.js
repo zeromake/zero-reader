@@ -71,7 +71,7 @@ const strftime = function(date) {
 }
 
 const serverIp = '0.0.0.0'
-const serverPort = 8089
+const serverPort = 8090
 
 const outPath = isCordova ? resolve('../www') : resolve('../dist');
 const zreactAlias = {
