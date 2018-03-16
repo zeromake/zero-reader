@@ -131,6 +131,12 @@ Library = sa.Table(
         doc="书籍唯一编码通过文件hash获取,其它书籍通过uuid"
     ),
     sa.Column(
+        'status',
+        sa.Integer,
+        nullable=False,
+        doc="书籍状态"
+    ),
+    sa.Column(
         'title',
         sa.String(128),
         nullable=False,

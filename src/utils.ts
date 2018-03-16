@@ -107,14 +107,26 @@ export function togglerFullScreen(show: boolean) {
     }
 }
 
-function _updateForm(component: Component<any, any>, attName: string) {
+function _updateForm(component: Component<any, any>, attName: string, inputType?: string, update?: boolean) {
     // form.account
-    return function updateForm(e: any) {
+    return function updateForm(e: Event | any) {
         const attrsArr = attName.split(".");
         const updateData = {};
         let state = component.state;
         let data = updateData;
-        const value = (e.target as HTMLInputElement).value;
+        if (!update) {
+            data = state;
+        }
+        let value;
+        if (e && e.target) {
+            if (inputType === "checkbox" || inputType === "radio") {
+                value = !!(e.target as HTMLInputElement).checked;
+            } else {
+                value = (e.target as HTMLInputElement).value;
+            }
+        } else {
+            value = e;
+        }
         for (let i = 0, len = attrsArr.length; i < len; i ++) {
             const attr = attrsArr[i];
             if (attr && attr !== "") {
@@ -126,8 +138,12 @@ function _updateForm(component: Component<any, any>, attName: string) {
                 if (i === len - 1) {
                     data[attr] = value;
                 } else {
-                    if (old) {
-                        data = data[attr] = {...old};
+                    if (typeof old === "object") {
+                        if (!update) {
+                            data = old;
+                        } else {
+                            data = data[attr] = {...old};
+                        }
                     } else {
                         data = data[attr] = {};
                     }
@@ -135,11 +151,13 @@ function _updateForm(component: Component<any, any>, attName: string) {
             }
         }
         // const old = component.state[formName] || {};
-        component.setState(updateData);
+        if (update) {
+            component.setState(updateData);
+        }
     };
 }
 
-export function updateFormFunction(component: Component<any, any>, attName: string) {
+export function updateFormFunction(component: Component<any, any>, attName: string, inputType?: string, update?: boolean) {
     let $formUpdate: {[name: string]: any} = (component as any).$formUpdate;
     let updateFun: ((e: any) => void) | null | undefined = null;
     const attrsArr = attName.split(".");
@@ -154,7 +172,7 @@ export function updateFormFunction(component: Component<any, any>, attName: stri
             if (i === len - 1) {
                 updateFun = $form[attr];
                 if (!updateFun) {
-                    updateFun = _updateForm(component, attName);
+                    updateFun = _updateForm(component, attName, inputType, update);
                     $form[attr] = updateFun;
                 }
             } else {
@@ -209,9 +227,49 @@ const FormList = [
     "title",
     "required",
     "placeholder",
+    "min",
+    "max",
 ];
 
-export function bindUpdateForm(component: Component<any, any>, formConfig: {[name: string]: IForm}, formName?: string) {
+export enum FromType {
+    button = "button",
+    checkbox = "checkbox",
+    color = "color",
+    date = "date",
+    datetimeLocal = "datetime-local",
+    email = "email",
+    file = "file",
+    hidden = "hidden",
+    month = "month",
+    number = "number",
+    password = "password",
+    radio = "radio",
+    range = "range",
+    reset = "reset",
+    search = "search",
+    submit = "submit",
+    tel = "tel",
+    text = "text",
+    time = "time",
+    url = "url",
+    week = "week",
+}
+
+export interface IFormProps {
+    checked?: boolean;
+    value?: string;
+    onChange: (e: Event) => void;
+    onInput: (e: Event) => void;
+    type?: FromType;
+    pattern?: string;
+    title?: string;
+    required?: boolean;
+    placeholder?: string;
+    min?: string|number;
+    max?: string|number;
+}
+
+export function bindUpdateForm(component: Component<any, any>, formConfig: {[name: string]: IForm}, formName?: string, update?: boolean): (attr: string) => IFormProps {
     return (attName: string) =>  {
         let attr = attName;
         if (formName && formName !== "") {
@@ -237,12 +295,20 @@ export function bindUpdateForm(component: Component<any, any>, formConfig: {[nam
             }
             $formProps[attr] = deep;
         }
-        return {
-            value: getDeepValue(component.state, attr),
-            onChange: updateFormFunction(component, attr),
+        const inputType = deep.type;
+        const formFun = updateFormFunction(component, attr, inputType, update);
+        const props = {
+            onChange: formFun,
+            onInput: formFun,
             // onInvalid: console.log,
             ...deep,
         };
+        if (inputType === "checkbox" || inputType === "radio") {
+            props.checked = !!getDeepValue(component.state, attr);
+        } else {
+            props.value = getDeepValue(component.state, attr);
+        }
+        return props;
     };
 }
 

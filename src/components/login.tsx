@@ -1,7 +1,7 @@
 import { h, Component, findDOMNode, route } from "react-import";
 import styl from "@/css/login.styl";
 import { $ajax } from "../http/index";
-import { bindUpdateForm } from "../utils";
+import { bindUpdateForm, IFormProps } from "../utils";
 import AlertZero from "./alert-zero";
 import LoginForm from "@/../form/login.json";
 import SignUpForm from "@/../form/sign_up.json";
@@ -11,9 +11,11 @@ interface ILoginProps {
 }
 interface ILoginState {
     verifyImgUrl: string;
+    isLogin: boolean;
     form?: {
         password: string;
         account: string;
+        rememberme: boolean;
         // verify: string;
     };
     message: string | null;
@@ -25,28 +27,30 @@ enum Matche {
 const verifyImgUrl = "/api/verify_code";
 
 export default class Login extends Component<ILoginProps, ILoginState> {
-    private bindUpdateForm: (attrName: string) => {value: any, onChange: (e: any) => void};
-    private bindUpdateSignUpForm: (attrName: string) => {value: any, onChange: (e: any) => void};
+    private bindUpdateForm: (attrName: string) => IFormProps;
+    private bindUpdateSignUpForm: (attrName: string) => IFormProps;
     private $alert: null | any;
     constructor(props, content) {
         super(props, content);
         this.state = {
             verifyImgUrl: verifyImgUrl + "?_=" + new Date().getTime(),
+            isLogin: true,
             form: {
                 password: "",
                 account: "",
+                rememberme: false,
                 // verify: "",
             },
             message: null,
         };
         this.refreshCode = this.refreshCode.bind(this);
-        this.bindUpdateForm = bindUpdateForm(this, LoginForm, "form");
-        this.bindUpdateSignUpForm = bindUpdateForm(this, SignUpForm, "form");
-        this.login = this.login.bind(this);
+        this.bindUpdateForm = bindUpdateForm(this, LoginForm, "form", true);
+        this.bindUpdateSignUpForm = bindUpdateForm(this, SignUpForm, "form", true);
+        this.submitEvent = this.submitEvent.bind(this);
         this.$alert = null;
         if (props && props.matches && props.matches[Matche.ERROR]) {
             const message = props.matches[Matche.ERROR];
-            console.warn("route to login page is error: ", message);
+            // console.warn("route to login page is error: ", message);
             this.togglerAlert(message);
         }
     }
@@ -55,15 +59,23 @@ export default class Login extends Component<ILoginProps, ILoginState> {
             verifyImgUrl: verifyImgUrl + "?_=" + new Date().getTime(),
         });
     }
-    private async login(e: Event) {
+    private submitEvent(e: Event) {
         e.preventDefault();
+        if (this.state.isLogin) {
+            this.login();
+        } else {
+            this.signUp();
+        }
+    }
+
+    private async login() {
         let jsonObj: any = null;
-        let res: any = null;
+        let res: void | Response = null;
         try {
             res = await $ajax.post("/api/login", this.state.form);
             jsonObj = res && await res.json();
         } catch (e) {
-            console.error(e);
+            // console.error(e);
             this.togglerAlert((res && res.statusText) + ": " + e.message);
             return;
         }
@@ -78,6 +90,12 @@ export default class Login extends Component<ILoginProps, ILoginState> {
         }
     }
 
+    private async signUp() {
+        const res = await $ajax.post("/api/sign_up", this.state.form);
+        const jsonObj = res && await res.json();
+        this.togglerAlert(jsonObj.message);
+    }
+
     public togglerAlert(message: string) {
         this.setState({message}, () => {
             if (this.$alert) {
@@ -90,30 +108,62 @@ export default class Login extends Component<ILoginProps, ILoginState> {
             }
         });
     }
+
+    public renderBase(bindUpdateFormObj: (attrName: string) => IFormProps) {
+        return [
+            <div className={styl.form_item} key="1">
+                <input className={styl.input} autofocus={true} {...bindUpdateFormObj("account")}/>
+            </div>,
+            <div className={styl.form_item} key="2">
+                <input className={styl.input} {...bindUpdateFormObj("password")}/>
+            </div>,
+        ];
+    }
+
+    public renderSignUp() {
+        const bindUpdateFormObj: (attrName: string) => IFormProps = this.bindUpdateSignUpForm;
+        return [
+            <div className={styl.form_item} key="6">
+                <input className={styl.input} {...bindUpdateFormObj("re_password")}/>
+            </div>,
+            <div className={styl.form_item} key="7">
+                <input className={styl.input} {...bindUpdateFormObj("role_name")}/>
+            </div>,
+            <div className={styl.form_item} key="8">
+                <input className={styl.input} {...bindUpdateFormObj("code")}/>
+            </div>,
+            <div className={styl.form_item} key="9">
+                <input className={styl.input} {...bindUpdateFormObj("email")}/>
+            </div>,
+        ];
+    }
+
     public render() {
-        const bindUpdateFormObj = this.bindUpdateForm;
+        const isLogin: boolean = this.state.isLogin;
+        const bindUpdateFormObj = isLogin ? this.bindUpdateForm : this.bindUpdateSignUpForm;
         return (
-            <div className={styl.content + " bg animated"}>
+            <div className={styl.content + " animated"}>
                 { h(AlertZero, {ref: (c: any) => this.$alert = c, message: this.state.message, level: 1}) }
                 <div className={styl.form}>
-                    <form action="post" onSubmit={this.login}>
-                    <div className={styl.title}>
-                        <h1>登录</h1>
+                    <form action="post" onSubmit={this.submitEvent}>
+                    <div className={styl.title} key="title">
+                        <h1>{isLogin ? "登录" : "注册"}</h1>
                     </div>
-                    <div className={styl.form_item}>
-                        <input className={styl.input} {...bindUpdateFormObj("account")}/>
-                    </div>
-                    <div className={styl.form_item}>
-                        <input className={styl.input} {...bindUpdateFormObj("password")}/>
-                    </div>
-                    <div className={styl.form_item}>
-                        <div className={styl.button_item}>
-                            <button className={styl.button} type="submit">登录</button>
+                    {...this.renderBase(bindUpdateFormObj)}
+                    { isLogin ? <div className={styl.form_item + " " + styl.form_item_back} key="3">
+                        <div className={styl.rememberme}>
+                            <input id="rememberme" {...bindUpdateFormObj("rememberme")} className={styl.rememberme_check}/>
+                            <label for="rememberme" className={styl.rememberme_label}>记住我</label>
                         </div>
-                        <div className={styl.button_void}></div>
-                        <div className={styl.button_item}>
-                            <button className={styl.button}>注册</button>
+                        <div className={styl.back}>
+                            <a href="javascript:void(0);">忘记密码</a>
                         </div>
+                    </div> : this.renderSignUp()}
+                    <div className={styl.form_item} key="4">
+                        <button className={styl.button} type="submit">{isLogin ? "登录" : "注册"}</button>
+                    </div>
+                    <div className={styl.form_item} key="5">
+                        <a href="javascript:void(0);" onClick={() => this.setState({isLogin: !isLogin})}>{isLogin ? "注册" : "登录"}</a>
                     </div>
                     </form>
                 </div>

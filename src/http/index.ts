@@ -48,13 +48,13 @@ function clearToken() {
 const json = (res: Response) => res.json();
 const text = (res: Response) => res.text();
 
-function raw_fetch(url, options?: RequestInit) {
+function raw_fetch(url, options?: RequestInit): Promise<Response> {
     if (baseUrl && baseUrl !== "") {
         url = baseUrl + url;
     }
     return fetch(url, options);
 }
-function verifyToken() {
+function verifyToken(): Promise<string> {
     const tokenInfo = getToken();
     const timeNow = new Date().getTime();
     if (tokenInfo.exp && tokenInfo.exp - timeNow >= 2000) {
@@ -86,8 +86,8 @@ function verifyToken() {
     }
 }
 
-function baseFetch(url: string, options?: RequestInit) {
-    if (url === "/api/login") {
+function baseFetch(url: string, options?: RequestInit): Promise<Response | void> {
+    if (url === "/api/login" || url === "/api/sign_up" || url === "/api/forgotpwd") {
         return raw_fetch(url, options);
     }
     const catchToken = (reason) => {
@@ -248,13 +248,13 @@ export function libraryData(sha: string) {
         },
     };
 }
-function $ajaxRaw(url: string, options?: RequestInit) {
+function $ajaxRaw(url: string, options?: RequestInit): Promise<void | Response> {
     if (baseUrl && baseUrl !== "") {
         url = baseUrl + url;
     }
     return baseFetch(url, options);
 }
-function $ajaxBody(url, method: string, params?: {[name: string]: string} | null, init?: RequestInit) {
+function $ajaxBody(url, method: string, params?: IFromData | null, init?: RequestInit): Promise<void | Response> {
     let options: RequestInit;
     if (init) {
         options = {
@@ -271,24 +271,28 @@ function $ajaxBody(url, method: string, params?: {[name: string]: string} | null
     }
     return $ajaxRaw(url, options);
 }
+interface IFromData {
+    [name: string]: string | null | undefined | boolean | number;
+}
+
 export const $ajax = {
     raw: $ajaxRaw,
-    get(url, params?: {[name: string]: string} | null, init?: RequestInit) {
+    get(url, params?: IFromData | null, init?: RequestInit): Promise<void | Response> {
         if (params) {
             url += "?" + qs.stringify(params);
         }
         return $ajaxRaw(url, init);
     },
-    post(url, params?: {[name: string]: string} | null, init?: RequestInit) {
+    post(url, params?: IFromData | null, init?: RequestInit): Promise<void | Response> {
         return $ajaxBody(url, "POST", params, init);
     },
-    delete(url, params?: {[name: string]: string} | null, init?: RequestInit) {
+    delete(url, params?: IFromData | null, init?: RequestInit): Promise<void | Response> {
         return $ajaxBody(url, "DELETE", params, init);
     },
-    put(url, params?: {[name: string]: string} | null, init?: RequestInit) {
+    put(url, params?: IFromData | null, init?: RequestInit): Promise<void | Response> {
         return $ajaxBody(url, "PUT", params, init);
     },
-    patch(url, params?: {[name: string]: string} | null, init?: RequestInit) {
+    patch(url, params?: IFromData | null, init?: RequestInit): Promise<void | Response> {
         return $ajaxBody(url, "PATCH", params, init);
     },
 };

@@ -117,7 +117,11 @@ async def sign_up(request):
     """
     注册
     """
-    
+
+async def forgotpwd(request):
+    """
+    忘记密码
+    """
 
 # @Api.route("/refresh_token", methods=['POST', 'GET'])
 async def refresh_token(request):
@@ -195,6 +199,7 @@ async def refresh_token(request):
 
 add_route(Api, login, "/login", ["POST"], OPEN_API)
 add_route(Api, sign_up, "/sign_up", ["POST"], OPEN_API)
+add_route(Api, forgotpwd, "/forgotpwd", ["POST"], OPEN_API)
 add_route(Api, refresh_token, "/refresh_token", ['POST'], OPEN_API)
 
 app.blueprint(Api, url_prefix=Api.url_prefix)

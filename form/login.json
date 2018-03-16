@@ -12,5 +12,9 @@
         "title": "任意字符且在8-32长度之间!",
         "required": true,
         "placeholder": "密码"
+    },
+    "rememberme": {
+        "type": "checkbox",
+        "title": "请不要在公共电脑上勾选该选项!"
     }
 }
