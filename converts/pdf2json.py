@@ -173,12 +173,14 @@ class Pdf2Json(object):
 
         pdf2html_dict = {
             "Windows": ('bin/pdf2htmlEX-win32.zip', 'bin/pdf2htmlEX.exe'),
-            "Linux": ('bin/pdf2htmlEX-linux-x64.zip', 'bin/pdf2htmlEX.sh')
+            "Linux": ('bin/pdf2htmlEX-linux-x64.zip', 'bin/pdf2htmlEX.sh'),
+            "Darwin": (None, "pdf2htmlex")
         }
         pdf2html = pdf2html_dict.get(self.sysstr)
         if pdf2html:
-            if not os.path.exists(pdf2html[1]):
-                self.extract_zip(pdf2html[0])
+            if pdf2html[0]:
+                if not os.path.exists(pdf2html[1]):
+                    self.extract_zip(pdf2html[0])
         else:
             raise NameError("bin not on")
         if self.sysstr == 'Linux':
@@ -345,7 +347,7 @@ class Pdf2Json(object):
             container_root = tree.xpath(u'//div[@id="page-container"]')[0]
             last_class = None
             index = 0
-            page_id_map = {}
+            # page_id_map = {}
             for row in container_root.iterchildren():
                 item = {key: val for key, val in row.items()
                         if not (

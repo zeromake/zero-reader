@@ -139,8 +139,8 @@ export default class Home extends Component<ILoginProps, ILoginState> {
         ];
     }
 
-    private switch(isLogin: boolean) {
-        this.setState({isLogin: !isLogin});
+    private switch() {
+        this.setState({isLogin: !this.state.isLogin});
     }
 
     public render() {
