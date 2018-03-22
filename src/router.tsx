@@ -1,6 +1,6 @@
 import BookLayout from "@/components/book-layout";
 import Library from "@/components/library";
-import Login from "@/components/login";
+import Home from "@/components/home";
 import { h, Router, Route, Link, AsyncRoute } from "react-import";
 import Animate from "preact-animate";
 import { togglerFullScreen } from "./utils";
@@ -57,13 +57,13 @@ const MainRouter = () => (
             onAfterEnter={onAfterEnter}
             transitionEnter={true}
             transitionLeave={true}
-            transitionName={{ enter: "fadeIn", leave: "fadeOut"  }}
+            transitionName={{ enter: "fadeIn", leave: "fadeOut" }}
             >
             <Route
                 key="1"
                 // component={AsyncRoute}
                 // getComponent={Login}
-                component={Login}
+                component={Home}
                 path="/"
                 // transitionName={{ enter: "fadeInLeft", leave: "fadeOutLeft"  }}
             >

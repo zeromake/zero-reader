@@ -15,6 +15,7 @@
     },
     "rememberme": {
         "type": "checkbox",
-        "title": "请不要在公共电脑上勾选该选项!"
+        "title": "请不要在公共电脑上勾选该选项!",
+        "placeholder": "记住我"
     }
 }

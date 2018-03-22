@@ -2,6 +2,19 @@ import re
 import os
 import json
 
+FROM_TYPE_TO_OPENAPI = {
+    "text": "string",
+    "url": "string",
+    "tel": "string",
+    "password": "string",
+    "email": "string",
+    "date": "string",
+    "color": "string",
+    "number": "number",
+    "range": "number",
+    "checkbox": "boolean"
+}
+
 class Form:
     def __init__(self, form_dir):
         self._form_dir = form_dir
@@ -17,6 +30,25 @@ class Form:
             self._forms[name] = form
             return form
         return self._forms[name]
+    
+    def generate_schema(self, name):
+        """
+        使用表单约束生成 openapi doc schema
+        """
+        form = self.load(name)
+        schema = {
+            "properties": {},
+            "required": []
+        }
+        for key, val in form.items():
+            propertie = {
+                "type": "string" if val.get("type") not in FROM_TYPE_TO_OPENAPI else FROM_TYPE_TO_OPENAPI[val["type"]],
+                "description": val.get("placeholder")
+            }
+            if val.get("required"):
+                schema["required"].append(key)
+            schema["properties"][key] = propertie
+        return schema
 
     def verify(self, name, form_data):
         form = self.load(name)

@@ -287,8 +287,29 @@ def generate_openapi_by_def(handler):
         return yaml.load(text)
     return None
 
+def extend_dict(target, *args):
+    for arg in args:
+        if isinstance(arg, dict):
+            for key, val in arg.items():
+                target[key] = val
+    return target
 
-def add_route(context, handler, url, methods=None, openApi=None):
+def get_deep_obj(target, key_name, split="."):
+    """
+    获取深层对象
+    """
+    temp = target
+    key_arr = key_name.split(split)
+    for key in key_arr:
+        if isinstance(temp, dict) and key in temp:
+            temp = temp[key]
+        else:
+            temp = None
+            break
+    return temp
+        
+
+def add_route(context, handler, url, methods=None, openApi=None, form_name=None):
     """
     添加路由
     """
@@ -296,5 +317,19 @@ def add_route(context, handler, url, methods=None, openApi=None):
         doc = generate_openapi_by_def(handler)
         url_prefix = context.url_prefix
         if doc:
+            if form_name:
+                from web_app import app
+                schema = app.form.generate_schema(form_name)
+                for method in OPEN_METHOD:
+                    method = method[:-1]
+                    key = ".".join([method, "requestBody", "content"])
+                    temp = get_deep_obj(doc, key)
+                    if temp:
+                        for _, content in temp.items():
+                            if "schema" in content:
+                                schemas = content["schema"]
+                                extend_dict(schemas["properties"], schema["properties"])
+                                if "required" in schemas:
+                                    schemas["required"].extend(schema["required"])
             openApi.add_path(url_prefix + url, doc)
     context.add_route(handler, url, methods)

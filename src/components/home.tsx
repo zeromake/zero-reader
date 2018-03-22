@@ -4,7 +4,7 @@ import { $ajax } from "../http/index";
 import { bindUpdateForm, IFormProps } from "../utils";
 import AlertZero from "./alert-zero";
 import LoginForm from "@/../form/login.json";
-import SignUpForm from "@/../form/sign_up.json";
+import RegisterForm from "@/../form/register.json";
 
 interface ILoginProps {
     matches: {[name: string]: string};
@@ -26,9 +26,9 @@ enum Matche {
 }
 const verifyImgUrl = "/api/verify_code";
 
-export default class Login extends Component<ILoginProps, ILoginState> {
+export default class Home extends Component<ILoginProps, ILoginState> {
     private bindUpdateForm: (attrName: string) => IFormProps;
-    private bindUpdateSignUpForm: (attrName: string) => IFormProps;
+    private bindUpdateRegisterForm: (attrName: string) => IFormProps;
     private $alert: null | any;
     constructor(props, content) {
         super(props, content);
@@ -44,8 +44,9 @@ export default class Login extends Component<ILoginProps, ILoginState> {
             message: null,
         };
         this.refreshCode = this.refreshCode.bind(this);
+        this.switch = this.switch.bind(this);
         this.bindUpdateForm = bindUpdateForm(this, LoginForm, "form", true);
-        this.bindUpdateSignUpForm = bindUpdateForm(this, SignUpForm, "form", true);
+        this.bindUpdateRegisterForm = bindUpdateForm(this, RegisterForm, "form", true);
         this.submitEvent = this.submitEvent.bind(this);
         this.$alert = null;
         if (props && props.matches && props.matches[Matche.ERROR]) {
@@ -64,7 +65,7 @@ export default class Login extends Component<ILoginProps, ILoginState> {
         if (this.state.isLogin) {
             this.login();
         } else {
-            this.signUp();
+            this.register();
         }
     }
 
@@ -90,7 +91,7 @@ export default class Login extends Component<ILoginProps, ILoginState> {
         }
     }
 
-    private async signUp() {
+    private async register() {
         const res = await $ajax.post("/api/sign_up", this.state.form);
         const jsonObj = res && await res.json();
         this.togglerAlert(jsonObj.message);
@@ -120,8 +121,8 @@ export default class Login extends Component<ILoginProps, ILoginState> {
         ];
     }
 
-    public renderSignUp() {
-        const bindUpdateFormObj: (attrName: string) => IFormProps = this.bindUpdateSignUpForm;
+    public renderRegister() {
+        const bindUpdateFormObj: (attrName: string) => IFormProps = this.bindUpdateRegisterForm;
         return [
             <div className={styl.form_item} key="6">
                 <input className={styl.input} {...bindUpdateFormObj("re_password")}/>
@@ -138,9 +139,13 @@ export default class Login extends Component<ILoginProps, ILoginState> {
         ];
     }
 
+    private switch(isLogin: boolean) {
+        this.setState({isLogin: !isLogin});
+    }
+
     public render() {
         const isLogin: boolean = this.state.isLogin;
-        const bindUpdateFormObj = isLogin ? this.bindUpdateForm : this.bindUpdateSignUpForm;
+        const bindUpdateFormObj = isLogin ? this.bindUpdateForm : this.bindUpdateRegisterForm;
         return (
             <div className={styl.content + " animated"}>
                 { h(AlertZero, {ref: (c: any) => this.$alert = c, message: this.state.message, level: 1}) }
@@ -158,12 +163,12 @@ export default class Login extends Component<ILoginProps, ILoginState> {
                         <div className={styl.back}>
                             <a href="javascript:void(0);">忘记密码</a>
                         </div>
-                    </div> : this.renderSignUp()}
+                    </div> : this.renderRegister()}
                     <div className={styl.form_item} key="4">
                         <button className={styl.button} type="submit">{isLogin ? "登录" : "注册"}</button>
                     </div>
                     <div className={styl.form_item} key="5">
-                        <a href="javascript:void(0);" onClick={() => this.setState({isLogin: !isLogin})}>{isLogin ? "注册" : "登录"}</a>
+                        <a href="javascript:void(0);" onClick={this.switch}>{isLogin ? "注册" : "登录"}</a>
                     </div>
                     </form>
                 </div>

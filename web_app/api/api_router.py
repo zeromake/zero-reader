@@ -29,13 +29,7 @@ async def login(request):
           application/json:
             schema:
               type: object
-              properties:
-                account:
-                  type: string
-                  description: 帐号
-                password:
-                  type: string
-                  description: 密码
+              properties: {}
       responses:
         200:
           description: 登录成功
@@ -113,9 +107,28 @@ async def login(request):
     return response.json(res, status=res['status'])
 
 # @Api.route("/sign_up", methods=['POST'])
-async def sign_up(request):
+async def register(request):
     """
     注册
+    ---
+    post:
+      summary: 注册
+      requestBody:
+        description: 帐号信息
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              required: []
+      responses:
+        200:
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/baseResponse'
     """
 
 async def forgotpwd(request):
@@ -197,8 +210,8 @@ async def refresh_token(request):
         }
     return response.json(res, status=res['status'])
 
-add_route(Api, login, "/login", ["POST"], OPEN_API)
-add_route(Api, sign_up, "/sign_up", ["POST"], OPEN_API)
+add_route(Api, login, "/login", ["POST"], OPEN_API, "login")
+add_route(Api, register, "/register", ["POST"], OPEN_API, "register")
 add_route(Api, forgotpwd, "/forgotpwd", ["POST"], OPEN_API)
 add_route(Api, refresh_token, "/refresh_token", ['POST'], OPEN_API)
 
