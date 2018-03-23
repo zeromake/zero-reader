@@ -86,8 +86,14 @@ function verifyToken(): Promise<string> {
     }
 }
 
+const WhiteList = {
+    "/api/login": true,
+    "/api/register": true,
+    "/api/forgotpwd": true,
+};
+
 function baseFetch(url: string, options?: RequestInit): Promise<Response | void> {
-    if (url === "/api/login" || url === "/api/sign_up" || url === "/api/forgotpwd") {
+    if (url in WhiteList) {
         return raw_fetch(url, options);
     }
     const catchToken = (reason) => {

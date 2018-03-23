@@ -92,7 +92,7 @@ export default class Home extends Component<ILoginProps, ILoginState> {
     }
 
     private async register() {
-        const res = await $ajax.post("/api/sign_up", this.state.form);
+        const res = await $ajax.post("/api/register", this.state.form);
         const jsonObj = res && await res.json();
         this.togglerAlert(jsonObj.message);
     }

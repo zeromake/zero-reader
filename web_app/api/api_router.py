@@ -130,6 +130,31 @@ async def register(request):
               schema:
                   $ref: '#/components/schemas/baseResponse'
     """
+    form_data = request.json
+    res = app.form.verify("register", form_data)
+    if res is not None:
+        return response.json(res, status=res["status"])
+    account = form_data["account"]
+    role_name = form_data["role_name"]
+    model = app.db.get_model("user")
+    sql, *_ = model.select(where_data={"$or": {"account": account, "role_name": role_name}})
+    # print(sql)
+    item = await model.execute_one(sql)
+    if item is not None:
+        return response.json({"message": "该用户或角色已存在!", "status": 500}, status=500)
+    insert_data = {
+        "account": account,
+        "password": hash_string(form_data["password"]),
+        "role_name": role_name,
+        "email": form_data["email"],
+        "status": 0,
+        "permissions": 0,
+        "admin": 0,
+        "create_time": get_offset_timestamp(),
+    }
+    sql = model.insert(insert_data)
+    res = await model.execute_dml(sql, "注册成功!")
+    return response.json(res, status=res["status"])
 
 async def forgotpwd(request):
     """
