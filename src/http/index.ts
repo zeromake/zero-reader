@@ -99,7 +99,12 @@ function baseFetch(url: string, options?: RequestInit): Promise<Response | void>
     const catchToken = (reason) => {
         clearToken();
         const customLocation = (customHistory && customHistory.location) || location;
-        route("/?href=" +  encodeURIComponent(getCurrentUrl()) + "&error=" + encodeURIComponent(String(reason)));
+        const currentUrl: string = getCurrentUrl();
+        if (currentUrl && currentUrl.lastIndexOf("?href") !== -1) {
+            route("/?href=" +  encodeURIComponent(currentUrl) + "&error=" + encodeURIComponent(String(reason)));
+        } else {
+            route("/?error=" + encodeURIComponent(String(reason)));
+        }
     };
     return verifyToken().then((token: string) => {
         if (options && options.headers) {
