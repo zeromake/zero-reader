@@ -16,6 +16,11 @@ web reader
 - [x] react，react-dom支持
 - [x] 阅读器内部链接跳转
 - [x] 阅读器外部链接新标签打开
++ [ ] 用户认证
+    - [x] 登陆注册
+    - [ ] 邮箱验证
+    - [ ] 找回秘密
+    - [ ] 社交账号绑定
 + [ ] 更多的全按键操作支持
     - [ ] 书库按键支持
     - [ ] 目录dialog按键支持
@@ -24,13 +29,17 @@ web reader
     - [x] model delete api化
     - [x] model update api化
     - [x] model get api化
-    - [ ] model to openapi-ui
+    - [x] model post api化
+    - [x] model delete api化
+    - [ ] model put api化
+    - [x] model to openapi-ui
 + [ ] 书库及筛选
     - [ ] 书名模糊搜索
     - [ ] 作者及译者模糊搜索
     - [ ] tag精确选择过滤
 + [ ] 书架
     - [ ] 分类
+    - [ ] 自动根据最近阅读排序
 + [ ] 阅读器设置
     - [ ] epub字体大小
     - [ ] epub字体间距
@@ -52,8 +61,20 @@ web reader
     - [ ] mobi 支持
     - [ ] gitbook 支持
 + [ ] 安装引导
-    - 升级引导
-    - 备份数据库
+    - [ ] 服务设置
+    - [ ] 数据库设置
+    - [ ] 管理员设置
+    - [ ] 升级引导
++ [ ] 管理员后台
+    - [ ] 邀请码管理
+    - [ ] 用户管理
+    - [ ] 书籍管理
+    - [ ] 仪表盘
+        - [ ] 系统占用图表
+        - [ ] 用户增长图表
+        - [ ] 书籍增长图表
+    - [ ] 导入数据
+    - [ ] 备份数据
 
 ## use open project
 1. [preact](https://github.com/developit/preact): mini react like library(MIT)
@@ -85,6 +106,6 @@ web reader
 
 ## webpack4.0 support
 - [x] extract-text-webpack-plugin v4.0.0-beta.0
-- [x] html-webpack-plugin v3.0.3
-- [x] hard-source-webpack-plugin v0.6.0
-- [ ] svg-sprite-loader v3.6.1
+- [x] html-webpack-plugin v3.1.0
+- [x] hard-source-webpack-plugin v0.6.4
+- [x] svg-sprite-loader v3.6.3

@@ -147,7 +147,7 @@ async def register(request):
         "password": hash_string(form_data["password"]),
         "role_name": role_name,
         "email": form_data["email"],
-        "status": 0,
+        "status": 1,
         "permissions": 0,
         "admin": 0,
         "create_time": get_offset_timestamp(),

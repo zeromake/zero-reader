@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "animate.css": "^3.6.1",
-    "better-scroll": "^1.9.0",
+    "better-scroll": "^1.9.1",
     "chart.js": "^2.7.2",
     "cordova-android": "7.1.0",
     "cordova-browser": "5.0.3",
@@ -26,7 +26,7 @@
     "cordova-plugin-fullscreen": "^1.2.0",
     "es6-promise": "^4.2.4",
     "history": "^4.7.2",
-    "hotkeys-js": "^3.0.1",
+    "hotkeys-js": "^3.1.1",
     "intersection-observer": "^0.5.0",
     "lodash.throttle": "^4.1.1",
     "mobx": "^4.1.0",
@@ -63,7 +63,7 @@
     "tslint-loader": "^3.6.0",
     "typescript": "^2.7.2",
     "url-loader": "^1.0.1",
-    "webpack": "^4.2.0",
+    "webpack": "^4.3.0",
     "webpack-bundle-analyzer": "^2.11.1",
     "webpack-cli": "^2.0.13",
     "webpack-dev-server": "^3.1.1"
