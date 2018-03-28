@@ -26,6 +26,8 @@ enum Matche {
 }
 const verifyImgUrl = "/api/verify_code";
 
+declare const projectConfig: any;
+
 export default class Home extends Component<ILoginProps, ILoginState> {
     private bindUpdateForm: (attrName: string) => IFormProps;
     private bindUpdateRegisterForm: (attrName: string) => IFormProps;
@@ -130,9 +132,9 @@ export default class Home extends Component<ILoginProps, ILoginState> {
             <div className={styl.form_item} key="7">
                 <input className={styl.input} {...bindUpdateFormObj("role_name")}/>
             </div>,
-            <div className={styl.form_item} key="8">
+            projectConfig.sign_up_code ? <div className={styl.form_item} key="8">
                 <input className={styl.input} {...bindUpdateFormObj("code")}/>
-            </div>,
+            </div> : null,
             <div className={styl.form_item} key="9">
                 <input className={styl.input} {...bindUpdateFormObj("email")}/>
             </div>,

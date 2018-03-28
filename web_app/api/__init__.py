@@ -337,6 +337,35 @@ class ApiView(HTTPMethodView):
                             {"TokenAuth": []}
                         ],
                         "responses": default_responses
+                    },
+                    "put": {
+                        "tags": [table_name],
+                        "summary": table_doc + self.put.__doc__,
+                        "security":[
+                            {"TokenAuth": []}
+                        ],
+                        "responses": default_responses,
+                        "requestBody": {
+                            "required": True,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "where": {
+                                                "type": "object",
+                                                "additionalProperties": {
+                                                    "$ref": '#/components/schemas/whereParam'
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             )
