@@ -515,9 +515,9 @@ class ApiView(HTTPMethodView):
                 sql = None
         else:
             where = handle_param_primary(self._columns_name, form_data.get("where", {}))
-            data = form_data.get("data")
-            if not where is None and data and isinstance(data, dict):
-                sql = self.__model__.update().where(where).values(data)
+            values = form_data.get("values")
+            if not where is None and values and isinstance(values, dict):
+                sql = self.__model__.update().where(where).values(values)
         return sql
 
     def select(self, args={}, where_data={}, kwargs={}):

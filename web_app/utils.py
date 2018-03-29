@@ -2,6 +2,7 @@ import os
 import sys
 import sqlalchemy as sa
 from sqlalchemy import or_, and_
+from sqlalchemy.sql.expression import bindparam
 import jwt
 from sanic import response
 from web_app.config import CONFIG
@@ -74,12 +75,26 @@ def handle_param(column, data):
         elif opt == '$gte': # 大于等于
             return column >= value
         elif opt == '$like': # like
-            like_str = value if value.startswith("%") else "%%%s%%" % value
+            if isinstance(value, str):
+                like_str = value if value.startswith("%") else "%%%s%%" % value
+            else:
+                like_str = value
             return column.like(like_str)
         elif opt == '$in':
             return column.in_(value)
         elif opt == '$nin':
             return ~column.in_(value)
+        elif opt == '$bind':
+            # 占位符
+            if isinstance(value, str):
+                return column == bindparam(value)
+            else:
+                opt = value["opt"]
+                if opt == "$in" or opt == "$nin":
+                    value["val"] = bindparam(value["val"], expanding=True)
+                else:
+                    value["val"] = bindparam(value["val"])
+                return handle_param(column, value)
         elif opt == '$raw':
             return value
 
@@ -127,6 +142,10 @@ def handle_param_primary(column_name, form_data, is_or=False):
                     data.append(params)
         elif key == "$or" and isinstance(val, dict):
             params = handle_param_primary(column_name, val, True)
+            if not params is None:
+                data.append(params)
+        elif key == "$and" and isinstance(val, dict):
+            params = handle_param_primary(column_name, val, False)
             if not params is None:
                 data.append(params)
     data_len = len(data)
