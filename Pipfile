@@ -1,12 +1,9 @@
 [[source]]
-
 url = "https://pypi.doubanio.com/simple/"
 verify_ssl = true
 name = "doubanio"
 
-
 [packages]
-
 requests = "*"
 lxml = "*"
 argparse = "*"
@@ -22,9 +19,9 @@ pyjwt = "*"
 "jinja2" = "*"
 pylint = "*"
 "aiosqlite3" = "*"
-
+asyncpgsa = "*"
+"psycopg2-binary" = "*"
 
 [dev-packages]
-
 pylint = "*"
 pytest = "*"

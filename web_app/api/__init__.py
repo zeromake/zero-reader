@@ -381,16 +381,20 @@ class ApiView(HTTPMethodView):
         engine = app.engine
         try:
             async with engine.acquire() as conn:
-                async with conn.begin():
-                    count = 0
-                    if isinstance(sql, list):
-                        for sql_ in sql:
-                            async with conn.execute(sql_) as cursor:
-                                count += cursor.rowcount
-                    else:
-                        async with conn.execute(sql) as cursor:
-                            count = cursor.rowcount
-                    return {'status': 200, 'message': message, 'count': count}
+                async with conn.begin() as begin:
+                    try:
+                        count = 0
+                        if isinstance(sql, list):
+                            for sql_ in sql:
+                                async with conn.execute(sql_) as cursor:
+                                    count += cursor.rowcount
+                        else:
+                            async with conn.execute(sql) as cursor:
+                                count = cursor.rowcount
+                        return {'status': 200, 'message': message, 'count': count}
+                    except Exception as e:
+                        begin.close()
+                        return {'status': 500, 'message': str(e)}
         except Exception as e:
             return {'status': 500, 'message': str(e)}
 

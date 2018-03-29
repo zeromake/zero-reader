@@ -89,10 +89,14 @@ class DateBase:
         """
         from sqlalchemy.sql.ddl import CreateTable
         async with engine.acquire() as conn:
-            if await self.exists_table(conn, self._tables[0].name):
-                await self.drop_table(conn)
-            for table in self._tables:
-                await conn.execute(CreateTable(table))
+            async with conn.begin() as transaction:
+                try:
+                    if await self.exists_table(conn, self._tables[0].name):
+                        await self.drop_table(conn)
+                    for table in self._tables:
+                        await conn.execute(CreateTable(table))
+                except Exception:
+                    await transaction.close()
 
     async def drop_table(self, conn):
         """
