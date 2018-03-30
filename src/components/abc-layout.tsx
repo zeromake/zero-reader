@@ -91,6 +91,8 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                     this.getToc().then((tocs) => {
                         this.tocs = tocs;
                         this.tocToggler(true);
+                    }).catch((msg) => {
+                        console.warn(msg);
                     });
                 }
             },
@@ -171,7 +173,10 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         return this.library.text(pageName);
     }
     protected getToc() {
-        return this.library.json(this.props.meta.toc);
+        if (this.props.meta.toc && this.props.meta.toc !== "") {
+            return this.library.json(this.props.meta.toc);
+        }
+        return Promise.reject("not has toc!");
     }
     public componentWillUnmount() {
         window.removeEventListener("resize", this.resize);

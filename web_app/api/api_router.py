@@ -13,6 +13,7 @@ from ..utils import (
     add_route
 )
 from datetime import datetime, timedelta, timezone
+from sqlalchemy.sql.expression import bindparam
 # from .admin import AdminApi
 
 # @Api.route("/login", methods=['POST'])
@@ -241,6 +242,5 @@ add_route(Api, forgotpwd, "/forgotpwd", ["POST"], OPEN_API)
 add_route(Api, refresh_token, "/refresh_token", ['POST'], OPEN_API)
 
 app.blueprint(Api, url_prefix=Api.url_prefix)
-# app.blueprint(AdminApi, url_prefix='/api/admin')
 
 from .admin import admin_router

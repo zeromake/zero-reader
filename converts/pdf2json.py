@@ -117,7 +117,8 @@ class Pdf2Json(object):
         meta['type'] = 'pdf'
         meta['page_style'] = self.page_css
         meta['container'] = 'container.json'
-        meta['toc'] = 'toc.json'
+        if os.path.exists(os.path.join(self.dist, 'toc.json')):
+            meta['toc'] = 'toc.json'
         meta['zoom'] = 'zoom.json'
         meta['file_name'] = get_file_path_name(self.pdf_name)
         cover_url = zip_join(self.img_dir, 'bg1.png')

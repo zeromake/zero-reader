@@ -38,10 +38,10 @@
         },
         "aiosqlite3": {
             "hashes": [
-                "sha256:9f69b632013b8957a3fd26f0ea7efdec33321075ae3ae589220558b76924f562"
+                "sha256:00721250ae00de7aca044e5080a8d92568534ea4fa791709f99baadc5ad3bc56"
             ],
             "index": "doubanio",
-            "version": "==0.1.2"
+            "version": "==0.2.0"
         },
         "argparse": {
             "hashes": [
@@ -97,9 +97,9 @@
         },
         "httptools": {
             "hashes": [
-                "sha256:f50dcb27178416c3a4113e9e1b392be5d1ff56ae1e474fe80869ed8530505e4c"
+                "sha256:04c7703bbef0e8ca28b09811547352b8c7c20549eab70dc24e536bb24fd2b7c5"
             ],
-            "version": "==0.0.10"
+            "version": "==0.0.11"
         },
         "idna": {
             "hashes": [

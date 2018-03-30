@@ -90,6 +90,8 @@ def handle_param(column, data):
                 return column == bindparam(value)
             else:
                 opt = value["opt"]
+                if opt == '$bind':
+                    return None
                 if opt == "$in" or opt == "$nin":
                     value["val"] = bindparam(value["val"], expanding=True)
                 else:

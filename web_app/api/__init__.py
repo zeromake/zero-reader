@@ -20,6 +20,7 @@ try:
 except ImportError:
     import json
 from sqlalchemy import func, sql as sa_sql, desc, and_
+from sqlalchemy.sql.expression import bindparam
 
 __all__ = [
     "ApiView",
@@ -358,8 +359,45 @@ class ApiView(HTTPMethodView):
                                                     "$ref": '#/components/schemas/whereParam'
                                                 }
                                             },
+                                            "values": {
+                                                "type": "object",
+                                                "additionalProperties": {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "any",
+                                                            "description": "要更新的值"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "description": "设置占位符",
+                                                            "properties": {
+                                                                "val": {
+                                                                    "type": "string",
+                                                                    "description": "占位符名用于data的key"
+                                                                }
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            },
                                             "data": {
-                                                "type": "object"
+                                                "oneOf": [
+                                                    {
+                                                        "type": "object",
+                                                        "required": False,
+                                                        "description": "对应 values, where 中的占位数据"
+                                                    },
+                                                    {
+                                                        "type": "array",
+                                                        "required": False,
+                                                        "description": "批量操作",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "description": "对应 values, where 中的占位数据"
+                                                        }
+                                                    }
+                                                ]
+                                                
                                             }
                                         }
                                     }
@@ -373,7 +411,7 @@ class ApiView(HTTPMethodView):
         app_.add_route(view, url + "/<primary_key:int>")
         return view
 
-    async def execute_dml(self, sql, message="execute ok"):
+    async def execute_dml(self, sql, message="execute ok", data=None):
         """
         执行DML语句
         """
@@ -382,19 +420,15 @@ class ApiView(HTTPMethodView):
         try:
             async with engine.acquire() as conn:
                 async with conn.begin() as begin:
-                    try:
-                        count = 0
-                        if isinstance(sql, list):
-                            for sql_ in sql:
-                                async with conn.execute(sql_) as cursor:
-                                    count += cursor.rowcount
-                        else:
-                            async with conn.execute(sql) as cursor:
-                                count = cursor.rowcount
-                        return {'status': 200, 'message': message, 'count': count}
-                    except Exception as e:
-                        begin.close()
-                        return {'status': 500, 'message': str(e)}
+                    count = 0
+                    if isinstance(sql, list):
+                        for sql_ in sql:
+                            async with conn.execute(sql_) as cursor:
+                                count += cursor.rowcount
+                    else:
+                        async with conn.execute(sql, data) as cursor:
+                            count = cursor.rowcount
+                    return {'status': 200, 'message': message, 'count': count}
         except Exception as e:
             return {'status': 500, 'message': str(e)}
 
@@ -481,15 +515,15 @@ class ApiView(HTTPMethodView):
         全量更新
         """
         form_data = request.json
+        data = None
         if 'primary_key' in kwargs:
-            if form_data is None:
-                from_data = {}
-            if not self._key is None:
-                from_data[self._key.name] = kwargs['primary_key']
-        sql = self.update_sql(form_data)
+            sql = self.__model__.update().where(self._key==kwargs['primary_key']).values(form_data)
+        else:
+            sql = self.update_sql(form_data)
+            data = form_data.get("data")
         if sql is None:
             return {'status': 400, 'message': 'param is error'}
-        return await self.execute_dml(sql, "update ok")
+        return await self.execute_dml(sql, "update ok", data)
 
     async def patch(self, request, *args, **kwargs):
         """
@@ -517,6 +551,9 @@ class ApiView(HTTPMethodView):
             where = handle_param_primary(self._columns_name, form_data.get("where", {}))
             values = form_data.get("values")
             if not where is None and values and isinstance(values, dict):
+                for key, val in values.items():
+                    if isinstance(val, dict):
+                        values[key] = bindparam(val.get("val", key))
                 sql = self.__model__.update().where(where).values(values)
         return sql
 

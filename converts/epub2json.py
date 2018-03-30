@@ -394,14 +394,18 @@ class Epub2Json(object):
         """
         不分割拷贝
         """
-        from lxml import html
+        from lxml import etree
         with epub_file.open(zip_path) as html_file:
-            tree = html.parse(html_file)
+            tree = etree.parse(html_file)
             self.find_head_css(epub_file, tree, container_dir)
-            body = tree.find('//body')
-            page_xml = html.Element('div')
+            # body = tree.find('//body')
+            body = tree.find('{%s}%s' % (NAMESPACES['XHTML'], 'body'))
+            page_xml = etree.Element('div', nsmap=body.nsmap)
             for child in body.iterchildren():
                 page_xml.append(child)
+            # page_xml = etree.XSLT(page_xml)
+            # page_xml.tag = etree.QName(page_xml).localname
+            # print(page_xml.nsmap)
             self.save_html(page_xml, container_count)
 
     def split_html(
@@ -419,7 +423,8 @@ class Epub2Json(object):
         with epub_file.open(zip_path) as html_file:
             tree = etree.parse(html_file)
             self.find_head_css(epub_file, tree, container_dir)
-            body = tree.find('//body')
+            # body = tree.find('//body')
+            body = tree.find('{%s}%s' % (NAMESPACES['XHTML'], 'body'))
             children = body.getchildren()
             children_len = len(children)
             if children_len < split_count:
@@ -434,7 +439,7 @@ class Epub2Json(object):
                     if page_xml is not None:
                         self.save_html(page_xml, container_count + page_count)
                         page_count += 1
-                    page_xml = lxml.html.Element('div')
+                    page_xml = etree.Element('div', nsmap=body.nsmap)
                 page_xml.append(child)
             if page_xml is not None:
                 self.save_html(page_xml, container_count + page_count)
@@ -665,7 +670,6 @@ class Epub2Json(object):
                             method="html",
                             encoding='utf-8'
                         )
-                        # print(string_)
                         xml_file.write(
                             string_
                         )

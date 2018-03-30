@@ -22,46 +22,46 @@ app.form = Form(root_resolve("../form"))
 app.process = psutil.Process()
 
 
-@app.middleware("request")
-async def admin_request(request):
-    """
-    校验token
-    """
-    is_admin = request.path.startswith("/api/admin")
-    if is_admin or request.path.startswith("/api/public"):
-        authorization = request.headers.get("authorization")
-        if authorization is None:
-            return response.json({
-                "status": 401,
-                "message": "token没有传递!"
-            }, status=401)
-        res = None
-        try:
-            payload = decode_token(authorization)
-            timestamp_now = get_offset_timestamp()
-            if payload.get("refresh", False):
-                res = {
-                    "status": 401,
-                    "message": "refresh_token无法用于认证!"
-                }
-            elif timestamp_now >= payload["exp"]:
-                res = {
-                    "status": 401,
-                    "message": "token已过期请重新登录!"
-                }
-            elif not payload["admin"] and is_admin:
-                res = {
-                    "status": 401,
-                    "message": "只有管理员才能访问该接口!"
-                }
-        except Exception as e:
-            print(e)
-            res = {
-                "status": 500,
-                "message": "无法解析token!"
-            }
-        if res:
-            return response.json(res, status=res['status'])
+# @app.middleware("request")
+# async def admin_request(request):
+#     """
+#     校验token
+#     """
+#     is_admin = request.path.startswith("/api/admin")
+#     if is_admin or request.path.startswith("/api/public"):
+#         authorization = request.headers.get("authorization")
+#         if authorization is None:
+#             return response.json({
+#                 "status": 401,
+#                 "message": "token没有传递!"
+#             }, status=401)
+#         res = None
+#         try:
+#             payload = decode_token(authorization)
+#             timestamp_now = get_offset_timestamp()
+#             if payload.get("refresh", False):
+#                 res = {
+#                     "status": 401,
+#                     "message": "refresh_token无法用于认证!"
+#                 }
+#             elif timestamp_now >= payload["exp"]:
+#                 res = {
+#                     "status": 401,
+#                     "message": "token已过期请重新登录!"
+#                 }
+#             elif not payload["admin"] and is_admin:
+#                 res = {
+#                     "status": 401,
+#                     "message": "只有管理员才能访问该接口!"
+#                 }
+#         except Exception as e:
+#             print(e)
+#             res = {
+#                 "status": 500,
+#                 "message": "无法解析token!"
+#             }
+#         if res:
+#             return response.json(res, status=res['status'])
 
 @app.listener('before_server_start')
 async def before_server_start(app, loop):

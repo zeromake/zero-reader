@@ -132,7 +132,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
     }
 
     private bottomBarClick = (id: number, event: MouseEvent) => {
-        event.stopPropagation();
+        // event.stopPropagation();
         if (id === 1) {
             if (this.tocs) {
                 this.barToggler(false);
@@ -142,6 +142,8 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                     this.tocs = tocs;
                     this.barToggler(false);
                     this.tocToggler(true);
+                }).catch((msg) => {
+                    console.warn(msg);
                 });
             }
         }

@@ -58,6 +58,7 @@ class DateBase:
             return await create_engine(
                 self._url.database,
                 loop=loop,
+                # echo=True,
                 **self._args
             )
         elif self._driver == "mysql":

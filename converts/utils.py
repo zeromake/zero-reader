@@ -306,15 +306,6 @@ def save_xml_path(xml, output_path, method="html"):
     保存xml
     """
     from lxml import etree
-    # with file_open(output_path, 'w', encoding="utf8") as out_file:
-    #     string_ = etree.tostring(
-    #         xml,
-    #         pretty_print=True,
-    #         encoding='utf-8',
-    #         # method='xml'
-    #     ).decode()
-    #     print(output_path, string_)
-    #     return out_file.write(string_)
     return etree.ElementTree(xml).write(
         output_path,
         pretty_print=True,
