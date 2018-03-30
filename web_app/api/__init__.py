@@ -354,10 +354,7 @@ class ApiView(HTTPMethodView):
                                         "type": "object",
                                         "properties": {
                                             "where": {
-                                                "type": "object",
-                                                "additionalProperties": {
-                                                    "$ref": '#/components/schemas/whereParam'
-                                                }
+                                                "$ref": "#/components/schemas/whereData"
                                             },
                                             "values": {
                                                 "type": "object",

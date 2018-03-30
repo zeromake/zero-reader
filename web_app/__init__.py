@@ -79,56 +79,120 @@ async def before_server_stop(app, loop):
         await app.engine.wait_closed()
         app.engine = None
 
+
 OPEN_API = None
 if CONFIG['OPEN_API']:
+    api_doc = ""
+    try:
+        with open(root_resolve("./openapi.md"), encoding="utf8") as fd:
+            api_doc = fd.read()
+    except Exception as e:
+        api_doc = "api doc"
     OPEN_API = ApiSpec(
         "zero-reader api",
-        "api doc",
+        api_doc,
         "0.1.0"
     )
-    OPEN_API.add_schema("whereParam", {
-        "type": "object",
-        "properties": {
-            "val": {
-                "description": "数值",
-                "oneOf":[
-                    {
-                        "type": "integer"
-                    },
-                    {
-                        "type": "float"
-                    },
-                    {
-                        "type": "string"
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "oneOf": [
-                                {"type": "integer"},
-                                {"type": "float"},
-                                {"type": "string"}
-                            ]
-                        }
-                    }
-                ]
+    OPEN_API.add_schema("optParam", {
+        "type": "string",
+        "description": "运算符",
+        "required": True,
+        "enum": [
+            "$raw",
+            "$ne",
+            "$te",
+            "$lt",
+            "$lte",
+            "$gt",
+            "$gte",
+            "$like",
+            "$in",
+            "$nin",
+            "$bind"
+        ]
+    })
+    OPEN_API.add_schema("anyParam", {
+        "oneOf": [
+            {
+                "required": True,
+                "type": "integer"
             },
-            "opt": {
-                "type": "string",
-                "description": "运算符",
-                "enum": [
-                    "$raw",
-                    "$ne",
-                    "$te",
-                    "$lt",
-                    "$lte",
-                    "$gt",
-                    "$gte",
-                    "$like",
-                    "$in",
-                    "$nin"
-                ]
+            {
+                "required": True,
+                "type": "float"
+            },
+            {
+                "required": True,
+                "type": "string"
             }
+        ]
+    })
+    OPEN_API.add_schema("whereParam", {
+        "oneOf": [
+            {
+                "$ref": "#/components/schemas/anyParam"
+            },
+            {
+                "type": "object",
+                "properties": {
+                    "val": {
+                        "description": "数值",
+                        "required": True,
+                        "oneOf":[
+                            {
+                                "$ref": "#/components/schemas/anyParam"
+                            },
+                            {
+                                "type": "object",
+                                "description": "$bind对应的占位key设置",
+                                "properties": {
+                                    "val": {
+                                        "description": "占位key",
+                                        "type": "string"
+                                    },
+                                    "opt": {
+                                        "$ref": "#/components/schemas/optParam"
+                                    }
+                                }
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "oneOf": [
+                                        {"$ref": "#/components/schemas/anyParam"}
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    "opt": {
+                        "$ref": "#/components/schemas/optParam"
+                    }
+                }
+            }
+        ]
+    })
+    OPEN_API.add_schema("whereData", {
+        "type": "object",
+        "description": "",
+        "properties": {
+            "$or": {
+                "type": "object",
+                "description": "sql 的 OR",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/whereParam"
+                }
+            },
+            "$and": {
+                "type": "object",
+                "description": "sql 的 AND",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/whereParam"
+                }
+            }
+        },
+        "additionalProperties": {
+            "$ref": "#/components/schemas/whereParam"
         }
     })
     OPEN_API.add_parameters("order", {
@@ -175,25 +239,6 @@ if CONFIG['OPEN_API']:
             "default": 0
         }
     })
-    OPEN_API.add_parameters("where", {
-        "in": "query",
-        "name": "where",
-        "description": "过滤条件",
-        "content": {
-            "application/json":
-            {
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "id": {
-                            "$ref": "#/components/schemas/whereParam",
-                        }
-                    }
-                }
-            }
-        }
-
-    })
     OPEN_API.add_schema("baseResponse", {
         "type": "object",
         "properties": {
@@ -221,6 +266,24 @@ if CONFIG['OPEN_API']:
         "type": "apiKey",
         "in": "header",
         "name": "authorization"
+    })
+    OPEN_API.add_parameters("where", {
+        "in": "query",
+        "name": "where",
+        "description": "过滤条件",
+        "content": {
+            "application/json":
+            {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "$ref": "#/components/schemas/whereParam",
+                        }
+                    }
+                }
+            }
+        }
     })
     @app.route("/ui.json", methods=["GET"])
     def openapi(request):

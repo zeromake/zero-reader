@@ -283,6 +283,12 @@ ReadHistory = sa.Table(
         doc="书籍"
     ),
     sa.Column(
+        'user_id',
+        sa.Integer,
+        nullable=False,
+        doc="用户"
+    ),
+    sa.Column(
         'page',
         sa.Integer,
         nullable=False,
@@ -321,6 +327,12 @@ BookShelf = sa.Table(
         doc="书籍"
     ),
     sa.Column(
+        'user_id',
+        sa.Integer,
+        nullable=False,
+        doc="用户"
+    ),
+    sa.Column(
         'sort',
         sa.String(32),
         nullable=False,
@@ -331,6 +343,12 @@ BookShelf = sa.Table(
         sa.BigInteger,
         nullable=False,
         doc="更新时间"
+    ),
+    sa.Column(
+        'create_time',
+        sa.BigInteger,
+        nullable=False,
+        doc="添加时间"
     ),
     sqlite_autoincrement=True
 )

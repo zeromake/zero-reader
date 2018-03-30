@@ -28,10 +28,10 @@ web reader
     - [x] model create api化
     - [x] model delete api化
     - [x] model update api化
-    - [x] model get api化
-    - [x] model post api化
-    - [x] model delete api化
-    - [ ] model put api化
+    - [x] model get api_doc化
+    - [x] model post api_doc化
+    - [x] model delete api_doc化
+    - [x] model put api_doc化
     - [x] model to openapi-ui
 + [ ] 书库及筛选
     - [ ] 书名模糊搜索

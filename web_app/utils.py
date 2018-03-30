@@ -75,11 +75,7 @@ def handle_param(column, data):
         elif opt == '$gte': # 大于等于
             return column >= value
         elif opt == '$like': # like
-            if isinstance(value, str):
-                like_str = value if value.startswith("%") else "%%%s%%" % value
-            else:
-                like_str = value
-            return column.like(like_str)
+            return column.like(value)
         elif opt == '$in':
             return column.in_(value)
         elif opt == '$nin':
