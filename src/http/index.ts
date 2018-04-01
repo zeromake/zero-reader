@@ -8,7 +8,7 @@ if (process.env.platform === "cordova" && process.env.NODE_ENV !== "production")
 if (process.env.platform === "cordova" && process.env.NODE_ENV === "production") {
     baseUrl = localStorage.getItem("baseUrl");
     if (!baseUrl || baseUrl === "") {
-        baseUrl = prompt("填写服务器地址", "http://192.168.2.103:8080");
+        baseUrl = prompt("填写服务器地址", "http://192.168.2.104:8000");
         localStorage.setItem("baseUrl", baseUrl);
     }
 }

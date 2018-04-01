@@ -7,7 +7,7 @@
     <author email="a390720046@gmail.com" href="https://blog.zeromake.com">
         zeromake
     </author>
-    <content src="index.html?console=true" />
+    <content src="index.html/#/" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
@@ -26,6 +26,6 @@
     <plugin name="cordova-plugin-file" spec="^6.0.0" />
     <plugin name="cordova-plugin-fullscreen" spec="^1.2.0" />
     <engine name="ios" spec="4.5.4" />
-    <engine name="android" spec="7.0.0" />
-    <engine name="browser" spec="5.0.2" />
+    <engine name="android" spec="7.1.0" />
+    <engine name="browser" spec="5.0.3" />
 </widget>

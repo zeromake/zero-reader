@@ -8,6 +8,7 @@ const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const pkg = require("../package.json");
 
 const isProd = process.env.NODE_ENV === 'production';
+console.log(process.env.platform)
 const isCordova = process.env.platform === "cordova";
 const resolve = file => path.resolve(__dirname, file);
 const assetsPath = "assets";
@@ -99,15 +100,15 @@ const basePlugin = [
 ]
 basePlugin.push(new ExtractTextPlugin("css/common.[chunkhash].css"))
 basePlugin.push(new HardSourceWebpackPlugin())
+basePlugin.push(new webpack.DefinePlugin({
+    'process.env': {
+        NODE_ENV: isProd ? '"production"' : '"development"',
+        platform: JSON.stringify(process.env.platform)
+    }
+}))
 if (!isWebpackNext) {
     const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin');
     basePlugin.push(new ModuleConcatenationPlugin())
-    basePlugin.push(new webpack.DefinePlugin({
-        'process.env': {
-            NODE_ENV: isProd ? '"production"' : '"development"',
-            platform: JSON.stringify(process.env.platform)
-        }
-    }))
     if (isProd) {
         basePlugin.push(new webpack.optimize.UglifyJsPlugin({
             // 最紧凑的输出
