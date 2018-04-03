@@ -11,7 +11,7 @@ from .utils import root_resolve, template
 
 # app.static("/", root_resolve("../dist/index.html"), name="index")
 app.static("/assets/", root_resolve("../dist/assets"), name="static")
-app.static("/librarys/", root_resolve("../librarys"), name="librarys")
+app.static("/api/librarys/", root_resolve("../librarys"), name="librarys")
 # app.config.project = json.dumps({"sign_up": True, "sign_up_code": True})
 app.config.project = "null"
 
@@ -20,7 +20,7 @@ def index(request):
     return template("index.html", config=app.config.project)
 
 @app.route("/config")
-async def index(request):
+def index(request):
     return response.text(
         app.config.project,
         headers= {

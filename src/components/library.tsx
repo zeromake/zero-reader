@@ -2,7 +2,7 @@
 // import { Link } from "react-router-dom";
 import { Component, h, Link } from "react-import";
 import styl from "@/css/library.styl";
-import { get_json } from "@/http/index";
+import { libraryData } from "@/http/index";
 
 export default class Library extends Component<any, any> {
     constructor(p, c) {
@@ -12,7 +12,7 @@ export default class Library extends Component<any, any> {
         };
     }
     public componentDidMount() {
-        get_json("/librarys/db.json").then((data: any) => {
+        (libraryData as any).json("/db.json").then((data: any) => {
             this.setState({ library: data });
         });
     }

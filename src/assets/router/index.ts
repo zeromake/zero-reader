@@ -199,11 +199,11 @@ class Router extends Component<any, any> {
     public static Router = Router;
     public static Route = Route;
     public static Link = Link;
-    public static getDerivedStateFromProps?(nextProps: any, previousState: any): null {
-        const self = previousState.self;
-        self.updating = true;
-        return null;
-    }
+    // public static getDerivedStateFromProps?(nextProps: any, previousState: any): null {
+    //     const self = previousState.self;
+    //     self.updating = true;
+    //     return null;
+    // }
     constructor(props) {
         super(props);
         if (props.history) {
@@ -240,19 +240,18 @@ class Router extends Component<any, any> {
     /** Re-render children with a new URL to match against. */
     public routeTo(url) {
         this._didRoute = false;
-        if (this.initRoute) {
-            this.state.url = url;
-        } else {
-            this.setState({ url });
-        }
+        this.state.url = url;
 
         // if we"re in the middle of an update, don"t synchronously re-route.
         if (this.updating) {
             return this.canRoute(url);
+        } else {
+            this.updating = true;
         }
         if (!this.initRoute) {
             this.forceUpdate();
         }
+        this.updating = false;
         return this._didRoute;
     }
 
@@ -286,10 +285,10 @@ class Router extends Component<any, any> {
         ROUTERS.splice(ROUTERS.indexOf(this), 1);
     }
 
-    public componentWillUpdate(nextProps: any) {
-        Router.getDerivedStateFromProps(nextProps, this.state);
-        // this.updating = true;
-    }
+    // public componentWillUpdate(nextProps: any) {
+    //     Router.getDerivedStateFromProps(nextProps, this.state);
+    //     // this.updating = true;
+    // }
 
     public componentDidUpdate() {
         this.updating = false;

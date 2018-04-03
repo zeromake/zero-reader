@@ -3393,10 +3393,6 @@ invert-kv@^1.0.0:
   version "1.0.0"
   resolved "http://registry.npm.taobao.org/invert-kv/download/invert-kv-1.0.0.tgz#104a8e4aaca6d3d8cd157a8ef8bfab2d7a3ffdb6"
 
-ios-deploy@^1.9.2:
-  version "1.9.2"
-  resolved "http://registry.npm.taobao.org/ios-deploy/download/ios-deploy-1.9.2.tgz#c2f4c46b06db4771939b29f980c7c1a8906b47a2"
-
 ios-sim@^6.1.2:
   version "6.1.2"
   resolved "http://registry.npm.taobao.org/ios-sim/download/ios-sim-6.1.2.tgz#7b9df7c35abd5b9d4c014248174e8b9e5b97ecc4"
@@ -7516,6 +7512,6 @@ yeoman-generator@^2.0.3:
     through2 "^2.0.0"
     yeoman-environment "^2.0.5"
 
-zreact@^1.4.1:
-  version "1.4.1"
-  resolved "http://registry.npm.taobao.org/zreact/download/zreact-1.4.1.tgz#5b6d727568611d6ac1ef4beeeda7a9653e1593c1"
+zreact@^1.4.2:
+  version "1.4.2"
+  resolved "http://registry.npm.taobao.org/zreact/download/zreact-1.4.2.tgz#3c81c6024e9a9c699e228db85d86603f571ca729"

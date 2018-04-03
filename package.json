@@ -36,7 +36,7 @@
     "sakura.css": "^1.0.0",
     "screenfull": "^3.3.2",
     "unfetch": "^3.0.0",
-    "zreact": "^1.4.1"
+    "zreact": "^1.4.2"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.106",

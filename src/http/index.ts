@@ -2,6 +2,8 @@ import { customHistory, route, getCurrentUrl } from "react-import";
 import qs from "qs";
 let baseUrl = "";
 
+declare const process: any;
+
 if (process.env.platform === "cordova" && process.env.NODE_ENV !== "production") {
     baseUrl = location.origin;
 }
@@ -57,8 +59,8 @@ function raw_fetch(url, options?: RequestInit): Promise<Response> {
 function verifyToken(): Promise<string> {
     const tokenInfo = getToken();
     const timeNow = new Date().getTime();
-    if (tokenInfo.exp && tokenInfo.exp - timeNow >= 2000) {
-        if (tokenInfo.refresh_exp && tokenInfo.refresh_exp - timeNow >= 2000) {
+    if (tokenInfo.exp && tokenInfo.exp - timeNow <= 2000) {
+        if (tokenInfo.refresh_exp && tokenInfo.refresh_exp - timeNow <= 2000) {
             return Promise.reject("token已过期!");
         } else {
             return raw_fetch("/api/refresh_token", {
@@ -92,7 +94,7 @@ const WhiteList = {
     "/api/forgotpwd": true,
 };
 
-function baseFetch(url: string, options?: RequestInit): Promise<Response | void> {
+function $ajaxRaw(url: string, options?: RequestInit): Promise<Response | void> {
     if (url in WhiteList) {
         return raw_fetch(url, options);
     }
@@ -123,7 +125,7 @@ function baseFetch(url: string, options?: RequestInit): Promise<Response | void>
         return raw_fetch(url, options);
     }).catch(catchToken);
 }
-(window as any).baseFetch = baseFetch;
+// (window as any).baseFetch = baseFetch;
 
 export function get_json(url: string) {
     return raw_fetch(url).then(json);
@@ -220,23 +222,24 @@ const cache = (max: number = 10) => {
 
 const cacheData = cache(20);
 
+const libraryBaseUrl = "/api/librarys";
 export function libraryData(sha: string) {
-    const libraryBaseUrl = baseUrl ? baseUrl + "/librarys" : "/librarys";
     return {
         get(url: string, callback) {
-            if (libraryBaseUrl) {
-                url = libraryBaseUrl + url;
-            }
+            url = libraryBaseUrl + url;
             const cacheValue = cacheData.get(url);
             if (cacheValue) {
                 // console.log(cacheData.info());
                 return Promise.resolve(cacheValue);
             } else {
-                return fetch(url).then(callback).then((value: any) => {
+                return $ajaxRaw(url).then(callback).then((value: any) => {
                     cacheData.add(url, value);
-                    // console.log(cacheData.info());
                     return Promise.resolve(value);
                 });
+                // return fetch(url).then(callback).then((value: any) => {
+                //     cacheData.add(url, value);
+                //     return Promise.resolve(value);
+                // });
             }
         },
         json(url: string) {
@@ -246,7 +249,7 @@ export function libraryData(sha: string) {
             return this.get(`/${sha}/${url}`, text);
         },
         css(url: string) {
-            return `${libraryBaseUrl}/${sha}/${url}`;
+            return `${baseUrl}${libraryBaseUrl}/${sha}/${url}`;
         },
         image(url: string) {
             return this.css(url);
@@ -259,12 +262,24 @@ export function libraryData(sha: string) {
         },
     };
 }
-function $ajaxRaw(url: string, options?: RequestInit): Promise<void | Response> {
-    if (baseUrl && baseUrl !== "") {
-        url = baseUrl + url;
+(libraryData as any).json = function _(url) {
+    url = libraryBaseUrl + url;
+    const cacheValue = cacheData.get(url);
+    if (cacheValue) {
+        return Promise.resolve(cacheValue);
+    } else {
+        return $ajaxRaw(url).then(json).then((value: any) => {
+            cacheData.add(url, value);
+            return Promise.resolve(value);
+        });
     }
-    return baseFetch(url, options);
-}
+};
+// function $ajaxRaw(url: string, options?: RequestInit): Promise<void | Response> {
+//     // if (baseUrl && baseUrl !== "") {
+//     //     url = baseUrl + url;
+//     // }
+//     return baseFetch(url, options);
+// }
 function $ajaxBody(url, method: string, params?: IFromData | null, init?: RequestInit): Promise<void | Response> {
     let options: RequestInit;
     if (init) {
