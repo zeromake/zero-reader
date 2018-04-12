@@ -1,4 +1,6 @@
 import { h, Component, Children } from "react-import";
+import Animate from "preact-animate";
+import { cloneElement } from "module-react";
 
 export function addLinkCss(href, id) {
     const link = document.getElementById(id);
@@ -90,6 +92,7 @@ export function filterPropsComponent(props) {
     if (props.children) {
         vnode = Children.only(props.children);
     }
+    vnode = cloneElement(vnode, Animate.filterProps(props));
     return vnode;
 }
 

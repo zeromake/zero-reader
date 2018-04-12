@@ -3,6 +3,7 @@
 import { Component, h, Link } from "react-import";
 import styl from "@/css/library.styl";
 import { libraryData } from "@/http/index";
+import Animate from "preact-animate";
 
 export default class Library extends Component<any, any> {
     constructor(p, c) {
@@ -20,7 +21,7 @@ export default class Library extends Component<any, any> {
         const props = this.props;
         const state = this.state;
         return (
-            <div className={styl.library + " animated"}>
+            <div {...Animate.filterProps(this.props, {className: styl.library + " animated"})}>
                 {
                     state.library.map((book) => {
                         const href = `/library/${book.sha}/`;

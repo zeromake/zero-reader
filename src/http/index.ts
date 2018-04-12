@@ -10,7 +10,7 @@ if (process.env.platform === "cordova" && process.env.NODE_ENV !== "production")
 if (process.env.platform === "cordova" && process.env.NODE_ENV === "production") {
     baseUrl = localStorage.getItem("baseUrl");
     if (!baseUrl || baseUrl === "") {
-        baseUrl = prompt("填写服务器地址", "http://192.168.2.104:8000");
+        baseUrl = prompt("填写服务器地址", "http://192.168.13.16:8000");
         localStorage.setItem("baseUrl", baseUrl);
     }
 }
@@ -64,9 +64,11 @@ function verifyToken(): Promise<string> {
             return Promise.reject("token已过期!");
         } else {
             return raw_fetch("/api/refresh_token", {
-                headers: {
-                    [AUTH_HEADER]: tokenInfo.refresh_token,
-                },
+                method: "POST",
+                body: `{"${AUTH_HEADER}": "${tokenInfo.refresh_token}"}`,
+                // headers: {
+                //     [AUTH_HEADER]: tokenInfo.refresh_token,
+                // },
             }).then(json).then((res: any) => {
                 if (res.status === 200) {
                     const token: string = res.data.token;

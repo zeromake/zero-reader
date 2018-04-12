@@ -68,7 +68,8 @@ export default class TocItem extends Component<ITocProps, IAbcToc> {
                     transitionName = {{
                         enter: "fadeInDown",
                         leave: "fadeOutUp",
-                    }}>
+                    }}
+                    isRender={true}>
                 <div data-show={toc.disable} className={ styl.tocItems + " animated"}>
                 {
                     toc.children.map((item: IAbcToc, index: number) => (

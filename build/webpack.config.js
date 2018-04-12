@@ -1,14 +1,19 @@
-const webpack = require('webpack')
-const path = require('path')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const ExtractTextPlugin = require("extract-text-webpack-plugin")
+const webpack = require('webpack');
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+// const ExtractTextPlugin = require("extract-text-webpack-plugin")
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+// const CssNano = require('cssnano')
 // const AutoDllPlugin = require("autodll-webpack-plugin");
 
 const pkg = require("../package.json");
 
 const isProd = process.env.NODE_ENV === 'production';
-console.log(process.env.platform)
+// console.log(process.env.platform)
 const isCordova = process.env.platform === "cordova";
 const resolve = file => path.resolve(__dirname, file);
 const assetsPath = "assets";
@@ -16,11 +21,10 @@ const isWebpackNext = true
 
 function buildCss(use) {
     if (isWebpackNext) {
-        return ExtractTextPlugin.extract({
-            fallback: "style-loader",
-            use,
-            publicPath: '../'
-        })
+        return [
+            MiniCssExtractPlugin.loader,
+            ...use
+        ]
     }
     return [
         {
@@ -76,6 +80,9 @@ const serverPort = 8090
 
 const outPath = isCordova ? resolve('../www') : resolve('../dist');
 const zreactAlias = {
+    'react': 'zreact',
+    'react-dom': 'zreact',
+    'prop-types': 'zreact/prop-types.js',
     'preact': 'zreact',
     'module-react': resolve('../src/import/module-zreact.ts'),
     'react-import': resolve('../src/import/zreact-import.ts'),
@@ -90,6 +97,8 @@ const reactAlias = {
     'preact-animate': 'preact-animate/dist/react-animate-esm.js',
 }
 const preactAlias = {
+    'react': 'preact',
+    'react-dom': 'preact',
     'zreact': 'preact',
     'zreact/devtools': resolve('../src/import/devtools.ts'),
     'module-react': resolve('../src/import/module-preact.ts'),
@@ -97,15 +106,17 @@ const preactAlias = {
 }
 
 const basePlugin = [
+    new MiniCssExtractPlugin({
+        filename: "css/common.[chunkhash].css",
+    }),
+    new HardSourceWebpackPlugin(),
+    new webpack.DefinePlugin({
+        'process.env': {
+            NODE_ENV: isProd ? '"production"' : '"development"',
+            platform: JSON.stringify(process.env.platform)
+        }
+    })
 ]
-basePlugin.push(new ExtractTextPlugin("css/common.[chunkhash].css"))
-basePlugin.push(new HardSourceWebpackPlugin())
-basePlugin.push(new webpack.DefinePlugin({
-    'process.env': {
-        NODE_ENV: isProd ? '"production"' : '"development"',
-        platform: JSON.stringify(process.env.platform)
-    }
-}))
 if (!isWebpackNext) {
     const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin');
     basePlugin.push(new ModuleConcatenationPlugin())
@@ -167,10 +178,10 @@ const config = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            config: isCordova && isProd ? false : isProd ? "{{ config|safe }}" : JSON.stringify({
+            config: isCordova || !isProd ? JSON.stringify({
                 "sign_up": true,
                 "sign_up_code": true
-            }),
+            }): isProd ? "{{ config|safe }}" : false,
             version: pkg.version,
             buildTime: strftime(new Date()),
             isProd,
@@ -212,27 +223,52 @@ const config = {
         }
     },
     optimization: {
+        minimizer: [
+            new UglifyJsPlugin({
+                cache: true,
+                parallel: true,
+                sourceMap: true,
+                uglifyOptions: {
+                    // 最紧凑的输出
+                    beautify: false,
+                    // 删除所有的注释
+                    comments: false,
+                    mangle: {
+                        safari10: true
+                    },
+                    compress: {
+                        // 在UglifyJs删除没有用到的代码时不输出警告
+                        warnings: false,
+                        // 删除所有的 `console` 语句，可以兼容ie浏览器
+                        drop_console: true,
+                        // 内嵌定义了但是只用到一次的变量
+                        collapse_vars: true,
+                        // 提取出出现多次但是没有定义成变量去引用的静态值
+                        reduce_vars: true,
+                        // warnings: false,
+                    }
+                }
+            }),
+            new OptimizeCSSAssetsPlugin({
+                // cssProcessor: CssNano,
+                cssProcessorOptions: { discardComments: { removeAll: true } },
+            })
+        ],
         runtimeChunk: {
             name: "manifest"
         },
         splitChunks: {
-            // chunks: "async",
-            // minSize: 10000,
-            // minChunks: 1,
-            // maxAsyncRequests: 5,
-            // maxInitialRequests: 3,
-            // name: true,
             cacheGroups: {
-                // default: {
-                //     minChunks: 2,
-                //     priority: -20,
-                //     reuseExistingChunk: true,
-                // },
+                styles: {
+                    name: 'styles',
+                    test: /\.(css|styl)$/,
+                    chunks: 'all',
+                    enforce: true
+                },
                 vendors: {
                     test: /[\\/]node_modules[\\/].+\.js$/,
                     chunks: "all",
                     name: "vendor"
-                    // priority: -10
                 }
             }
         },

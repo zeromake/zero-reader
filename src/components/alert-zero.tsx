@@ -95,6 +95,7 @@ export default class AlertZero extends Component<IAlertZeroProps, any> {
                 transitionEnter={true}
                 transitionLeave={true}
                 showProp="data-show"
+                isRender={true}
             >
                 <div className={styl.content + " animated"} data-show={this.state.show && this.props.message}>
                     <div className={styl.close}>

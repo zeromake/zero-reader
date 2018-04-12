@@ -341,13 +341,13 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
 
         return <Animate
                 component="div"
-                componentProps={{
-                    // ref: ((vdom: any) => this.page = findDOMNode(vdom)),
-                    className: `${styl.body}`,
-                }}
+                componentProps={
+                    Animate.filterProps(this.props, {className: `${styl.body}`})
+                }
                 transitionEnter={true}
                 transitionLeave={true}
                 showProp="data-show"
+                isRender={true}
             >
                 {[
                     h(filterPropsComponent, {
@@ -362,9 +362,10 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                         },
                         this.renderToc(),
                     ),
-                    h(
-                        filterPropsComponent,
-                        { "key": "content", "data-show": true},
+                    h(filterPropsComponent, {
+                            "key": "content",
+                            "data-show": true,
+                        },
                         <div
                             ref={((vdom: any) => this.page = findDOMNode(vdom))}
                             onClick={this.pageClick}

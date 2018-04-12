@@ -88,6 +88,11 @@ declare module "history/createHashHistory" {
     export default History;
 }
 
+declare module "material-ui/Button" {
+    const Button: any;
+    export default Button;
+}
+
 declare const process: any;
 
 declare const require: (name: string) => { default: any };

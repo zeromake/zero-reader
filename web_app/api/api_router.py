@@ -72,8 +72,8 @@ async def login(request):
     # print("----", hash_string(password))
     if item is None:
         res = {"status": 400, "message": "未找到该用户!"}
-    elif item.status == 0:
-        res = {"status": 401, "message": "该用户未验证!"}
+    elif item.status < 0:
+        res = {"status": 401, "message": "该用户已冻结!"}
     else:
         try:
             is_verify = verify_hash(password, item.password)
@@ -154,13 +154,63 @@ async def register(request):
         "create_time": get_offset_timestamp(),
     }
     sql = model.insert(insert_data)
-    res = await model.execute_dml(sql, "注册成功!")
+    res = await model.execute_insert(sql, "注册成功!")
+    del res['row_id']
     return response.json(res, status=res["status"])
+
+async def verify_email(request):
+    """
+    验证邮箱
+    """
+    token = request.json["token"]
+    payload = decode_token(token)
+    user_id = payload["user_id"]
+    exp = payload["exp"]
+    sort = payload["sort"]
+    if get_offset_timestamp() < exp:
+        res = {
+            "status": 400,
+            "message": "token已过期!"
+        }
+    elif sort != 1:
+        res = {
+            "status": 400,
+            "message": "非法token!"
+        }
+    elif user_id > 0:
+        model = app.db.get_model("user")
+        sql, *_ = model.select({
+            "id": user_id
+        })
+        item = await model.execute_one(sql)
+        if item.status == 0:
+            up_sql = model.update_sql({
+                "where": {"id", user_id},
+                "values": {"status": 1}
+            })
+            res = await model.execute_dml(up_sql, "验证成功!")
+        else:
+            res = {
+                "status": 400,
+                "message": "该用户已冻结!" if item.status < 0 else "该用户已验证!"
+            }
+    else:
+        res = {
+            "status": 400,
+            "message": "不存在该用户!"
+        }
+    return response.json(res, status=res["status"])
+
+async def send_verify_email(request):
+    """
+    发送验证邮件
+    """
 
 async def forgotpwd(request):
     """
     忘记密码
     """
+
 
 # @Api.route("/refresh_token", methods=['POST', 'GET'])
 async def refresh_token(request):
@@ -240,6 +290,7 @@ add_route(Api, login, "/login", ["POST"], OPEN_API, "login")
 add_route(Api, register, "/register", ["POST"], OPEN_API, "register")
 add_route(Api, forgotpwd, "/forgotpwd", ["POST"], OPEN_API)
 add_route(Api, refresh_token, "/refresh_token", ['POST'], OPEN_API)
+add_route(Api, verify_email, "/verify_email", ['POST'], OPEN_API)
 
 app.blueprint(Api, url_prefix=Api.url_prefix)
 

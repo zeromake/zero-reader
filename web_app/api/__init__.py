@@ -440,14 +440,14 @@ class ApiView(HTTPMethodView):
             async with engine.acquire() as conn:
                 async with conn.begin():
                     count = 0
-                    data = None
+                    row_id = 0
                     async with conn.execute(sql) as cursor:
                         count = cursor.rowcount
                         row_id = await db_.get_last_row_id(conn, cursor)
-                        if row_id:
-                            form_data[self._key.name] = row_id
-                            data = form_data
-                    return {'status': 200, 'message': message, 'count': count, "data": data}
+                    if form_data:
+                        form_data["row_id"] = row_id
+                        return {'status': 200, 'message': message, 'count': count, "data": form_data}
+                    return {'status': 200, 'message': message, 'count': count, "row_id": row_id}
         except Exception as e:
             return {'status': 500, 'message': str(e)}
 

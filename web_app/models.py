@@ -18,7 +18,10 @@ __all__ = [
     "BookShelf",
     "UserConfig",
     "BookConfig",
-    "BookNotes"
+    "BookNotes",
+    "GithubStar",
+    "GithubStarTag",
+    "GithubStarBindTag"
 ]
 __version__ = "1.1.0"
 
@@ -457,3 +460,83 @@ BookNotes = sa.Table(
     sqlite_autoincrement=True
 )
 BookNotes.__doc__ = "笔记"
+
+GithubStar = sa.Table(
+    "github_star",
+    metadata,
+    sa.Column(
+        'id',
+        sa.Integer,
+        nullable=False,
+        autoincrement=True,
+        primary_key=True,
+        doc="主键"
+    ),
+    sa.Column(
+        'name',
+        sa.String(256),
+        nullable=False,
+        doc="命名空间"
+    ),
+    sa.Column(
+        'doc',
+        sa.String(256),
+        doc="说明"
+    ),
+    sqlite_autoincrement=True
+)
+GithubStar.__doc__ = "github收藏"
+
+GithubStarTag = sa.Table(
+    "github_star_tag",
+    metadata,
+    sa.Column(
+        'id',
+        sa.Integer,
+        nullable=False,
+        autoincrement=True,
+        primary_key=True,
+        doc="主键"
+    ),
+    sa.Column(
+        'name',
+        sa.String(64),
+        nullable=False,
+        doc="名字"
+    ),
+    sa.Column(
+        'sort',
+        sa.Integer,
+        nullable=False,
+        doc="分类"
+    ),
+    sqlite_autoincrement=True
+)
+
+GithubStarTag.__doc__ = "github收藏标签"
+
+GithubStarBindTag = sa.Table(
+    "github_star_bind_tag",
+    metadata,
+    sa.Column(
+        'id',
+        sa.Integer,
+        nullable=False,
+        autoincrement=True,
+        primary_key=True,
+        doc="主键"
+    ),
+    sa.Column(
+        'star_id',
+        sa.Integer,
+        nullable=False,
+        doc="star id"
+    ),
+    sa.Column(
+        'tag_id',
+        sa.Integer,
+        nullable=False,
+        doc="tag id"
+    ),
+    sqlite_autoincrement=True
+)

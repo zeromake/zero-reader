@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "6c64215a7eaad035840417f2c4230d133d2ac455c39639d7521d7aac26844ad0"
+            "sha256": "a438e74f0502c64b5d18331b3b0414accbb9154e4110cc398fcbeb63da7647eb"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -53,33 +53,10 @@
         },
         "astroid": {
             "hashes": [
-                "sha256:a92c1197dd496ef2470e73e1c296fc02a719907ee07259744e26a13bda9d4862",
-                "sha256:b76e5109ff0f386dd229673ca1323d21b1e9bb9c38eaed2cf830882dd7628be2"
+                "sha256:35cfae47aac19c7b407b7095410e895e836f2285ccf1220336afba744cc4c5f2",
+                "sha256:38186e481b65877fd8b1f9acc33e922109e983eb7b6e487bd4c71002134ad331"
             ],
-            "version": "==1.6.2"
-        },
-        "asyncpg": {
-            "hashes": [
-                "sha256:02e649095049356cf40badb74fb682943fc05d5fa51c6a7d8695787654e095db",
-                "sha256:20299847f10aa50deb47dcaec7a7903bdd13729c85c5a8a00462eef735e30691",
-                "sha256:292d9827f9db1acb681c5aabc9df02c5bf6cf58dfd733b3319d37451cb67c86b",
-                "sha256:455d19f5efb37aa281ad5162efd981d791504b76257a9dc732c548ddfb89ccd2",
-                "sha256:491ef1b6c7fc2cd054b937cbe836022d140ae920e68f39b90d78efc992631b97",
-                "sha256:51dc680dc19d226bd42359ecd373e8003bb84f5130633fac1dbf6094344a6583",
-                "sha256:6227c47ad43f4ead2fada7ed5643c41c27fe9a9ebf61df30d4ed8ecdca4b0f89",
-                "sha256:6c375ba41b98b775fee348436b72ed4170a6f9f7dd960f425b56601af63c00e7",
-                "sha256:83d7759993d36bc7a99509acbafd26a77d0a910d333e5e8ed5e43a5552a4ed15",
-                "sha256:99e8cc315f4c5592b9758064489a510b4660b354c302aaa0a8616af93195c1e5",
-                "sha256:c3ae6c33de0e0011b7b3b4f61273c5be046a623e8e6546e7c7c8c08079fb7c8b"
-            ],
-            "version": "==0.15.0"
-        },
-        "asyncpgsa": {
-            "hashes": [
-                "sha256:c50d5abdba9ad0aa5f328ee897b754c4129c786bc70cc4c3e0a1d493a6b974ee"
-            ],
-            "index": "doubanio",
-            "version": "==0.22.0"
+            "version": "==1.6.3"
         },
         "certifi": {
             "hashes": [
@@ -295,11 +272,11 @@
         },
         "pylint": {
             "hashes": [
-                "sha256:34ab1a62fbdd48059d082f5a52b7e719a39b757a53ecbf0b2b7169b9c6a2cc28",
-                "sha256:c77311859e0c2d7932095f30d2b1bfdc4b6fe111f534450ba727a52eae330ef2"
+                "sha256:0b7e6b5d9f1d4e0b554b5d948f14ed7969e8cdf9a0120853e6e5af60813b18ab",
+                "sha256:34738a82ab33cbd3bb6cd4cef823dbcabdd2b6b48a4e3a3054a2bbbf0c712be9"
             ],
             "index": "doubanio",
-            "version": "==1.8.3"
+            "version": "==1.8.4"
         },
         "pymysql": {
             "hashes": [
@@ -354,10 +331,10 @@
         },
         "sqlalchemy": {
             "hashes": [
-                "sha256:249000654107a420a40200f1e0b555a79dfd4eff235b2ff60bc77714bd045f2d"
+                "sha256:7cb00cc9b9f92ef8b4391c8a2051f81eeafefe32d63c6b395fd51401e9a39edb"
             ],
             "index": "doubanio",
-            "version": "==1.2.5"
+            "version": "==1.2.6"
         },
         "ujson": {
             "hashes": [
@@ -423,10 +400,10 @@
     "develop": {
         "astroid": {
             "hashes": [
-                "sha256:a92c1197dd496ef2470e73e1c296fc02a719907ee07259744e26a13bda9d4862",
-                "sha256:b76e5109ff0f386dd229673ca1323d21b1e9bb9c38eaed2cf830882dd7628be2"
+                "sha256:35cfae47aac19c7b407b7095410e895e836f2285ccf1220336afba744cc4c5f2",
+                "sha256:38186e481b65877fd8b1f9acc33e922109e983eb7b6e487bd4c71002134ad331"
             ],
-            "version": "==1.6.2"
+            "version": "==1.6.3"
         },
         "attrs": {
             "hashes": [
@@ -507,11 +484,11 @@
         },
         "pylint": {
             "hashes": [
-                "sha256:34ab1a62fbdd48059d082f5a52b7e719a39b757a53ecbf0b2b7169b9c6a2cc28",
-                "sha256:c77311859e0c2d7932095f30d2b1bfdc4b6fe111f534450ba727a52eae330ef2"
+                "sha256:0b7e6b5d9f1d4e0b554b5d948f14ed7969e8cdf9a0120853e6e5af60813b18ab",
+                "sha256:34738a82ab33cbd3bb6cd4cef823dbcabdd2b6b48a4e3a3054a2bbbf0c712be9"
             ],
             "index": "doubanio",
-            "version": "==1.8.3"
+            "version": "==1.8.4"
         },
         "pytest": {
             "hashes": [

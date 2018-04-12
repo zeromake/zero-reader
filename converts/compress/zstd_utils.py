@@ -113,7 +113,6 @@ class ZstdFile(_compression.BaseStream):
         if not self._reader:
             _read = self._fp.read
             def read_fp(size=-1):
-                print('reader size', size)
                 return _read(size)
             if self._fp.read != read_fp:
                 self._fp.read = read_fp

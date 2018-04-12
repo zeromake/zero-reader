@@ -4,6 +4,7 @@ import { h, Component, Children } from "react-import";
 import { libraryData } from "@/http/index";
 import { IAbcMeta } from "@/types/index";
 import styl from "@/css/layout.styl";
+import Animate from "preact-animate";
 
 const bookLayout = {
     pdf: PdfLayout,
@@ -15,7 +16,7 @@ export default class BookLayout extends Component<any, any> {
     private library: any;
     constructor(p, c) {
         super(p, c);
-        this.library = libraryData(p.sha);
+        this.library = libraryData(p.matches.sha);
         this.state = {
             layoutType: null,
             meta: null,
@@ -40,6 +41,6 @@ export default class BookLayout extends Component<any, any> {
             }
         }
         // return <h1>loading</h1>;
-        return <div className={`animated ${styl.animate_content}`}>{layout}</div>;
+        return <div className={`animated ${styl.animate_content}`} {...Animate.filterProps(this.props)}>{layout}</div>;
     }
 }

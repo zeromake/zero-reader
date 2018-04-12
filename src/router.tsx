@@ -58,6 +58,7 @@ const MainRouter = () => (
             transitionEnter={true}
             transitionLeave={true}
             transitionName={{ enter: "fadeIn", leave: "fadeOut" }}
+            isRender={true}
             >
             <Route
                 key="1"

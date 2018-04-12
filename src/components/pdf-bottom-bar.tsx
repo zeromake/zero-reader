@@ -1,6 +1,8 @@
 import { h } from "react-import";
 import styl from "@/css/bottom-bar.styl";
 import SvgIcon from "./svg-icon";
+import Animate from "preact-animate";
+import { propsDiffComponent } from "@/utils";
 
 // const bottomMenu = [
 //     {icon: "fa-list-ul", title: "目录", id: 1},
@@ -15,8 +17,8 @@ const bottomMenu = [
     {icon: "icon-settings", title: "设置", id: 4},
 ];
 
-const BottomBar = function render(props) {
-        return <div className={`${styl.bottom_bar} animated`}>
+const BottomBar = propsDiffComponent((props) => {
+        return <div {...Animate.filterProps(props, {className: `${styl.bottom_bar} animated`})}>
             <ul className={styl.menus}>
             {
                 bottomMenu.map((menu) => {
@@ -28,5 +30,5 @@ const BottomBar = function render(props) {
             }
             </ul>
         </div>;
-};
+});
 export default BottomBar;

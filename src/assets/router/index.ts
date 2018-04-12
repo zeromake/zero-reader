@@ -378,7 +378,7 @@ class Router extends Component<any, any> {
                 if (matches) {
                     if (invoke !== false) {
                         const newProps = { url, matches, history: customHistory };
-                        assign(newProps, matches);
+                        // assign(newProps, matches);
                         delete (newProps as any).ref;
                         delete (newProps as any).key;
                         rankChildren.push(cloneElement(vnode, newProps));

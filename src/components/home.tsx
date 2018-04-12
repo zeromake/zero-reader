@@ -5,6 +5,8 @@ import { bindUpdateForm, IFormProps } from "../utils";
 import AlertZero from "./alert-zero";
 import LoginForm from "@/../form/login.json";
 import RegisterForm from "@/../form/register.json";
+import Animate from "preact-animate";
+// import Button from "material-ui/Button";
 
 interface ILoginProps {
     matches: {[name: string]: string};
@@ -149,7 +151,7 @@ export default class Home extends Component<ILoginProps, ILoginState> {
         const isLogin: boolean = this.state.isLogin;
         const bindUpdateFormObj = isLogin ? this.bindUpdateForm : this.bindUpdateRegisterForm;
         return (
-            <div className={styl.content + " animated"}>
+            <div {...Animate.filterProps(this.props, {className: styl.content + " animated"})}>
                 { h(AlertZero, {ref: (c: any) => this.$alert = c, message: this.state.message, level: 1}) }
                 <div className={styl.form}>
                     <form action="post" onSubmit={this.submitEvent}>
@@ -167,9 +169,11 @@ export default class Home extends Component<ILoginProps, ILoginState> {
                         </div>
                     </div> : this.renderRegister()}
                     <div className={styl.form_item} key="4">
+                        {/* <Button variant="raised" color="primary" type="submit" className={styl.button}>{isLogin ? "登录" : "注册"}</Button> */}
                         <button className={styl.button} type="submit">{isLogin ? "登录" : "注册"}</button>
                     </div>
                     <div className={styl.form_item} key="5">
+                        {/* <Button color="primary" onClick={this.switch}>{isLogin ? "注册" : "登录"}</Button> */}
                         <a href="javascript:void(0);" onClick={this.switch}>{isLogin ? "注册" : "登录"}</a>
                     </div>
                     </form>
