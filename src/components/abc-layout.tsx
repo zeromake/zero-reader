@@ -122,14 +122,16 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             target: this.page || document,
         };
         const meta = this.props.meta;
-        meta.page_style.forEach((cssUrl: string, index: number) => {
-            const cssId = `css_id_${index}`;
-            this.mountCss.push(cssId);
-            addLinkCss(this.library.css(cssUrl), cssId);
-        });
+        if (meta.page_style) {
+            meta.page_style.forEach((cssUrl: string, index: number) => {
+                const cssId = `css_id_${index}`;
+                this.mountCss.push(cssId);
+                addLinkCss(this.library.css(cssUrl), cssId);
+            });
+        }
         this.container = await this.library.json(meta.container);
         this.pageNum = this.container.length;
-        const page = Number(this.props.page) || 0;
+        const page = Number(this.props.matches && this.props.matches.page) || 0;
         const pageHtml = await this.getPage(page);
         return Promise.resolve({
             pageHtml,
@@ -341,9 +343,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
 
         return <Animate
                 component="div"
-                componentProps={
-                    Animate.filterProps(this.props, {className: `${styl.body}`})
-                }
+                componentProps={{className: `${styl.body}`}}
                 transitionEnter={true}
                 transitionLeave={true}
                 showProp="data-show"
@@ -351,22 +351,19 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             >
                 {[
                     h(filterPropsComponent, {
-                    "key": "header",
-                    "transitionName": { enter: "fadeInDown", leave: "fadeOutUp" },
-                    "data-show": this.state.barShow,
+                        "key": "header",
+                        "transitionName": { enter: "fadeInDown", leave: "fadeOutUp" },
+                        "data-show": this.state.barShow,
                     }, this.renderHeader()),
                     h(filterPropsComponent, {
-                        "key": "toc",
-                        "data-show": this.state.tocShow,
-                        "transitionName": { enter: "fadeInLeft", leave: "fadeOutLeft" },
-                        },
-                        this.renderToc(),
-                    ),
+                            "key": "toc",
+                            "data-show": this.state.tocShow,
+                            "transitionName": { enter: "fadeInLeft", leave: "fadeOutLeft" },
+                    }, this.renderToc()),
                     h(filterPropsComponent, {
-                            "key": "content",
-                            "data-show": true,
-                        },
-                        <div
+                        "key": "content",
+                        "data-show": true,
+                    }, <div
                             ref={((vdom: any) => this.page = findDOMNode(vdom))}
                             onClick={this.pageClick}
                             className={`${styl.content} ${styl[this.state.bg]} ${this.state.isScroll ? styl.is_scroll : ""}`}

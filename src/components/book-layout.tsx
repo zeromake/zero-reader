@@ -16,7 +16,7 @@ export default class BookLayout extends Component<any, any> {
     private library: any;
     constructor(p, c) {
         super(p, c);
-        this.library = libraryData(p.matches.sha);
+        this.library = libraryData(p.matches.base64);
         this.state = {
             layoutType: null,
             meta: null,
@@ -33,7 +33,8 @@ export default class BookLayout extends Component<any, any> {
         });
     }
     public render(): any {
-        let layout: any = <div>loading!</div>;
+        let layout: any = <div >loading!</div>;
+        const newProps = Animate.filterProps(this.props, {className: `animated ${styl.animate_content}`});
         if (this.state.layoutType) {
             const selectLayout: any = bookLayout[this.state.layoutType];
             if (selectLayout) {
@@ -41,6 +42,6 @@ export default class BookLayout extends Component<any, any> {
             }
         }
         // return <h1>loading</h1>;
-        return <div className={`animated ${styl.animate_content}`} {...Animate.filterProps(this.props)}>{layout}</div>;
+        return <div {...newProps}>{layout}</div>;
     }
 }

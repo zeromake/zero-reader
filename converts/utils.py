@@ -9,6 +9,7 @@ import io
 import re
 import sys
 import json
+import base64
 import codecs
 import hashlib
 import logging
@@ -202,7 +203,15 @@ def file_sha256(file_name):
         while byte:
             sha.update(byte)
             byte = file_.read(8096)
-    return sha.hexdigest()
+    return sha.hexdigest(), base64.urlsafe_b64encode(sha.digest()).decode()
+
+def get_hash_string(data):
+    """
+    获取文本hash
+    """
+    md5 = hashlib.md5()
+    md5.update(data.encode())
+    return base64.urlsafe_b64encode(md5.digest()).decode()
 
 def parse_string(string):
     """

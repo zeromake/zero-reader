@@ -47,10 +47,10 @@ class Pdf2Json(object):
         self._loop = loop or asyncio.get_event_loop()
         self.is_png_compress = options['png'] == 1
         self.pdf_name = options['file']
-        self.sha = file_sha256(self.pdf_name)
-        self.abs_url = '/library/' + self.sha + '/'
-        self.dist = os.path.join(options['dist'], self.sha)
-        self.out = os.path.join(options['out'], self.sha)
+        self.sha, self.base64 = file_sha256(self.pdf_name)
+        self.abs_url = '/library/' + self.base64 + '/'
+        self.dist = os.path.join(options['dist'], self.base64)
+        self.out = os.path.join(options['out'], self.base64)
         self.css = options['css']
         self.join = options['join']
         self.page = os.path.join(self.join, options['page'])
@@ -110,6 +110,7 @@ class Pdf2Json(object):
                     or ('isbn' in meta['identifier'])):
             meta = requests_douban_meta(meta)
         meta['sha'] = self.sha
+        meta['base64'] = self.base64
         if 'title' not in meta:
             meta['title'] = self.pdf_name[
                 self.pdf_name.rfind('/') + 1: self.pdf_name.rfind('.')

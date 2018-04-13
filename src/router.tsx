@@ -83,7 +83,7 @@ const MainRouter = () => (
                 // component={AsyncRoute}
                 // getComponent={BookLayout}
                 component={BookLayout}
-                path="/library/:sha/"
+                path="/library/:base64/"
                 // transitionName={{ enter: "fadeInRight", leave: "fadeOutRight" }}
             >
             </Route>

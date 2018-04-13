@@ -24,13 +24,13 @@ export default class Library extends Component<any, any> {
             <div {...Animate.filterProps(this.props, {className: styl.library + " animated"})}>
                 {
                     state.library.map((book) => {
-                        const href = `/library/${book.sha}/`;
+                        const href = `/library/${book.base64}/`;
                         const title = book.title || book.file_name;
                         return (
                             <div key={book.sha} className={styl.center_book}>
                                 <Link href={href} to={href} title={title}>
                                     <div className={styl.book_image}>
-                                        <img src={book.cover ? `/librarys/${book.sha}/${book.cover}` : null} alt={title} title={title}/>
+                                        <img src={book.cover ? `/api/librarys/${book.base64}/${book.cover}` : null} alt={title} title={title}/>
                                     </div>
                                 </Link>
                                 <span className={styl.book_title} title={title}>{title}</span>

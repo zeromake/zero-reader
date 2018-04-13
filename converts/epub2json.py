@@ -12,7 +12,8 @@ import posixpath
 import tempfile
 import asyncio
 import shutil
-import lxml 
+import lxml
+from io import StringIO
 # from lxml import etree, html
 from urllib import parse
 from .utils import (
@@ -37,7 +38,8 @@ from .utils import (
     save_xml_path,
     add_xml_tree_to_tar,
     save_xml_tree_path,
-    open_temp_file
+    open_temp_file,
+    get_hash_string,
 )
 
 NAV_POINT = '{%s}navPoint' % NAMESPACES['DAISY']
@@ -62,9 +64,9 @@ class Epub2Json(object):
         # 是否压缩
         self.compress = options['compress']
         # 该文件的sha256值
-        self.sha = file_sha256(self.file_name)
+        self.sha, self.base64 = file_sha256(self.file_name)
         # 输出文件夹
-        self.dist = os.path.join(options['dist'], self.sha)
+        self.dist = os.path.join(options['dist'], self.base64)
         # meta文件
         self.meta_path = 'meta.json'
         # container文件
@@ -86,7 +88,7 @@ class Epub2Json(object):
         self.font_dir = 'font'
 
         # 内容页分割大小
-        self.split_size = 1000 * 1024
+        self.split_size = 20 * 1024
         # opf文件路径
         self.opf_file = None
         # opf文件夹
@@ -274,6 +276,7 @@ class Epub2Json(object):
         douban_meta['container'] = self.container_file
         douban_meta['toc'] = self.toc_file
         douban_meta['sha'] = self.sha
+        douban_meta['base64'] = self.base64
         douban_meta['file_name'] = get_file_path_name(self.file_name)
         self.save_tar_json(self.meta_path, douban_meta)
         self.meta_data = douban_meta
@@ -394,13 +397,14 @@ class Epub2Json(object):
         """
         不分割拷贝
         """
-        from lxml import etree
+        from lxml import html
         with epub_file.open(zip_path) as html_file:
-            tree = etree.parse(html_file)
-            self.find_head_css(epub_file, tree, container_dir)
-            # body = tree.find('//body')
-            body = tree.find('{%s}%s' % (NAMESPACES['XHTML'], 'body'))
-            page_xml = etree.Element('div', nsmap=body.nsmap)
+            tree = html.fromstring(html_file.read())
+            self.find_head_css(epub_file, tree, container_dir, zip_path)
+            body = tree.xpath('//body')[0]
+            # body = tree.find('{%s}%s' % (NAMESPACES['XHTML'], 'body'))
+            # page_xml = etree.Element('div', nsmap=body.nsmap)
+            page_xml = html.Element('div')
             for child in body.iterchildren():
                 page_xml.append(child)
             # page_xml = etree.XSLT(page_xml)
@@ -419,12 +423,12 @@ class Epub2Json(object):
         """
         切割html
         """
-        from lxml import etree
+        from lxml import html
         with epub_file.open(zip_path) as html_file:
-            tree = etree.parse(html_file)
-            self.find_head_css(epub_file, tree, container_dir)
-            # body = tree.find('//body')
-            body = tree.find('{%s}%s' % (NAMESPACES['XHTML'], 'body'))
+            tree = html.fromstring(html_file.read())
+            self.find_head_css(epub_file, tree, container_dir, zip_path)
+            body = tree.xpath('//body')[0]
+            # body = tree.find('{%s}%s' % (NAMESPACES['XHTML'], 'body'))
             children = body.getchildren()
             children_len = len(children)
             if children_len < split_count:
@@ -439,7 +443,8 @@ class Epub2Json(object):
                     if page_xml is not None:
                         self.save_html(page_xml, container_count + page_count)
                         page_count += 1
-                    page_xml = etree.Element('div', nsmap=body.nsmap)
+                    # page_xml = etree.Element('div', nsmap=body.nsmap)
+                    page_xml = html.Element('div')
                 page_xml.append(child)
             if page_xml is not None:
                 self.save_html(page_xml, container_count + page_count)
@@ -471,12 +476,14 @@ class Epub2Json(object):
             self,
             epub_file,
             tree,
-            container_dir
+            container_dir,
+            zip_path,
     ):
         """
         处理内容页head上的css
         """
-        links = tree.findall('//link[@href]')
+        # links = tree.xpath('//link[@href]')
+        links = tree.xpath('//link[@href]')
         for link in links:
             css_name = link.get('href')
             if container_dir:
@@ -491,6 +498,66 @@ class Epub2Json(object):
                 logger.debug('save css: ' + css_zip_path + ' -> ' + css_out_name)
                 # copy_zip_file(epub_file, css_zip_path, os.path.join(self.dist, css_out_name))
                 self.css_list.append(css_out_name)
+        styles = tree.xpath('//style')
+        data = ""
+        for style in styles:
+            data += style.text
+        if data == "":
+            return
+        css_dir = get_file_path_dir(zip_path)
+        hash_str = get_hash_string(data)
+        if hash_str not in self.css_set:
+            self.css_set.add(hash_str)
+            css_out_name = zip_join(self.css_dir, hash_str + ".css")
+            self.filter_font_by_css_string(data, css_dir, epub_file, css_out_name)
+            self.css_list.append(css_out_name)
+
+    def filter_font_by_css_string(self, data, css_dir, epub_file, css_out_name):
+        # css_dir = get_file_path_dir(css_zip_path)
+        from_file = StringIO(data)
+        self.flag = False
+        def replace_copy_font(match):
+            """
+            替换css中的字体路径，并拷贝到指定目录
+            """
+            font_url = match.group(1)
+            font_path = zip_join(css_dir, font_url)
+            font_name = get_file_path_name(font_url)
+            out_name = zip_join(self.font_dir, font_name)
+            if self.save_zip_file(epub_file, font_path, out_name):
+                out_url = ('../' * self.css_deep) + out_name
+                logger.debug('save font: ' + font_path + ' -> ' + out_name)
+                replace_str = 'url(%s)' % out_url
+                if match.group(0).endswith(","):
+                    replace_str += ','
+                self.flag = True
+            else:
+                raw_str = match.group(0)
+                if not raw_str.startswith("src:"):
+                        self.flag = True
+                replace_str = ""
+            return replace_str
+        line = from_file.readline()
+        with self.open_temp_file(css_out_name, 'w', encoding='utf8') as out_fd:
+            face_arr = []
+            face_start = False
+            while line:
+                if FACE_RE_START.match(line):
+                    face_start = True
+                if face_start and FACE_RE_END.match(line):
+                    face_start = False
+                    if self.flag:
+                        for temp in face_arr:
+                            out_fd.write(temp)
+                        out_fd.write(line)
+                    self.flag = False
+                    face_arr = []
+                elif face_start:
+                    line = FONT_RE.sub(replace_copy_font, line)
+                    face_arr.append(line)
+                else:
+                    out_fd.write(line)
+                line = from_file.readline()
 
     def filter_font_by_css(self, epub_file, css_zip_path, css_out_path):
         """
@@ -517,18 +584,6 @@ class Epub2Json(object):
                 raw_str = match.group(0)
                 if not raw_str.startswith("src:"):
                         self.flag = True
-                # if not font_url.startswith("res:///") and not font_url.startswith("/"):
-                #     out_url = ('../' * self.css_deep) + out_name
-                #     replace_str = 'url(%s)' % out_url
-                #     raw_str = match.group(0)
-                #     if raw_str.endswith(","):
-                #         replace_str += ','
-                #     if raw_str.startswith("src:"):
-                #         replace_str = "src: " + replace_str
-                #     else:
-                #         self.flag = True
-                        
-                # else:
                 replace_str = ""
             return replace_str
 
@@ -559,6 +614,7 @@ class Epub2Json(object):
         """
         处理page中的锚点
         """
+        from lxml import html, etree
         self.container_index_map = { item_[1]: container_index for container_index, item_  in enumerate(self.container)}
         for page_name, index in self.container:
             old_page_name = self.get_old_page_name(index)
@@ -570,8 +626,9 @@ class Epub2Json(object):
                 'r',
                 encoding='utf8'
             ) as page_file:
-                tree = lxml.etree.parse(page_file)
-                links = tree.findall('//a[@href]')
+                tree = html.fromstring(page_file.read())
+                # tree = etree.parse(page_file)
+                links = tree.xpath('//a[@href]')
                 for link in links:
                     href = link.get('href')
                     if "%" in href:
@@ -611,7 +668,7 @@ class Epub2Json(object):
                             link.set('data-href', json.dumps(data))
                         else:
                             link.set("target", "_blank")
-                images = tree.findall(
+                images = tree.xpath(
                     '//img[@src]'
                 )
                 for img in images:
@@ -638,7 +695,7 @@ class Epub2Json(object):
                     img.set('class', tmp)
                     del img.attrib['src']
                     img.set('data-src', parse.quote(img_out_name))
-                images = tree.findall(
+                images = tree.xpath(
                     "//image"
                 )
                 img_len = len(images)
@@ -661,10 +718,10 @@ class Epub2Json(object):
                         img.set('data-src', img_out_name)
                 with file_open(os.path.join(self.dist, new_page_path), 'wb') as xml_file:
                     # print(dir(tree))
-                    root_tree = tree.getroot()
+                    root_tree = tree
                     # print(root_tree)
                     for child in root_tree.iterchildren():
-                        string_ = lxml.etree.tostring(
+                        string_ = html.tostring(
                             child,
                             pretty_print=True,
                             method="html",

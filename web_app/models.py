@@ -169,6 +169,11 @@ Library = sa.Table(
         nullable=False,
         doc="更新时间"
     ),
+    sa.Column(
+        'cover',
+        sa.String(128),
+        doc="封面"
+    ),
     sqlite_autoincrement=True
 )
 Library.__doc__ = "书库"

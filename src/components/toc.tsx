@@ -1,11 +1,12 @@
 import { h, Component } from "react-import";
 import styl from "@/css/toc.styl";
 import TocItem from "./toc-item";
+import Animate from "preact-animate";
 
 const Toc = (props: any, content: any) => {
     const theme = props.theme;
     return (
-        <div className={styl.tocView + (theme ? " " + styl[theme] : "")}>
+        <div className={`styl.tocView${theme ? " " + styl[theme] : ""}`}>
             {
                 props.tocs.map((toc, index: number) => {
                     return h(
