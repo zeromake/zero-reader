@@ -20,6 +20,9 @@ import platform
 import subprocess
 import asyncio
 from functools import partial
+from lxml import html as lxml_html
+from lxml.html import tostring as lxml_html_tostring
+# from lxml.html import parse as html_parse, fromstring as html_fromstring
 
 # from lxml import etree, html as lxmlHtml
 from PyPDF2 import PdfFileReader
@@ -213,6 +216,15 @@ def get_hash_string(data):
     md5.update(data.encode())
     return base64.urlsafe_b64encode(md5.digest()).decode()
 
+def html_parse(page_file):
+    """
+    解析html
+    """
+    return lxml_html.fromstring(page_file.read())
+
+def html_create_element(*args, **k):
+    return lxml_html.Element(*args, **k)
+
 def parse_string(string):
     """
     处理zip open无法解析文本
@@ -224,6 +236,17 @@ def parse_string(string):
         tree = etree.parse(io.BytesIO(string))
 
     return tree
+
+def html_tostring(tree):
+    """
+    html to string
+    """
+    return lxml_html_tostring(
+        tree,
+        pretty_print=True,
+        # method="html",
+        encoding='utf-8',
+    ).strip()
 
 def copy_zip_file(zip_file, from_path, to_path):
     """

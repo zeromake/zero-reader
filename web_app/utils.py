@@ -43,7 +43,7 @@ OPEN_METHOD = {
 
 ROOT_PATH = os.path.abspath(os.path.dirname(__file__))
 
-def root_resolve(path):
+def root_resolve(path: str):
     """
     获取绝对路径(以${project_dir}/web_app/起始)
     """
@@ -238,30 +238,31 @@ def generate_openapi_by_table(table, blacklist=None, whitelist=None):
             schema['properties'][column_name] = generate_openapi_by_column(column)
     return schema
 
-def encode_token(payload, algorithm='HS256', **kwargs):
+def encode_token(payload: dict, algorithm: str='HS256', **kwargs: dict)-> str:
     """
     生成token
     """
     return jwt.encode(payload, CONFIG['SECRET'], algorithm=algorithm, **kwargs)
 
-def decode_token(jwt_payload, algorithm='HS256', **kwargs):
+def decode_token(jwt_payload: str, algorithm: str='HS256', **kwargs: dict)-> dict:
     """
     读取payload
     """
     return jwt.decode(jwt_payload, CONFIG['SECRET'], algorithm=algorithm, **kwargs)
 
-def hash_string(string):
+def hash_string(string: str)-> str:
     """
     hash密码
     """
     return custom_app_context.hash(string)
 
-def verify_hash(string, hash_str):
+def verify_hash(string: str, hash_str: str):
     """
     校验hash与当前的密码
     """
     return custom_app_context.verify(string, hash_str)
-def to_timestamp(obj):
+
+def to_timestamp(obj: datetime):
     """
     毫秒值
     """
@@ -273,7 +274,7 @@ def get_offset_timestamp(**kwargs):
     """
     return to_timestamp(datetime.now(timezone.utc) + timedelta(**kwargs))
 
-def template(name, **kwargs):
+def template(name: str, **kwargs: dict):
     """
     jinja2_env
     """

@@ -64,7 +64,7 @@ export default class Home extends Component<ILoginProps, ILoginState> {
             verifyImgUrl: verifyImgUrl + "?_=" + new Date().getTime(),
         });
     }
-    private submitEvent(e: Event) {
+    private submitEvent(e: any) {
         e.preventDefault();
         if (this.state.isLogin) {
             this.login();

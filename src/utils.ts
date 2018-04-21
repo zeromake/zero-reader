@@ -261,8 +261,8 @@ export enum FromType {
 export interface IFormProps {
     checked?: boolean;
     value?: string;
-    onChange: (e: Event) => void;
-    onInput: (e: Event) => void;
+    onChange: (e: any) => void;
+    onInput: (e: any) => void;
     type?: FromType;
     pattern?: string;
     title?: string;

@@ -54,7 +54,9 @@ class Form:
         form = self.load(name)
         res = None
         for key, val in form.items():
-            if (key not in form_data or form_data[key] == "") and val["required"]:
+            if not val or ("sort" in val and (val["sort"] == 0 or val["sort"] == 2)):
+                continue
+            elif (key not in form_data or form_data[key] == "") and val["required"]:
                 res = {
                     "status": 401,
                     "message": "%s: 必填!" % key

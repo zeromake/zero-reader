@@ -158,6 +158,23 @@ async def register(request):
     del res['row_id']
     return response.json(res, status=res["status"])
 
+def verify_token(payload: dict, sort: int) -> str:
+    """
+    校验payload
+    """
+    user_id = payload["user_id"]
+    exp = payload["exp"]
+    sort_ = payload["sort"]
+    if get_offset_timestamp() < exp:
+        res = "token已过期!"
+    elif user_id <= 0:
+        res = "不存在该用户!"
+    elif sort_ != sort:
+        res = "非法token类型!"
+    else:
+        res = None
+    return res
+
 async def verify_email(request):
     """
     验证邮箱
@@ -165,46 +182,66 @@ async def verify_email(request):
     token = request.json["token"]
     payload = decode_token(token)
     user_id = payload["user_id"]
-    exp = payload["exp"]
-    sort = payload["sort"]
-    if get_offset_timestamp() < exp:
+    # sort = payload["sort"]
+    message = verify_token(payload, 1)
+    if message:
         res = {
             "status": 400,
-            "message": "token已过期!"
+            "message": message
         }
-    elif sort != 1:
-        res = {
-            "status": 400,
-            "message": "非法token!"
-        }
-    elif user_id > 0:
+    else:
         model = app.db.get_model("user")
         sql, *_ = model.select({
             "id": user_id
         })
         item = await model.execute_one(sql)
-        if item.status == 0:
-            up_sql = model.update_sql({
-                "where": {"id", user_id},
-                "values": {"status": 1}
-            })
-            res = await model.execute_dml(up_sql, "验证成功!")
+        if item is not None:
+            if item.status == 0:
+                up_sql = model.update_sql({
+                    "where": {"id", user_id},
+                    "values": {"status": 1}
+                })
+                res = await model.execute_dml(up_sql, "验证成功!")
+            else:
+                res = {
+                    "status": 400,
+                    "message": "该用户已冻结!" if item.status < 0 else "该用户已验证!"
+                }
         else:
             res = {
                 "status": 400,
-                "message": "该用户已冻结!" if item.status < 0 else "该用户已验证!"
+                "message": "不存在该用户!"
             }
-    else:
-        res = {
-            "status": 400,
-            "message": "不存在该用户!"
-        }
     return response.json(res, status=res["status"])
 
 async def send_verify_email(request):
     """
     发送验证邮件
     """
+
+async def reset_passwd(request):
+    """
+    重置密码
+    """
+    token: str = request.json["token"]
+    password: str = request.json["password"]
+    payload: dict = decode_token(token)
+    user_id: int = payload["user_id"]
+    message: str = verify_token(payload, 2)
+    if message:
+        res = {
+            "status": 400,
+            "message": message
+        }
+    else:
+        model = app.db.get_model("user")
+        sql = model.update_sql({
+            "where": {"id": user_id},
+            "values": {"password", hash_string(password)}
+        })
+        res = await model.execute_dml(sql, "重置密码成功!")
+    return response.json(res, status=res["status"])
+
 
 async def forgotpwd(request):
     """
@@ -244,7 +281,7 @@ async def refresh_token(request):
         default:
           $ref: '#/components/responses/baseResponse'
     """
-    authorization = request.headers.get("authorization", "")
+    authorization = request.json.get("Authorization", "")
     try:
         payload = decode_token(authorization)
         timestamp_now = get_offset_timestamp()

@@ -20,7 +20,7 @@ const assetsPath = "assets";
 const isWebpackNext = true
 
 function buildCss(use) {
-    if (isWebpackNext) {
+    if (isWebpackNext && isProd) {
         return [
             MiniCssExtractPlugin.loader,
             ...use
@@ -106,9 +106,6 @@ const preactAlias = {
 }
 
 const basePlugin = [
-    new MiniCssExtractPlugin({
-        filename: "css/common.[chunkhash].css",
-    }),
     new HardSourceWebpackPlugin(),
     new webpack.DefinePlugin({
         'process.env': {
@@ -117,6 +114,11 @@ const basePlugin = [
         }
     })
 ]
+if (isProd) {
+    basePlugin.push(new MiniCssExtractPlugin({
+        filename: "css/common.[chunkhash].css",
+    }))
+}
 if (!isWebpackNext) {
     const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin');
     basePlugin.push(new ModuleConcatenationPlugin())
@@ -178,10 +180,10 @@ const config = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            config: isCordova || !isProd ? JSON.stringify({
+            config: isProd && !isCordova ? "{{ config|safe }}" : isCordova ? false : JSON.stringify({
                 "sign_up": true,
                 "sign_up_code": true
-            }): isProd ? "{{ config|safe }}" : false,
+            }),
             version: pkg.version,
             buildTime: strftime(new Date()),
             isProd,

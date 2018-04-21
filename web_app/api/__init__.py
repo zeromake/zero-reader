@@ -563,8 +563,8 @@ class ApiView(HTTPMethodView):
             if not self._key is None:
                 use_primary = True
                 where_data[self._key.name] = kwargs['primary_key']
-        if "skip" in args and "limit" in args:
-            limit = [int(args["skip"]), int(args["limit"])]
+        if "limit" in args:
+            limit = [int(args.get("skip", 0)), int(args["limit"])]
         else:
             limit = None
         where = handle_param_primary(self._columns_name, where_data)

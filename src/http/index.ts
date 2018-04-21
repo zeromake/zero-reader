@@ -104,11 +104,11 @@ function $ajaxRaw(url: string, options?: RequestInit): Promise<Response | void> 
         clearToken();
         const customLocation = (customHistory && customHistory.location) || location;
         const currentUrl: string = getCurrentUrl();
-        if (currentUrl && currentUrl.lastIndexOf("?href") !== -1) {
-            route("/?href=" +  encodeURIComponent(currentUrl) + "&error=" + encodeURIComponent(String(reason)));
-        } else {
-            route("/?error=" + encodeURIComponent(String(reason)));
-        }
+        // if (currentUrl && currentUrl.lastIndexOf("?href") !== -1) {
+        route("/?href=" +  encodeURIComponent(currentUrl) + "&error=" + encodeURIComponent(String(reason)));
+        // } else {
+        //     route("/?error=" + encodeURIComponent(String(reason)));
+        // }
     };
     return verifyToken().then((token: string) => {
         if (options && options.headers) {

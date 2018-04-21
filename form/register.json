@@ -18,6 +18,7 @@
         "equal": "password",
         "title": "必须与上面的密码相同!",
         "required": true,
+        "sort": 2,
         "placeholder": "确认密码"
     },
     "role_name": {

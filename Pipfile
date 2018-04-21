@@ -20,6 +20,8 @@ PyJWT = "*"
 pylint = "*"
 "aiosqlite3" = "*"
 "psycopg2-binary" = "*"
+"bs4" = "*"
+tornado = "*"
 
 [dev-packages]
 pylint = "*"
