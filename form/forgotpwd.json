@@ -1,16 +1,18 @@
 {
-    "account": {
-        "type": "text",
-        "pattern": "[A-z0-9_]{4,32}",
-        "title": "英文,数字,_ 且在4-32长度之间!",
-        "required": true,
-        "placeholder": "用户"
-    },
-    "email": {
-        "type": "email",
-        "pattern": "^[A-Za-z0-9\\u4e00-\\u9fa5]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$",
-        "required": true,
-        "title": "请输入正确的邮箱格式",
-        "placeholder": "邮箱"
-    }
+  "account": {
+    "type": "text",
+    "pattern": "[A-z0-9_\\-]+",
+    "title": "英文,数字,_ 且在4-32长度之间!",
+    "minlength": 4,
+    "maxlength": 32,
+    "required": true,
+    "placeholder": "用户"
+  },
+  "email": {
+    "type": "email",
+    "pattern": "^[A-Za-z0-9\\u4e00-\\u9fa5]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$",
+    "required": true,
+    "title": "请输入正确的邮箱格式",
+    "placeholder": "邮箱"
+  }
 }

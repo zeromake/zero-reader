@@ -96,3 +96,13 @@ declare module "material-ui/Button" {
 declare const process: any;
 
 declare const require: (name: string) => { default: any };
+
+declare module "sweetalert2" {
+    const swal: any;
+    export default swal;
+}
+
+declare module "qs" {
+    const qs: any;
+    export default qs;
+}

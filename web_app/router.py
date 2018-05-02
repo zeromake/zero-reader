@@ -4,16 +4,40 @@
 import json
 import os
 from sanic import response
+from mimetypes import guess_type
+from sendfile import sendfile
 from sanic.exceptions import NotFound
 
 from . import app
 from .utils import root_resolve, template
+from .zero_copy import zero_copy_stream
 
 # app.static("/", root_resolve("../dist/index.html"), name="index")
 app.static("/assets/", root_resolve("../dist/assets"), name="static")
-app.static("/api/librarys/", root_resolve("../librarys"), name="librarys")
+# app.static("/api/librarys/", root_resolve("../librarys"), name="librarys")
 app.config.project = json.dumps({"sign_up": True, "sign_up_code": True})
 # app.config.project = "null"
+
+def safe_file_path(file_uri: str):
+    if '..' not in file_uri:
+        return file_uri
+    new_path = []
+    path_arr = os.path.split(file_uri)
+    path_len = 0
+    for path in path_arr:
+        if path == '..':
+            if path_len > 0:
+                new_path.pop()
+                path_len -= 1
+        else:
+            new_path.append(path)
+            path_len += 1
+    return os.path.join(*new_path)
+
+@app.route("/api/librarys/<file_uri:\/?.+>")
+async def librarys(request, file_uri):
+    file_name = root_resolve("../librarys", safe_file_path(file_uri))
+    return await zero_copy_stream(file_name, chunked=False)
 
 @app.route("/")
 def index(request):

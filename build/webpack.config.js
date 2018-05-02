@@ -174,6 +174,7 @@ const config = {
         alias: Object.assign({
             'zreact/devtools': isProd || isCordova ? resolve('../src/import/devtools.ts') : 'zreact/devtools',
             'history/createHashHistory': isCordova ? 'history/createHashHistory' : resolve('../src/import/history.ts'),
+            'sweetalert2': 'sweetalert2/dist/sweetalert2.js',
             '@': resolve('../src')
         }, zreactAlias),
         extensions: ['.js', '.ts', '.tsx']
@@ -310,6 +311,30 @@ const config = {
                     },
                     {
                         loader: 'stylus-loader',
+                        options: {
+                            sourceMap: !isProd
+                        }
+                    }
+                ])
+            },
+            {
+                test: /.scss$/,
+                use: buildCss([
+                    {
+                        loader: "css-loader",
+                        options: {
+                            sourceMap: !isProd,
+                            modules: true,
+                        }
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            sourceMap: !isProd
+                        }
+                    },
+                    {
+                        loader: 'sass-loader',
                         options: {
                             sourceMap: !isProd
                         }

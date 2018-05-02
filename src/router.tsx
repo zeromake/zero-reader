@@ -53,7 +53,7 @@ const MainRouter = () => (
     }}>
         <Animate
             component="div"
-            componentProps={{className: "main"}}
+            componentProps={{className: "main", id: "app"}}
             onAfterEnter={onAfterEnter}
             transitionEnter={true}
             transitionLeave={true}
@@ -85,6 +85,17 @@ const MainRouter = () => (
                 component={BookLayout}
                 path="/library/:base64/"
                 // transitionName={{ enter: "fadeInRight", leave: "fadeOutRight" }}
+            >
+            </Route>
+            <Route
+                key="4"
+                component={() => {
+                    return <div>
+                        <h3>404</h3>
+                        <Link href="/">回到首页</Link>
+                    </div>;
+                }}
+                path="/*"
             >
             </Route>
         </Animate>

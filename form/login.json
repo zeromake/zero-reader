@@ -1,21 +1,25 @@
 {
-    "account": {
-        "type": "text",
-        "pattern": "[A-z0-9_]{4,32}",
-        "title": "英文,数字,_ 且在4-32长度之间!",
-        "required": true,
-        "placeholder": "用户"
-    },
-    "password": {
-        "type": "password",
-        "pattern": ".{8,32}",
-        "title": "任意字符且在8-32长度之间!",
-        "required": true,
-        "placeholder": "密码"
-    },
-    "rememberme": {
-        "type": "checkbox",
-        "title": "请不要在公共电脑上勾选该选项!",
-        "placeholder": "记住我"
-    }
+  "account": {
+    "type": "text",
+    "pattern": "[A-z0-9_\\-]+",
+    "title": "英文,数字,_ 且在4-32长度之间!",
+    "minlength": 4,
+    "maxlength": 32,
+    "required": true,
+    "placeholder": "用户"
+  },
+  "password": {
+    "type": "password",
+    "pattern": ".+",
+    "title": "任意字符且在8-32长度之间!",
+    "minlength": 4,
+    "maxlength": 32,
+    "required": true,
+    "placeholder": "密码"
+  },
+  "rememberme": {
+    "type": "checkbox",
+    "title": "请不要在公共电脑上勾选该选项!",
+    "placeholder": "记住我"
+  }
 }

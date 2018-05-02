@@ -74,12 +74,12 @@ export default class EpubContent extends Component<any, any> {
         }
     }
     protected bindObserver() {
-        Array.prototype.forEach.call(findDOMNode(this).querySelectorAll("img.lozad"), (element: HTMLImageElement) => {
-            const dataSrc = element.getAttribute("data-src");
-            if (dataSrc) {
-                element.src = this.props.library.image(dataSrc);
-            }
-        });
+        // Array.prototype.forEach.call(findDOMNode(this).querySelectorAll("img.lozad"), (element: HTMLImageElement) => {
+        //     const dataSrc = element.getAttribute("data-src");
+        //     if (dataSrc) {
+        //         element.src = this.props.library.image(dataSrc);
+        //     }
+        // });
         Array.prototype.forEach.call(findDOMNode(this).querySelectorAll("image"), (element: SVGImageElement) => {
             const nameSpace = "http://www.w3.org/1999/xlink";
             const dataSrc = element.getAttribute("data-src");
@@ -87,21 +87,21 @@ export default class EpubContent extends Component<any, any> {
                 element.setAttributeNS(nameSpace, "xlink:href", this.props.library.image(dataSrc));
             }
         });
-        // if (!this.observer) {
-        //     this.observer = lozad("img.lozad", {
-        //         target: findDOMNode(this),
-        //         load: (element: HTMLImageElement) => {
-        //             const dataSrc = element.getAttribute("data-src");
-        //             if (dataSrc) {
-        //                 element.src = this.props.library.image(dataSrc);
-        //             }
-        //         },
-        //     });
-        //     this.observer.observe();
-        // } else {
-        //     this.observer.unobserve();
-        //     this.observer.update();
-        // }
+        if (!this.observer) {
+            this.observer = lozad("img.lozad", {
+                target: findDOMNode(this),
+                load: (element: HTMLImageElement) => {
+                    const dataSrc = element.getAttribute("data-src");
+                    if (dataSrc) {
+                        element.src = this.props.library.image(dataSrc);
+                    }
+                },
+            });
+            this.observer.observe();
+        } else {
+            this.observer.unobserve();
+            this.observer.update();
+        }
     }
     public shouldComponentUpdate(props: any, state: any): boolean {
         // props只要一个不同就返回true

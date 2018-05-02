@@ -110,7 +110,7 @@ export function togglerFullScreen(show: boolean) {
     }
 }
 
-function _updateForm(component: Component<any, any>, attName: string, inputType?: string, update?: boolean) {
+function _updateForm(component: Component<any, any>, attName: string, inputType?: string, update?: boolean, callback?: (e: any, val: any) => void) {
     // form.account
     return function updateForm(e: Event | any) {
         const attrsArr = attName.split(".");
@@ -155,12 +155,17 @@ function _updateForm(component: Component<any, any>, attName: string, inputType?
         }
         // const old = component.state[formName] || {};
         if (update) {
-            component.setState(updateData);
+            component.setState(updateData, () => {
+                if (callback) {
+                    callback(e, value);
+                }
+                e.target.checkValidity();
+            });
         }
     };
 }
 
-export function updateFormFunction(component: Component<any, any>, attName: string, inputType?: string, update?: boolean) {
+export function updateFormFunction(component: Component<any, any>, attName: string, inputType?: string, update?: boolean, callback?: (e: any, val: any) => void) {
     let $formUpdate: {[name: string]: any} = (component as any).$formUpdate;
     let updateFun: ((e: any) => void) | null | undefined = null;
     const attrsArr = attName.split(".");
@@ -175,7 +180,7 @@ export function updateFormFunction(component: Component<any, any>, attName: stri
             if (i === len - 1) {
                 updateFun = $form[attr];
                 if (!updateFun) {
-                    updateFun = _updateForm(component, attName, inputType, update);
+                    updateFun = _updateForm(component, attName, inputType, update, callback);
                     $form[attr] = updateFun;
                 }
             } else {
@@ -211,10 +216,15 @@ function getDeepValue(obj: {[name: string]: any}, attName: string): any {
 
 interface IForm {
     type: string;
-    pattern: string;
     title: string;
     required: boolean;
     placeholder: string;
+    pattern?: string;
+    equal?: string;
+    min?: string|number;
+    max?: string|number;
+    minlength?: number;
+    maxlength?: number;
 }
 export function createObject(proto: any = null): any {
     if (Object.create) {
@@ -232,6 +242,8 @@ const FormList = [
     "placeholder",
     "min",
     "max",
+    "minlength",
+    "maxlength",
 ];
 
 export enum FromType {
@@ -270,6 +282,8 @@ export interface IFormProps {
     placeholder?: string;
     min?: string|number;
     max?: string|number;
+    minlength?: number;
+    maxlength?: number;
 }
 
 export function bindUpdateForm(component: Component<any, any>, formConfig: {[name: string]: IForm}, formName?: string, update?: boolean): (attr: string) => IFormProps {
@@ -286,9 +300,11 @@ export function bindUpdateForm(component: Component<any, any>, formConfig: {[nam
             $formProps = createObject();
             (component as any).$formProps = $formProps;
         }
+        let equal = null;
         if (!deep) {
             deep = createObject();
             const form = formConfig[attName];
+            equal = form.equal;
             if (form != null) {
                 for (const name of FormList) {
                     if (name in form) {
@@ -299,11 +315,24 @@ export function bindUpdateForm(component: Component<any, any>, formConfig: {[nam
             $formProps[attr] = deep;
         }
         const inputType = deep.type;
-        const formFun = updateFormFunction(component, attr, inputType, update);
+        const events: {
+            onChange?: (e: any) => void;
+            onInput?: (e: any) => void;
+        } = {};
+        if (inputType !== "hidden" && !deep.disabled) {
+            const formFun = updateFormFunction(component, attr, inputType, update, equal ? (e: Event, val: any) => {
+                const target: HTMLInputElement = e.target as HTMLInputElement;
+                if (val !== getDeepValue(component.state, `${formName}.${equal}`)) {
+                    target.setCustomValidity(deep.title);
+                } else {
+                    target.setCustomValidity("");
+                }
+            } : undefined);
+            events.onChange = formFun;
+            events.onInput = formFun;
+        }
         const props = {
-            onChange: formFun,
-            onInput: formFun,
-            // onInvalid: console.log,
+            ...events,
             ...deep,
         };
         if (inputType === "checkbox" || inputType === "radio") {

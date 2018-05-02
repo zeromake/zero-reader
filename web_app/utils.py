@@ -43,11 +43,11 @@ OPEN_METHOD = {
 
 ROOT_PATH = os.path.abspath(os.path.dirname(__file__))
 
-def root_resolve(path: str):
+def root_resolve(*path: str):
     """
     获取绝对路径(以${project_dir}/web_app/起始)
     """
-    return os.path.join(ROOT_PATH, path)
+    return os.path.join(ROOT_PATH, *path)
 
 def make_columns(table):
     """

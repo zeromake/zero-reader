@@ -178,6 +178,30 @@ def verify_token(payload: dict, sort: int) -> str:
 async def verify_email(request):
     """
     验证邮箱
+    ---
+    post:
+      summary: 验证邮箱
+      requestBody:
+        description: 帐号信息
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: token
+              required: [token]
+      responses:
+        200:
+          description: 验证成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/baseResponse'
+        default:
+          $ref: '#/components/responses/baseResponse'
     """
     token = request.json["token"]
     payload = decode_token(token)
@@ -222,6 +246,33 @@ async def send_verify_email(request):
 async def reset_passwd(request):
     """
     重置密码
+    ---
+    post:
+      summary: 重置密码
+      requestBody:
+        description: 帐号信息
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: token
+                password:
+                  type: string
+                  description: 新密码
+              required: [token, password]
+      responses:
+        200:
+          description: 重置成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/baseResponse'
+        default:
+          $ref: '#/components/responses/baseResponse'
     """
     token: str = request.json["token"]
     password: str = request.json["password"]
@@ -246,7 +297,33 @@ async def reset_passwd(request):
 async def forgotpwd(request):
     """
     忘记密码
+    ---
+    post:
+      summary: 忘记密码
+      requestBody:
+        description: 帐号信息
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              required: []
+      responses:
+        200:
+          description: 发送重置邮件成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/baseResponse'
+        default:
+          $ref: '#/components/responses/baseResponse'
     """
+    form_data = request.json
+    res = app.form.verify(form_data, "forgotpwd")
+    if res:
+        return response.json(res, res['status'])
+    
 
 
 # @Api.route("/refresh_token", methods=['POST', 'GET'])
@@ -256,8 +333,17 @@ async def refresh_token(request):
     ---
     post:
       summary: 刷新token
-      security:
-        - TokenAuth: []
+      requestBody:
+        description: 帐号信息
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Authorization:
+                  type: string
+                  description: refresh token
       responses:
         200:
           description: 续期成功
@@ -325,9 +411,11 @@ async def refresh_token(request):
 
 add_route(Api, login, "/login", ["POST"], OPEN_API, "login")
 add_route(Api, register, "/register", ["POST"], OPEN_API, "register")
-add_route(Api, forgotpwd, "/forgotpwd", ["POST"], OPEN_API)
+add_route(Api, forgotpwd, "/forgotpwd", ["POST"], OPEN_API, 'forgotpwd')
 add_route(Api, refresh_token, "/refresh_token", ['POST'], OPEN_API)
 add_route(Api, verify_email, "/verify_email", ['POST'], OPEN_API)
+add_route(Api, reset_passwd, "/reset_passwd", ['POST'], OPEN_API)
+add_route(Api, send_verify_email, "/send_verify_mail", ["POST"], OPEN_API)
 
 app.blueprint(Api, url_prefix=Api.url_prefix)
 

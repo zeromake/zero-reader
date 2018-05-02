@@ -6,6 +6,7 @@ import AlertZero from "./alert-zero";
 import LoginForm from "@/../form/login.json";
 import RegisterForm from "@/../form/register.json";
 import Animate from "preact-animate";
+// import Swal from "sweetalert2";
 // import Button from "material-ui/Button";
 
 interface ILoginProps {
@@ -101,7 +102,7 @@ export default class Home extends Component<ILoginProps, ILoginState> {
         this.togglerAlert(jsonObj.message);
     }
 
-    public togglerAlert(message: string) {
+    public togglerAlert(message: string, isErr?: boolean) {
         this.setState({message}, () => {
             if (this.$alert) {
                 const show = this.$alert.isShow();
@@ -112,6 +113,12 @@ export default class Home extends Component<ILoginProps, ILoginState> {
                 });
             }
         });
+        // Swal({
+        //     type: isErr ? "success" : "error",
+        //     title: message,
+        //     // showConfirmButton: false,
+        //     timer: 2000,
+        // });
     }
 
     public renderBase(bindUpdateFormObj: (attrName: string) => IFormProps) {

@@ -45,6 +45,8 @@ export function exec(url, route, opts) {
                 matches[param] = url.slice(i).map(decodeURIComponent).join("/");
                 break;
             }
+        } else if (route[i] === "*") {
+            return { wild: true };
         } else if (route[i] !== url[i]) {
             ret = false;
             break;

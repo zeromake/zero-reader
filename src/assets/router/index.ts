@@ -354,6 +354,7 @@ class Router extends Component<any, any> {
             }
         }
         const rankChildren = [];
+        const wildChildren = [];
         const execRoute = (vnode) => {
             const props = findProps(vnode);
             let path = props.path;
@@ -376,14 +377,20 @@ class Router extends Component<any, any> {
             } else {
                 const matches = exec(url, path, props);
                 if (matches) {
+                    let child = null;
                     if (invoke !== false) {
                         const newProps = { url, matches, history: customHistory };
                         // assign(newProps, matches);
                         delete (newProps as any).ref;
                         delete (newProps as any).key;
-                        rankChildren.push(cloneElement(vnode, newProps));
+                        child = cloneElement(vnode, newProps);
                     } else {
-                        rankChildren.push(vnode);
+                        child = vnode;
+                    }
+                    if ((matches as any).wild) {
+                        wildChildren.push(child);
+                    } else {
+                        rankChildren.push(child);
                     }
                 }
             }
@@ -399,7 +406,11 @@ class Router extends Component<any, any> {
         } else {
             rankArr.sort(pathRankSort).forEach(({ vnode }) => execRoute(vnode));
         }
-        return rankChildren;
+        if (rankChildren.length > 0) {
+            return rankChildren;
+        } else {
+            return wildChildren;
+        }
         // children.forEach((vnode, index) => {
         //     const props = findProps(vnode);
         //     if (props) {
@@ -413,7 +424,7 @@ class Router extends Component<any, any> {
         const { children, onChange } = this.props;
         const active = this.handleChildren(Children.toArray(children), url, true);
 
-        const current = active[0] || null;
+        let current = active[0] || null;
         this._didRoute = !!current;
 
         const previous = this.previousUrl;

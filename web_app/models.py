@@ -545,3 +545,4 @@ GithubStarBindTag = sa.Table(
     ),
     sqlite_autoincrement=True
 )
+GithubStarBindTag.__doc__ = "github收藏标签关联"

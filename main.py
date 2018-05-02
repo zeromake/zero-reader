@@ -68,7 +68,7 @@ def main():
     """
     主函数
     """
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.ERROR)
     args = add_args()
     raw_options = args.__dict__
     options = {
@@ -89,7 +89,7 @@ def main():
     loop = asyncio.get_event_loop()
     if options['web'] == 1:
         from web_app import app
-        app.run(host="0.0.0.0", workers=1, access_log=False)
+        app.run(host="0.0.0.0", workers=1, access_log=False, debug=False)
     else:
         from converts.utils import logger
         from converts.epub2json import Epub2Json
