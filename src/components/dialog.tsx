@@ -1,5 +1,5 @@
 import { h, Component } from "react-import";
-import styl from "@/css/layout.styl";
+import styl from "../css/layout.styl";
 import SvgIcon from "./svg-icon";
 import Animate from "preact-animate";
 

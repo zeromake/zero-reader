@@ -175,7 +175,7 @@ const config = {
             'zreact/devtools': isProd || isCordova ? resolve('../src/import/devtools.ts') : 'zreact/devtools',
             'history/createHashHistory': isCordova ? 'history/createHashHistory' : resolve('../src/import/history.ts'),
             'sweetalert2': 'sweetalert2/dist/sweetalert2.js',
-            '@': resolve('../src')
+            '~': resolve('../src')
         }, zreactAlias),
         extensions: ['.js', '.ts', '.tsx']
     },

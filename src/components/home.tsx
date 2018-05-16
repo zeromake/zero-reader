@@ -1,10 +1,10 @@
 import { h, Component, findDOMNode, route } from "react-import";
-import styl from "@/css/login.styl";
+import styl from "../css/login.styl";
 import { $ajax } from "../http/index";
 import { bindUpdateForm, IFormProps } from "../utils";
 import AlertZero from "./alert-zero";
-import LoginForm from "@/../form/login.json";
-import RegisterForm from "@/../form/register.json";
+import LoginForm from "../../form/login.json";
+import RegisterForm from "../../form/register.json";
 import Animate from "preact-animate";
 // import Swal from "sweetalert2";
 // import Button from "material-ui/Button";

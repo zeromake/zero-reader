@@ -71,18 +71,18 @@ async def admin_request(request):
 async def before_server_start(app, loop):
     init = os.path.exists(CONFIG['FILE'])
     app.engine = await app.db.create_engine(loop)
+    smtp = CONFIG["SMTP"]
+    app.email = Email(
+        smtp["HOST"],
+        smtp["PORT"],
+        smtp["ACCOUNT"],
+        smtp["PASSWORD"],
+        smtp["SSL"]
+    )
     if not init:
         await app.db.create_table(app.engine)
         with open(CONFIG['FILE'], 'w') as FILE:
             FILE.write("0")
-        smtp = CONFIG["SMTP"]
-        app.email = Email(
-            smtp["HOST"],
-            smtp["PORT"],
-            smtp["ACCOUNT"],
-            smtp["PASSWORD"],
-            smtp["SSL"]
-        )
 
 @app.listener('before_server_stop')
 async def before_server_stop(app, loop):

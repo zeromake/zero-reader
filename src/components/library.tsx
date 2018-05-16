@@ -1,8 +1,8 @@
 // import { Component, createElement as h } from "react";
 // import { Link } from "react-router-dom";
 import { Component, h, Link } from "react-import";
-import styl from "@/css/library.styl";
-import { libraryData } from "@/http/index";
+import styl from "../css/library.styl";
+import { libraryData } from "../http/index";
 import Animate from "preact-animate";
 
 export default class Library extends Component<any, any> {

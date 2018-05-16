@@ -12,11 +12,18 @@ CONFIG = {
     "FILE": "config/config.ini",
     "SECRET": "Be9ZszibMYVu",
     "HASH": "md5_crypt",
+    # "SMTP": {
+    #     "HOST": "smtp-mail.outlook.com",
+    #     "PORT": 587,
+    #     "ACCOUNT": "fly-zero@hotmail.com",
+    #     "PASSWORD": os.environ.get("SMTP_PWD"),
+    #     "SSL": 2,
+    # }
     "SMTP": {
         "HOST": "smtp.163.com",
         "PORT": 465,
         "ACCOUNT": "390720046@163.com",
         "PASSWORD": os.environ.get("SMTP_PWD"),
-        "SSL": True
+        "SSL": 1
     }
 }

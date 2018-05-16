@@ -320,10 +320,32 @@ async def forgotpwd(request):
           $ref: '#/components/responses/baseResponse'
     """
     form_data = request.json
-    res = app.form.verify(form_data, "forgotpwd")
+    res = app.form.verify("forgotpwd", form_data)
     if res:
         return response.json(res, res['status'])
-    
+    # account = res["account"]
+    model = app.db.get_model("user")
+    sql, *_ = model.select(where_data=form_data)
+    item = await model.execute_one(sql)
+    if item is None:
+        res = {
+            "message": "未找到该用户！",
+            "status": 400,
+        }
+    else:
+        status = app.email.send_email(
+            item.email,
+            "分-段-富贵花！",
+            "He-llo",
+        )
+        res = {
+            "message": "已发送重置密码邮件！",
+            "status": 200,
+        } if status else {
+            "message": "邮件发送失败",
+            "status": 500,
+        }
+    return response.json(res, res['status'])
 
 
 # @Api.route("/refresh_token", methods=['POST', 'GET'])

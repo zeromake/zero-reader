@@ -1,7 +1,7 @@
 import AbcLayout from "./abc-layout";
 import { findDOMNode, h, route } from "react-import";
 import { buildBlock } from "../utils";
-import styl from "@/css/layout.styl";
+import styl from "../css/layout.styl";
 import throttle from "lodash.throttle";
 import TopBar from "./top-bar";
 import BottomBar from "./pdf-bottom-bar";

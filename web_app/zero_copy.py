@@ -1,9 +1,5 @@
 import os
 from sanic.response import StreamingHTTPResponse, STATUS_CODES, file_stream
-try:
-    from sendfile import sendfile
-except ImportError:
-    sendfile = None
 from mimetypes import guess_type
 
 
@@ -81,7 +77,7 @@ class ZeroCopyStreamingHTTPResponse(StreamingHTTPResponse):
                         output_fd,
                         b"%x\r\n" % send_size
                     )
-                    sendfile(output_fd, input_fd, offset_no, send_size)
+                    os.sendfile(output_fd, input_fd, offset_no, send_size)
                     self.sync_write(
                         output_fd,
                         b"\r\n"
@@ -100,7 +96,7 @@ class ZeroCopyStreamingHTTPResponse(StreamingHTTPResponse):
                     keep_alive_timeout=keep_alive_timeout
                 )
                 self.sync_write(output_fd, headers)
-                sendfile(output_fd, input_fd, offset_no, send_size)
+                os.sendfile(output_fd, input_fd, offset_no, send_size)
 
     def get_headers(
             self,
@@ -117,10 +113,13 @@ class ZeroCopyStreamingHTTPResponse(StreamingHTTPResponse):
             self.headers['Transfer-Encoding'] = 'chunked'
             self.headers.pop('Content-Length', None)
         self.headers['Accept-Ranges'] = "bytes"
-        self.headers['Content-Type'] = self.headers.get(
+        content_type = self.headers.get(
             'Content-Type',
             self.content_type
         )
+        if content_type.startswith("text") or content_type.endswith("json"):
+            content_type += "; charset=utf-8"
+        self.headers['Content-Type'] = content_type
         headers = self._parse_headers()
         if self.status is 200:
             status = b'OK'
@@ -146,21 +145,19 @@ async def zero_copy_stream(
     """
     Accepts an coroutine `streaming_fn`
     """
-    if sendfile:
-        return ZeroCopyStreamingHTTPResponse(
-            file_path,
-            file_name=file_name,
-            chunked=chunked,
-            chunk_size=chunk_size,
-            headers=headers,
-            content_type=mime_type,
-            status=status
-        )
-    else:
-        return await file_stream(
-            file_path,
-            chunk_size=chunk_size,
-            mime_type=mime_type,
-            headers=headers,
-            filename=file_name,
-        )
+    return ZeroCopyStreamingHTTPResponse(
+        file_path,
+        file_name=file_name,
+        chunked=chunked,
+        chunk_size=chunk_size,
+        headers=headers,
+        content_type=mime_type,
+        status=status
+    )
+    # return await file_stream(
+    #     file_path,
+    #     chunk_size=chunk_size,
+    #     mime_type=mime_type,
+    #     headers=headers,
+    #     filename=file_name,
+    # )

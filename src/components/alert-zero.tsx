@@ -1,5 +1,5 @@
 import { h, findDOMNode, Component } from "react-import";
-import styl from "@/css/alert-zero.styl";
+import styl from "../css/alert-zero.styl";
 import Animate from "preact-animate";
 import SvgIcon from "./svg-icon";
 // import { shallowDiffers } from "../utils";

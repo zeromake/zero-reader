@@ -1,6 +1,6 @@
 import { h, findDOMNode, Component } from "react-import";
-import { shallowDiffers } from "@/utils";
-import lozad from "@/assets/lozad";
+import { shallowDiffers } from "../utils";
+import lozad from "../assets/lozad";
 import styl from "../css/epub-layout.styl";
 
 // const PdfContent = propsDiffComponent(function _(props) {

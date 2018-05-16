@@ -1,8 +1,8 @@
 import { h } from "react-import";
-import styl from "@/css/bottom-bar.styl";
+import styl from "../css/bottom-bar.styl";
 import SvgIcon from "./svg-icon";
 import Animate from "preact-animate";
-import { propsDiffComponent } from "@/utils";
+import { propsDiffComponent } from "../utils";
 
 // const bottomMenu = [
 //     {icon: "fa-list-ul", title: "目录", id: 1},
