@@ -319,6 +319,7 @@ async def forgotpwd(request):
         default:
           $ref: '#/components/responses/baseResponse'
     """
+    from web_app.config import CONFIG
     form_data = request.json
     res = app.form.verify("forgotpwd", form_data)
     if res:
@@ -333,10 +334,21 @@ async def forgotpwd(request):
             "status": 400,
         }
     else:
+        exp = get_offset_timestamp(days=1)
+        token = encode_token({
+            "account": item.account,
+            "sort": 3,
+            "exp": exp
+        })
+        url = CONFIG['URL'] + "/reset_passwd?token=" + token
         status = app.email.send_email(
             item.email,
-            "分-段-富贵花！",
-            "He-llo",
+            "零阅找回帐号！",
+            '''
+            <h1>找回帐号</h1>
+            <span>点击链接找回帐号，链接有效期一天</span><br/>
+            <a target="_blank" href="%s">%s</a>
+            ''' % (url, url),
         )
         res = {
             "message": "已发送重置密码邮件！",

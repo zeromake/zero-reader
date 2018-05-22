@@ -16,7 +16,7 @@ class Email(object):
         status = False
         try:
             message = MIMEText(msg, 'html', _ENCODE)
-            message["From"] = Header(self._account, _ENCODE)
+            message["From"] = self._account
             message["To"] = Header(receiver, _ENCODE)
             message['Subject'] = Header(title, _ENCODE)
             if self._ssl == 1:

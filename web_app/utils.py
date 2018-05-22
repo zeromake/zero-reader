@@ -242,13 +242,13 @@ def encode_token(payload: dict, algorithm: str='HS256', **kwargs: dict)-> str:
     """
     生成token
     """
-    return jwt.encode(payload, CONFIG['SECRET'], algorithm=algorithm, **kwargs)
+    return jwt.encode(payload, CONFIG['SECRET'], algorithm=algorithm, **kwargs).decode()
 
 def decode_token(jwt_payload: str, algorithm: str='HS256', **kwargs: dict)-> dict:
     """
     读取payload
     """
-    return jwt.decode(jwt_payload, CONFIG['SECRET'], algorithm=algorithm, **kwargs)
+    return jwt.decode(jwt_payload.encode(), CONFIG['SECRET'], algorithm=algorithm, **kwargs)
 
 def hash_string(string: str)-> str:
     """

@@ -68,7 +68,7 @@ def main():
     """
     主函数
     """
-    logging.basicConfig(level=logging.ERROR)
+    logging.basicConfig(level=logging.DEBUG)
     args = add_args()
     raw_options = args.__dict__
     options = {

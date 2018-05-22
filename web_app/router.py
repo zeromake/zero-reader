@@ -15,7 +15,11 @@ from .zero_copy import zero_copy_stream
 # app.static("/", root_resolve("../dist/index.html"), name="index")
 app.static("/assets/", root_resolve("../dist/assets"), name="static")
 # app.static("/api/librarys/", root_resolve("../librarys"), name="librarys")
-app.config.project = json.dumps({"sign_up": True, "sign_up_code": True})
+app.config.project = json.dumps({
+    "sign_up": True,
+    "sign_up_code": True,
+})
+# app.config.url = "http://reader.zeromake.com"
 # app.config.project = "null"
 
 def safe_file_path(file_uri: str):
