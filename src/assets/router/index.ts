@@ -70,6 +70,8 @@ function route(url, replace = false) {
         };
         if (beforeEach) {
             beforeEach(url, getCurrentUrl(), next);
+        } else {
+            next();
         }
     });
 }
@@ -192,6 +194,7 @@ class Router extends Component<any, any> {
     private unlisten: any;
     private previousUrl: string;
     private initRoute: boolean;
+    private redirect: string;
 
     public static subscribers = subscribers;
     public static getCurrentUrl = getCurrentUrl;
@@ -241,7 +244,6 @@ class Router extends Component<any, any> {
     public routeTo(url) {
         this._didRoute = false;
         this.state.url = url;
-
         // if we"re in the middle of an update, don"t synchronously re-route.
         if (this.updating) {
             return this.canRoute(url);
@@ -301,6 +303,9 @@ class Router extends Component<any, any> {
             return newChildren;
         }
         for (let vnode of children) {
+            if (this.redirect) {
+                break;
+            }
             if (isRoute(vnode)) {
                 newChildren = this.getMatchingChildren(children, url, invoke, isNoRank, parentPath);
                 break;
@@ -369,21 +374,21 @@ class Router extends Component<any, any> {
                     break;
                 }
             }
+            let child = null;
             if (childRoute) {
                 const matches = childRoute.matches;
                 if (invoke !== false) {
-                    const newProps = { url, matches, history: customHistory };
+                    const newProps = { ...props, url, matches, history: customHistory};
                     assign(newProps, matches);
                     delete (newProps as any).ref;
                     delete (newProps as any).key;
-                    rankChildren.push(cloneElement(vnode, newProps));
+                    child = cloneElement(vnode, newProps);
                 } else {
-                    rankChildren.push(vnode);
+                    child = vnode;
                 }
             } else {
                 const matches = exec(url, path, props);
                 if (matches) {
-                    let child = null;
                     if (invoke !== false) {
                         const newProps = { url, matches, history: customHistory };
                         // assign(newProps, matches);
@@ -395,11 +400,18 @@ class Router extends Component<any, any> {
                     }
                     if ((matches as any).wild) {
                         wildChildren.push(child);
-                    } else {
-                        rankChildren.push(child);
+                        child = null;
                     }
                 }
             }
+            if (child) {
+                if (props.redirect) {
+                    this.redirect = props.redirect;
+                } else {
+                    rankChildren.push(child);
+                }
+            }
+
         };
         if (isNoRank) {
             for (const vnode of children) {
@@ -408,9 +420,14 @@ class Router extends Component<any, any> {
                 } else if (vnode && invoke) {
                     rankChildren.push(vnode);
                 }
-                }
+            }
         } else {
-            rankArr.sort(pathRankSort).forEach(({ vnode }) => execRoute(vnode));
+            for (const item of rankArr.sort(pathRankSort)) {
+                if (this.redirect) {
+                    break;
+                }
+                execRoute(item.vnode);
+            }
         }
         if (rankChildren.length > 0) {
             return rankChildren;
@@ -426,11 +443,18 @@ class Router extends Component<any, any> {
     }
 
     public render() {
-        const { url } = this.state;
+        let { url } = this.state;
         const { children, onChange } = this.props;
-        const active = this.handleChildren(Children.toArray(children), url, true);
+        const childarr = Children.toArray(children)
+        let active = this.handleChildren(childarr, url, true);
+        if (this.redirect) {
+            url = this.state.url = this.redirect;
+            this.redirect = null;
+            setUrl(url, "push");
+            active = this.handleChildren(childarr, url, true);
+        }
 
-        let current = active[0] || null;
+        const current = active[0] || null;
         this._didRoute = !!current;
 
         const previous = this.previousUrl;

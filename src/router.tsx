@@ -1,6 +1,7 @@
 import BookLayout from "./components/book-layout";
 import Library from "./components/library";
 import Home from "./components/home";
+import LoginView from "./components/login";
 import { h, Router, Route, Link, AsyncRoute } from "react-import";
 import Animate from "preact-animate";
 import { togglerFullScreen } from "./utils";
@@ -40,12 +41,12 @@ const MainRouter = () => (
         if (to.lastIndexOf("?") !== -1) {
             to = to.split("?")[0];
         }
-        if (to !== "/") {
+        if (to.startsWith("/library")) {
             const token = localStorage.getItem("token");
             if (token && token !== "") {
                 next();
             } else {
-                next(`/?href=${encodeURIComponent(raw)}&error=未登录!`);
+                next(`/login?href=${encodeURIComponent(raw)}&error=未登录!`);
             }
         } else {
             next();
@@ -62,45 +63,40 @@ const MainRouter = () => (
             >
             <Route
                 key="1"
-                // component={AsyncRoute}
-                // getComponent={Login}
                 component={Home}
                 path="/"
-                // transitionName={{ enter: "fadeInLeft", leave: "fadeOutLeft"  }}
             >
+                <Route
+                    key="redirect"
+                    path="/"
+                    redirect="/login"
+                >
+                </Route>
                 <Route
                     key="1-1"
                     path="login"
-                    component={() => {
-                        return <h1>Test1</h1>;
-                    }}
+                    component={LoginView}
                 >
                 </Route>
                 <Route
                     key="1-2"
                     path="register"
                     component={() => {
-                        return <h1>Test2</h1>;
+                        return <h1>register</h1>;
                     }}
                 >
                 </Route>
             </Route>
             <Route
                 key="2"
-                // component={AsyncRoute}
-                // getComponent={Library}
                 component={Library}
                 path="/library"
-                // transitionName={{ enter: "fadeInRight", leave: "fadeOutRight" }}
             >
             </Route>
             <Route
                 key="3"
-                // component={AsyncRoute}
-                // getComponent={BookLayout}
                 component={BookLayout}
                 path="/library/:base64/"
-                // transitionName={{ enter: "fadeInRight", leave: "fadeOutRight" }}
             >
             </Route>
             <Route

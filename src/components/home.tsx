@@ -155,32 +155,6 @@ export default class Home extends Component<ILoginProps, ILoginState> {
             <div {...Animate.filterProps(this.props, {className: styl.content + " animated"})}>
                 { h(AlertZero, {ref: (c: any) => this.$alert = c, message: this.state.message, level: 1}) }
                 {this.props.children}
-                <div className={styl.form}>
-                    <form action="post" onSubmit={this.submitEvent}>
-                    <div className={styl.title} key="title">
-                        <h1>{isLogin ? "登录" : "注册"}</h1>
-                    </div>
-                    {...this.renderBase(bindUpdateFormObj)}
-                    { isLogin ? <div className={styl.form_item + " " + styl.form_item_back} key="3">
-                        <div className={styl.rememberme}>
-                            <input id="rememberme" {...bindUpdateFormObj("rememberme")} className={styl.rememberme_check}/>
-                            <label for="rememberme" className={styl.rememberme_label}>记住我</label>
-                        </div>
-                        <div className={styl.back}>
-                            <Link href="/register">忘记密码</Link>
-                            {/* <a href="javascript:void(0);">忘记密码</a> */}
-                        </div>
-                    </div> : this.renderRegister()}
-                    <div className={styl.form_item} key="4">
-                        {/* <Button variant="raised" color="primary" type="submit" className={styl.button}>{isLogin ? "登录" : "注册"}</Button> */}
-                        <button className={styl.button} type="submit">{isLogin ? "登录" : "注册"}</button>
-                    </div>
-                    <div className={styl.form_item} key="5">
-                        <Link href="/login" onClick={this.switch}>{isLogin ? "注册" : "登录"}</Link>
-                        {/* <a href="javascript:void(0);" onClick={this.switch}>{isLogin ? "注册" : "登录"}</a> */}
-                    </div>
-                    </form>
-                </div>
             </div>
         );
     }
