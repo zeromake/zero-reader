@@ -68,6 +68,22 @@ const MainRouter = () => (
                 path="/"
                 // transitionName={{ enter: "fadeInLeft", leave: "fadeOutLeft"  }}
             >
+                <Route
+                    key="1-1"
+                    path="login"
+                    component={() => {
+                        return <h1>Test1</h1>;
+                    }}
+                >
+                </Route>
+                <Route
+                    key="1-2"
+                    path="register"
+                    component={() => {
+                        return <h1>Test2</h1>;
+                    }}
+                >
+                </Route>
             </Route>
             <Route
                 key="2"

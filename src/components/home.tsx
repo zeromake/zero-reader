@@ -1,4 +1,4 @@
-import { h, Component, findDOMNode, route } from "react-import";
+import { h, Component, findDOMNode, route, Link } from "react-import";
 import styl from "../css/login.styl";
 import { $ajax } from "../http/index";
 import { bindUpdateForm, IFormProps } from "../utils";
@@ -113,12 +113,6 @@ export default class Home extends Component<ILoginProps, ILoginState> {
                 });
             }
         });
-        // Swal({
-        //     type: isErr ? "success" : "error",
-        //     title: message,
-        //     // showConfirmButton: false,
-        //     timer: 2000,
-        // });
     }
 
     public renderBase(bindUpdateFormObj: (attrName: string) => IFormProps) {
@@ -160,6 +154,7 @@ export default class Home extends Component<ILoginProps, ILoginState> {
         return (
             <div {...Animate.filterProps(this.props, {className: styl.content + " animated"})}>
                 { h(AlertZero, {ref: (c: any) => this.$alert = c, message: this.state.message, level: 1}) }
+                {this.props.children}
                 <div className={styl.form}>
                     <form action="post" onSubmit={this.submitEvent}>
                     <div className={styl.title} key="title">
@@ -172,7 +167,8 @@ export default class Home extends Component<ILoginProps, ILoginState> {
                             <label for="rememberme" className={styl.rememberme_label}>记住我</label>
                         </div>
                         <div className={styl.back}>
-                            <a href="javascript:void(0);">忘记密码</a>
+                            <Link href="/register">忘记密码</Link>
+                            {/* <a href="javascript:void(0);">忘记密码</a> */}
                         </div>
                     </div> : this.renderRegister()}
                     <div className={styl.form_item} key="4">
@@ -180,8 +176,8 @@ export default class Home extends Component<ILoginProps, ILoginState> {
                         <button className={styl.button} type="submit">{isLogin ? "登录" : "注册"}</button>
                     </div>
                     <div className={styl.form_item} key="5">
-                        {/* <Button color="primary" onClick={this.switch}>{isLogin ? "注册" : "登录"}</Button> */}
-                        <a href="javascript:void(0);" onClick={this.switch}>{isLogin ? "注册" : "登录"}</a>
+                        <Link href="/login" onClick={this.switch}>{isLogin ? "注册" : "登录"}</Link>
+                        {/* <a href="javascript:void(0);" onClick={this.switch}>{isLogin ? "注册" : "登录"}</a> */}
                     </div>
                     </form>
                 </div>

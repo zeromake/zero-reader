@@ -100,7 +100,6 @@ declare const AndroidFullScreen: any;
 export function togglerFullScreen(show: boolean) {
     if (typeof AndroidFullScreen !== "undefined") {
         AndroidFullScreen.isSupported(function _() {
-            // console.log("--------", show);
             if (show) {
                 AndroidFullScreen.showSystemUI();
             } else {

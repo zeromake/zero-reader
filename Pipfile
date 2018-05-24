@@ -17,7 +17,6 @@ PyYAML = "*"
 psutil = "*"
 PyJWT = "*"
 "jinja2" = "*"
-pylint = "*"
 "aiosqlite3" = "*"
 
 [dev-packages]

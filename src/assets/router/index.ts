@@ -359,10 +359,16 @@ class Router extends Component<any, any> {
             const props = findProps(vnode);
             let path = props.path;
             if (parentPath && !path.startsWith(parentPath)) {
-                path = parentPath + (parentPath.endsWith("/") || path.startsWith("/")) ? "" : "/" + path;
+                path = parentPath + (parentPath.endsWith("/") || path.startsWith("/")) ? "" + path : "/" + path;
             }
             const deepChildren = Children.toArray(findChildren(vnode));
-            const childRoute = findChildRoute(deepChildren[0]);
+            let childRoute: any = null;
+            for (const item of deepChildren) {
+                childRoute = findChildRoute(item);
+                if (childRoute) {
+                    break;
+                }
+            }
             if (childRoute) {
                 const matches = childRoute.matches;
                 if (invoke !== false) {
