@@ -12,6 +12,7 @@ enum Matche {
 
 export default class LoginView extends Component<any, any> {
     private bindUpdateForm: (attrName: string) => IFormProps;
+    public refs: any;
     constructor(p: any, c: any) {
         super(p, c);
         this.state = {

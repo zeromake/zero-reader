@@ -5,7 +5,6 @@ import json
 import os
 from sanic import response
 from mimetypes import guess_type
-from sendfile import sendfile
 from sanic.exceptions import NotFound
 
 from . import app

@@ -36,22 +36,25 @@ const text = (props) => {
 };
 
 const MainRouter = () => (
-    <Router history={tmpHistory} beforeEach={(to: string, form: string, next: (url?: string) => boolean) => {
-        const raw = to;
-        if (to.lastIndexOf("?") !== -1) {
-            to = to.split("?")[0];
-        }
-        if (to.startsWith("/library")) {
-            const token = localStorage.getItem("token");
-            if (token && token !== "") {
-                next();
-            } else {
-                next(`/login?href=${encodeURIComponent(raw)}&error=未登录!`);
+    <Router history={tmpHistory}
+        redirect={{"/": "/login"}}
+        beforeEach={(to: string, form: string, next: (url?: string) => boolean) => {
+            const raw = to;
+            if (to.lastIndexOf("?") !== -1) {
+                to = to.split("?")[0];
             }
-        } else {
-            next();
-        }
-    }}>
+            if (to.startsWith("/library")) {
+                const token = localStorage.getItem("token");
+                if (token && token !== "") {
+                    next();
+                } else {
+                    next(`/login?href=${encodeURIComponent(raw)}&error=未登录!`);
+                }
+            } else {
+                next();
+            }
+        }}
+    >
         <Animate
             component="div"
             componentProps={{className: "main", id: "app"}}
@@ -62,16 +65,16 @@ const MainRouter = () => (
             isRender={true}
             >
             <Route
+                key="redirect"
+                path="/"
+                redirect="/login"
+            >
+            </Route>
+            <Route
                 key="1"
                 component={Home}
                 path="/"
             >
-                <Route
-                    key="redirect"
-                    path="/"
-                    redirect="/login"
-                >
-                </Route>
                 <Route
                     key="1-1"
                     path="login"

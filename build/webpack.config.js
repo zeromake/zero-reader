@@ -87,6 +87,7 @@ const zreactAlias = {
     'module-react': resolve('../src/import/module-zreact.ts'),
     'react-import': resolve('../src/import/zreact-import.ts'),
     'preact-animate': 'preact-animate/dist/zreact-animate-esm.js',
+    // 'zreact-router': 'zreact-router/dist/zreact-router-esm.js',
 }
 const reactAlias = {
     'zreact/devtools': resolve('../src/import/devtools.ts'),
@@ -95,6 +96,7 @@ const reactAlias = {
     'module-react': resolve('../src/import/module-react.ts'),
     'react-import': resolve('../src/import/react-import.ts'),
     'preact-animate': 'preact-animate/dist/react-animate-esm.js',
+    'zreact-router': 'zreact-router/dist/react-router-esm.js',
 }
 const preactAlias = {
     'react': 'preact',
@@ -103,6 +105,7 @@ const preactAlias = {
     'zreact/devtools': resolve('../src/import/devtools.ts'),
     'module-react': resolve('../src/import/module-preact.ts'),
     'react-import': resolve('../src/import/preact-import.ts'),
+    'zreact-router': 'zreact-router/dist/preact-router-esm.js',
 }
 
 const basePlugin = [
@@ -174,7 +177,7 @@ const config = {
         alias: Object.assign({
             'zreact/devtools': isProd || isCordova ? resolve('../src/import/devtools.ts') : 'zreact/devtools',
             'history/createHashHistory': isCordova ? 'history/createHashHistory' : resolve('../src/import/history.ts'),
-            'sweetalert2': 'sweetalert2/dist/sweetalert2.js',
+            // 'sweetalert2': 'sweetalert2/dist/sweetalert2.js',
             '~': resolve('../src')
         }, zreactAlias),
         extensions: ['.js', '.ts', '.tsx']
