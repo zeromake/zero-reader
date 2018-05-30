@@ -13,12 +13,16 @@
       ],
       "types": [
         "lodash"
-      ]
+      ],
+      "baseUrl": "src",
+      "paths": {
+        "~/*": ["*"]
+      }
     },
     "files": [
        "src/types.d.ts",
       //  "node_modules/preact/src/preact.d.ts"
        "node_modules/zreact/types/zreact.d.ts",
-       "src/components/book-layout.tsx"
+       "src/main.tsx"
     ]
 }

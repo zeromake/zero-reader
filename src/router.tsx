@@ -1,7 +1,7 @@
 import BookLayout from "./components/book-layout";
 import Library from "./components/library";
 import Home from "./components/home";
-import LoginView from "./components/login";
+import LoginView from "~/components/login";
 import { h, Router, Route, Link, AsyncRoute } from "react-import";
 import Animate from "preact-animate";
 import { togglerFullScreen } from "./utils";
