@@ -2,6 +2,7 @@ import BookLayout from "./components/book-layout";
 import Library from "./components/library";
 import Home from "./components/home";
 import LoginView from "~/components/login";
+import RegisterView from "~/components/register";
 import { h, Router, Route, Link, AsyncRoute } from "react-import";
 import Animate from "preact-animate";
 import { togglerFullScreen } from "./utils";
@@ -62,7 +63,7 @@ const MainRouter = () => (
             transitionEnter={true}
             transitionLeave={true}
             transitionName={{ enter: "fadeIn", leave: "fadeOut" }}
-            isRender={true}
+            isRender={false}
             >
             <Route
                 key="redirect"
@@ -84,9 +85,7 @@ const MainRouter = () => (
                 <Route
                     key="1-2"
                     path="register"
-                    component={() => {
-                        return <h1>register</h1>;
-                    }}
+                    component={RegisterView}
                 >
                 </Route>
             </Route>
@@ -104,13 +103,11 @@ const MainRouter = () => (
             </Route>
             <Route
                 key="4"
-                component={() => {
-                    return <div>
-                        <h3>404</h3>
-                        <Link href="/">回到首页</Link>
-                    </div>;
-                }}
-                path="/*"
+                component={() => (<div>
+                    <h3>404</h3>
+                    <Link href="/">回到首页</Link>
+                </div>)}
+                path="*"
             >
             </Route>
         </Animate>

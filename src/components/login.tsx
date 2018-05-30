@@ -3,7 +3,7 @@ import LoginForm from "../../form/login.json";
 import { bindUpdateForm, IFormProps } from "../utils";
 import { $ajax } from "../http/index";
 import styl from "../css/login.styl";
-import { FormEvent } from "react";
+// import { FormEvent } from "react";
 
 enum Matche {
     ERROR = "error",
