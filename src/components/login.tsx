@@ -3,6 +3,7 @@ import LoginForm from "../../form/login.json";
 import { bindUpdateForm, IFormProps } from "../utils";
 import { $ajax } from "../http/index";
 import styl from "../css/login.styl";
+import Button from "./button";
 // import { FormEvent } from "react";
 
 enum Matche {
@@ -73,9 +74,9 @@ export default class LoginView extends Component<any, any> {
                 </div>
             </div>
             <div className={styl.form_item} key="4">
-                <button className={styl.button} type="submit">登录</button>
             </div>
             <div className={styl.form_item} key="5">
+                <Button className={styl.button} stype="submit">登录</Button>
                 <Link href="/register">注册</Link>
             </div>
             </form>

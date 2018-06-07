@@ -1,0 +1,48 @@
+.btn
+    overflow hidden
+    position relative
+    color #575757
+    background-color #f7f7fa
+    transition color .2s linear, background-color .3s linear
+    display inline-block
+    margin-bottom 0
+    font-weight 400
+    text-align center
+    cursor pointer
+    outline 0 !important
+    white-space nowrap
+    border none
+    user-select none
+    padding 8px 12px
+    font-size 14px
+    line-height 1.42857143
+    border-radius 6px
+    box-sizing border-box
+
+    &:hover,
+    &:focus,
+    &:active,
+    &:active:focus
+        opacity 1
+        color #575757
+        background-color #e5e5ea
+
+.btn::after
+    content ""
+    display block
+    position absolute
+    width 100%
+    height 100%
+    top 0
+    left 0
+    background-image radial-gradient(circle,#000 10%,transparent 10.01%)
+    background-position 50%
+    transform scale(10)
+    opacity 0
+    transition transform .5s, opacity 1s, transform .5s
+    box-sizing border-box
+
+.btn:active:after
+    transform scale(0)
+    opacity .2
+    transition 0s
