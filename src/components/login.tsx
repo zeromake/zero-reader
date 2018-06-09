@@ -74,9 +74,9 @@ export default class LoginView extends Component<any, any> {
                 </div>
             </div>
             <div className={styl.form_item} key="4">
+                <Button appearance="primary" block type="submit">登录</Button>
             </div>
             <div className={styl.form_item} key="5">
-                <Button className={styl.button} stype="submit">登录</Button>
                 <Link href="/register">注册</Link>
             </div>
             </form>

@@ -3,6 +3,7 @@ import registerForm from "../../form/register.json";
 import { bindUpdateForm, IFormProps } from "../utils";
 import { $ajax } from "../http/index";
 import styl from "../css/login.styl";
+import Button from "./button";
 // import { FormEvent } from "react";
 
 declare const projectConfig: any;
@@ -73,7 +74,7 @@ export default class RegisterView extends Component<any, any> {
                     <input className={styl.input} {...this.bindUpdateForm("email")}/>
                 </div>
                 <div className={styl.form_item} key="4">
-                    <button className={styl.button} type="submit">注册</button>
+                    <Button appearance="primary" block type="submit">注册</Button>
                 </div>
                 <div className={styl.form_item} key="5">
                     <Link href="/login">登陆</Link>
