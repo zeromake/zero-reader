@@ -6,7 +6,7 @@ import Animate from "preact-animate";
 
 const TopBar = propsDiffComponent((props) => {
     const newProps = Animate.filterProps(props, {className: `${styl.top_bar} animated`});
-    console.log(newProps);
+    // console.log(newProps);
     return <div {...newProps}>
         <div className={styl.middle_content}>
             <div className={styl.middle_wrap}>
