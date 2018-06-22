@@ -14,10 +14,14 @@ from .zero_copy import zero_copy_stream
 # app.static("/", root_resolve("../dist/index.html"), name="index")
 app.static("/assets/", root_resolve("../dist/assets"), name="static")
 # app.static("/api/librarys/", root_resolve("../librarys"), name="librarys")
-app.config.project = json.dumps({
+app.config.project = "<script type=\"text/javascript\" src=\"/config.js\"></script>"
+
+app.config.projectConfig = json.dumps({
     "sign_up": True,
     "sign_up_code": True,
 })
+
+CSP = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline';"
 # app.config.url = "http://reader.zeromake.com"
 # app.config.project = "null"
 
@@ -44,12 +48,23 @@ async def librarys(request, file_uri):
 
 @app.route("/")
 def index(request):
-    return template("index.html", config=app.config.project)
+    return template("index.html", headers={
+        "Content-Security-Policy": CSP
+    }, config=app.config.project)
+
+@app.route("/config.js")
+def config(request):
+    return response.text(
+        "window.projectConfig=" + app.config.projectConfig,
+        headers= {
+            'Content-Type': 'text/javascript'
+        }
+    )
 
 @app.route("/config")
 def index_(request):
     return response.text(
-        app.config.project,
+        app.config.projectConfig,
         headers= {
             'Content-Type': 'application/json'
         }
@@ -60,7 +75,9 @@ def fall_back(request, exception):
     """
     全部重定向到index.html
     """
-    return template("index.html", config=app.config.project)
+    return template("index.html", headers={
+        "Content-Security-Policy": CSP
+    }, config=app.config.project)
 
 # @app.route("/librarys/<file_uri:/?.+>", methods=["GET", "OPTIONS"])
 # async def library(request, file_uri):

@@ -59,7 +59,7 @@ const MainRouter = () => (
     >
         <Animate
             component="div"
-            componentProps={{className: "main", id: "app"}}
+            componentProps={{className: "reader-main"}}
             onAfterEnter={onAfterEnter}
             transitionEnter={true}
             transitionLeave={true}
@@ -105,10 +105,6 @@ const MainRouter = () => (
             <Route
                 key="4"
                 component={() => {
-                    setTimeout(() => {
-                        Alert.error("cessssdgdfg", 9000000);
-                    }, 9000);
-                    Alert.error("cessssdgdfg");
                     return (<div>
                         <h3>404</h3>
                         <Link href="/">回到首页</Link>

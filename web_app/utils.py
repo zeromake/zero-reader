@@ -274,12 +274,12 @@ def get_offset_timestamp(**kwargs):
     """
     return to_timestamp(datetime.now(timezone.utc) + timedelta(**kwargs))
 
-def template(name: str, **kwargs: dict):
+def template(name: str, headers: dict=None, **kwargs: dict):
     """
     jinja2_env
     """
     template_obj = jinja2_env.get_template(name)
-    return response.html(template_obj.render(kwargs))
+    return response.html(template_obj.render(kwargs), headers=headers)
 
 def generate_openapi_by_def(handler):
     """

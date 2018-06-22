@@ -184,10 +184,10 @@ const config = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            config: isProd && !isCordova ? "{{ config|safe }}" : isCordova ? false : JSON.stringify({
+            config: isProd && !isCordova ? "{{ config|safe }}" : isCordova ? false : "<script type=\"text/javascript\">\n    window.projectConfig=" + JSON.stringify({
                 "sign_up": true,
                 "sign_up_code": true
-            }),
+            }) + "\n    </script>",
             version: pkg.version,
             buildTime: strftime(new Date()),
             isProd,

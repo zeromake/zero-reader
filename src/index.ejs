@@ -8,9 +8,7 @@
     <meta name="buildTime" content="<%= htmlWebpackPlugin.options.buildTime %>">
     <title>zero-reader</title>
     <% if (htmlWebpackPlugin.options.config){%>
-    <script type="text/javascript">
-        window.projectConfig = <%= htmlWebpackPlugin.options.config %>;var e;(e=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(e);
-    </script>
+    <%= htmlWebpackPlugin.options.config %>
     <%}%>
 </head>
 <body>

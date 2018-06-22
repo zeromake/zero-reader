@@ -21,10 +21,22 @@ svg_icon_size = 2rem
 
 .middle_wrap
     color #FFF
-    text-align center
+    display flex
+    justify-content center
+    align-items center
+    height svg_icon_size
     margin 0 svg_icon_size 0 svg_icon_size
     h2
-     margin 0
+        // font-size 1rem
+        margin 0
+
+ @media screen and (max-width: 450px)
+     .middle_wrap h2
+         font-size 1.2rem
+
+ @media screen and (max-width: 360px)
+     .middle_wrap h2
+         font-size 1rem
 
 .left_content
     // padding-left 1.2rem

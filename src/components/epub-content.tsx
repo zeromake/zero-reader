@@ -132,7 +132,7 @@ export default class EpubContent extends Component<any, any> {
     public render() {
         const props = this.props;
         const style: any = {};
-        let className = styl.content;
+        let className = styl.content + " reader-content";
         if (this.props.columnCount !== 0) {
             className += " " + styl.content_not;
             style.columns = `auto ${this.props.columnCount}`;

@@ -24,6 +24,9 @@ export default class LoginView extends Component<any, any> {
                 rememberme: false,
             },
         };
+        if (p.matches![Matche.ERROR]) {
+            Alert.error(p.matches![Matche.ERROR], 0);
+        }
         this.bindUpdateForm = bindUpdateForm(this, LoginForm, "form", true);
         this.loginEvent = this.loginEvent.bind(this);
     }
@@ -38,8 +41,7 @@ export default class LoginView extends Component<any, any> {
             res = await $ajax.post("/api/login", this.state.form);
             jsonObj = res && await res.json();
         } catch (e) {
-            // console.error(e);
-            Alert.error((res && res.statusText) + ": " + e.message);
+            Alert.error((res && res.statusText) + ": " + e.message, 0);
             return;
         }
         if (jsonObj && jsonObj.status === 200) {
@@ -47,9 +49,10 @@ export default class LoginView extends Component<any, any> {
                 localStorage.setItem(name, jsonObj.data[name]);
             }
             const url = (this.props.matches && this.props.matches[Matche.HREF]) || "/library";
+            Alert.success("登录成功!");
             route(url);
         } else {
-            Alert.error(jsonObj.message);
+            Alert.error(jsonObj.message, 0);
         }
     }
 
