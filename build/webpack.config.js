@@ -345,6 +345,30 @@ const config = {
                 ])
             },
             {
+                test: /.less$/,
+                use: buildCss([
+                    {
+                        loader: "css-loader",
+                        options: {
+                            sourceMap: !isProd,
+                            modules: false,
+                        }
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            sourceMap: !isProd
+                        }
+                    },
+                    {
+                        loader: 'less-loader',
+                        options: {
+                            sourceMap: !isProd
+                        }
+                    }
+                ])
+            },
+            {
                 test: /\.css$/,
                 use: buildCss([
                     {

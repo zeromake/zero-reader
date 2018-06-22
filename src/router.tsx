@@ -8,6 +8,7 @@ import Animate from "preact-animate";
 import { togglerFullScreen } from "./utils";
 // import AsyncRoute from "./assets/router/async-route";
 import createHashHistory from "history/createHashHistory";
+import { Alert } from "rsuite-notification";
 
 let tmpHistory = null;
 if (process.env.platform === "cordova") {
@@ -103,10 +104,16 @@ const MainRouter = () => (
             </Route>
             <Route
                 key="4"
-                component={() => (<div>
-                    <h3>404</h3>
-                    <Link href="/">回到首页</Link>
-                </div>)}
+                component={() => {
+                    setTimeout(() => {
+                        Alert.error("cessssdgdfg", 9000000);
+                    }, 9000);
+                    Alert.error("cessssdgdfg");
+                    return (<div>
+                        <h3>404</h3>
+                        <Link href="/">回到首页</Link>
+                    </div>);
+                }}
                 path="*"
             >
             </Route>

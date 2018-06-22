@@ -4,6 +4,7 @@ import { bindUpdateForm, IFormProps } from "../utils";
 import { $ajax } from "../http/index";
 import styl from "../css/login.styl";
 import Button from "./button";
+import { Alert } from "rsuite-notification";
 // import { FormEvent } from "react";
 
 enum Matche {
@@ -38,7 +39,7 @@ export default class LoginView extends Component<any, any> {
             jsonObj = res && await res.json();
         } catch (e) {
             // console.error(e);
-            // this.togglerAlert((res && res.statusText) + ": " + e.message);
+            Alert.error((res && res.statusText) + ": " + e.message);
             return;
         }
         if (jsonObj && jsonObj.status === 200) {
@@ -48,7 +49,7 @@ export default class LoginView extends Component<any, any> {
             const url = (this.props.matches && this.props.matches[Matche.HREF]) || "/library";
             route(url);
         } else {
-            // this.togglerAlert(jsonObj.message);
+            Alert.error(jsonObj.message);
         }
     }
 

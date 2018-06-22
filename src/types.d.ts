@@ -81,6 +81,12 @@ declare module "better-scroll" {
     export default BScroll;
 }
 
+declare module "rsuite-notification" {
+    const alert: any;
+    export const Alert: any;
+    export default alert;
+}
+
 declare module "hotkeys-js" {
     const hotkeys: any;
     export default hotkeys;
