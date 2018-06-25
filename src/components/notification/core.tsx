@@ -1,5 +1,7 @@
 import { h, Component, render } from "module-react";
-import classNames from "classnames";
+import Animate from "preact-animate";
+import { prefix, NAME_SPACE } from "./utils";
+import Notice from "./notice";
 
 interface IProps {
     className?: string;
@@ -9,6 +11,7 @@ interface IProps {
 }
 
 interface IProperties extends IProps {
+    duration: number;
     getContainer?: () => Element;
 }
 
@@ -16,7 +19,6 @@ interface IState {
     animated: boolean;
     notices: any[];
 }
-const NAME_SPACE = "zr";
 
 let id = 0;
 const getUid = () => {
@@ -24,19 +26,7 @@ const getUid = () => {
   return `${NAME_SPACE}-notification-${Date.now()}-${id}`;
 };
 
-function prefix(fix: string) {
-    return function _(className: string | string[]): string {
-        if (!fix || !className) {
-            return "";
-        }
-        if (className.length) {
-            return (className as string[]).filter((name: any) => !!name).map((name: any) => `${fix}-${name}`).join(" ");
-        }
-        return `${fix}-${className}`;
-    };
-}
-
-class Notification extends Component<IProps, IState> {
+export default class Notification extends Component<IProps, IState> {
     public static defaultProps = {
         classPrefix: `${NAME_SPACE}-notification`,
         style: {
@@ -44,7 +34,7 @@ class Notification extends Component<IProps, IState> {
         },
     };
 
-    public static newInstance(properties?: IProperties) {
+    public static newInstance(properties?: IProperties): {notice(p: IProps): void} {
         const { getContainer, ...props } = properties || {} as IProperties;
         let div: Element;
         if (getContainer) {
@@ -57,15 +47,17 @@ class Notification extends Component<IProps, IState> {
         props.ref = function ref(c: Notification | null) {
             notificationComponent = c;
         };
+        render(<Notification {...props} />, div);
         return {
             notice(noticeProps: IProps) {
-                notificationComponent!.add(noticeProps);
+                if (notificationComponent) {
+                    notificationComponent.add(noticeProps);
+                }
             },
         };
     }
     public props: IProps;
     public state: IState;
-    public setState: any;
     constructor(props: IProps, context: any) {
         super(props, context);
         this.state = {
@@ -91,7 +83,7 @@ class Notification extends Component<IProps, IState> {
         }
     }
 
-    public remove(key: string) {
+    public remove = (key: string) => {
         const { notices } = this.state;
         const nextNotices = notices.map((n: any) => {
             if (n.key === key) {
@@ -122,9 +114,42 @@ class Notification extends Component<IProps, IState> {
     public addPrefix(name: string | string[]) {
         return prefix(this.props.classPrefix)(name);
     }
+
     public render() {
         const { notices } = this.state;
         const { className, style, classPrefix } = this.props;
-        
+        const notieNodes = notices.map((notice: any) => {
+            return (
+                <Animate
+                key={notice.key}
+                component={null}
+                transitionEnter={true}
+                transitionLeave={true}
+                transitionName={{
+                    enter: this.addPrefix("enter"),
+                    leave: this.addPrefix("exit"),
+                }}
+                isRender={false}
+                >
+                    <Notice
+                        classPrefix={classPrefix}
+                        {...notice}
+                        onClose={() => {
+                            this.remove(notice.key);
+                            if (notice.onClose) {
+                                notice.onClose();
+                            }
+                        }}
+                    >
+                    </Notice>
+                </Animate>
+            );
+        });
+        const classes = [classPrefix, className].join(" ");
+        return (
+            <div className={classes} style={style}>
+                {notieNodes}
+            </div>
+        );
     }
 }

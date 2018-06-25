@@ -5,7 +5,7 @@ import "intersection-observer";
 import "animate.css";
 import "./css/main.styl";
 import "./css/base.css";
-import "rsuite-notification/lib/less/index.less";
+import "./components/notification/index.less";
 // import "../node_modules/sweetalert2/dist/sweetalert2.min.css";
 import "./assets/icons/index";
 import { initDevTools } from "zreact/devtools";

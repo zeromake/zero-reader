@@ -1,3 +1,2 @@
-import {h, Component} from "module-react";
-
-
+import Alert from "./component/Alert";
+export { Alert };

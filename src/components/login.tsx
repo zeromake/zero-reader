@@ -4,7 +4,7 @@ import { bindUpdateForm, IFormProps } from "../utils";
 import { $ajax } from "../http/index";
 import styl from "../css/login.styl";
 import Button from "./button";
-import { Alert } from "rsuite-notification";
+import { Alert } from "./notification/index";
 // import { FormEvent } from "react";
 
 enum Matche {
