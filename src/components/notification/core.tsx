@@ -120,36 +120,35 @@ export default class Notification extends Component<IProps, IState> {
         const { className, style, classPrefix } = this.props;
         const notieNodes = notices.map((notice: any) => {
             return (
-                <Animate
-                key={notice.key}
-                component={null}
-                transitionEnter={true}
-                transitionLeave={true}
-                transitionName={{
-                    enter: this.addPrefix("enter"),
-                    leave: this.addPrefix("exit"),
-                }}
-                isRender={false}
+                <Notice
+                    classPrefix={classPrefix}
+                    {...notice}
+                    onClose={() => {
+                        this.remove(notice.key);
+                        if (notice.onClose) {
+                            notice.onClose();
+                        }
+                    }}
                 >
-                    <Notice
-                        classPrefix={classPrefix}
-                        {...notice}
-                        onClose={() => {
-                            this.remove(notice.key);
-                            if (notice.onClose) {
-                                notice.onClose();
-                            }
-                        }}
-                    >
-                    </Notice>
-                </Animate>
+                </Notice>
             );
         });
         const classes = [classPrefix, className].join(" ");
         return (
-            <div className={classes} style={style}>
+            <Animate
+                component="div"
+                componentProps={{className: classes, style}}
+                transitionEnter={true}
+                transitionLeave={true}
+                showProp="animated"
+                transitionName={{
+                    enter: this.addPrefix("enter"),
+                    leave: this.addPrefix("exit"),
+                }}
+                isRender={true}
+            >
                 {notieNodes}
-            </div>
+            </Animate>
         );
     }
 }
