@@ -62,6 +62,9 @@ FACE_RE_START = re.compile(
 FACE_RE_END = re.compile(
     r'^.*}$'
 )
+TAG_RE = re.compile(
+    r'^\s*(\w+(\s+\w+)*\s*($|,|(\{\s*$)))'
+)
 
 PDF_EXEC = re.compile(r'Working: *(\d+)\/(\d+)')
 

@@ -29,6 +29,7 @@ from .utils import (
     FONT_RE,
     FACE_RE_START,
     FACE_RE_END,
+    TAG_RE,
     logger,
     get_file_path_dir,
     get_file_path_name,
@@ -124,6 +125,7 @@ class Epub2Json(object):
             self.tar_file = tar_open(self.dist + '.zip', 'w')
         
         self.meta_data = None
+        self.container_class = "reader_content"
 
     async def run(self):
         """
@@ -613,6 +615,9 @@ class Epub2Json(object):
                     elif face_start:
                         line = FONT_RE.sub(replace_copy_font, line)
                         face_arr.append(line)
+                    elif TAG_RE.match(line):
+                        line = TAG_RE.sub(".%s \\1" % self.container_class, line)
+                        out_fd.write(line)
                     else:
                         out_fd.write(line)
                     line = from_file.readline().decode('utf8')

@@ -98,7 +98,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             },
         };
         this.state = {
-            bg: "sepia",
+            bg: null,
             barShow: false,
             tocShow: false,
             isScroll: true,
@@ -366,7 +366,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                     }, <div
                             ref={((vdom: any) => this.page = findDOMNode(vdom))}
                             onClick={this.pageClick}
-                            className={`${styl.content} ${styl[this.state.bg]} ${this.state.isScroll ? styl.is_scroll : ""}`}
+                            className={`${styl.content} ${this.state.bg ? styl[this.state.bg] : ""} ${this.state.isScroll ? styl.is_scroll : ""}`}
                         >
                             {this.renderContent()}
                         </div>,

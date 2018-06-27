@@ -20,16 +20,16 @@ export default class PdfContent extends Component<any, any> {
         }
     }
     public componentDidUpdate(previousProps: any, previousState: any, previousContext: any) {
-        if (this.props.pageHtml) {
+        if (this.props.pageHtml != null) {
             if (!this.flag) {
                 this.flag = true;
-                setTimeout(this.bindObserver.bind(this));
+                setTimeout(this.bindObserver);
             } else {
                 this.bindObserver();
             }
         }
     }
-    protected bindObserver() {
+    protected bindObserver = () => {
         // Array.prototype.forEach.call(findDOMNode(this).querySelectorAll("img.lozad"), (element: HTMLImageElement) => {
         //     const dataSrc = element.getAttribute("data-src");
         //     if (dataSrc) {

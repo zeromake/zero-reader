@@ -84,32 +84,38 @@ export default class Notification extends Component<IProps, IState> {
     }
 
     public remove = (key: string) => {
-        const { notices } = this.state;
-        const nextNotices = notices.map((n: any) => {
-            if (n.key === key) {
-                n.animated = false;
-            }
-            return n;
-        });
-        this.setState(
-            {
-                notices: nextNotices,
-            },
-            () => {
-                setTimeout(() => {
-                    this.actualRemove(key);
-                }, 1000);
-            },
-        );
-    }
-
-    public actualRemove(key: string) {
         this.setState((prevState: IState) => {
             return {
                 notices: prevState.notices.filter((notice: any) => notice.key !== key),
             };
         });
+        // this.actualRemove(key);
+        // const { notices } = this.state;
+        // const nextNotices = notices.map((n: any) => {
+        //     if (n.key === key) {
+        //         n.animated = false;
+        //     }
+        //     return n;
+        // });
+        // this.setState(
+        //     {
+        //         notices: nextNotices,
+        //     },
+        //     () => {
+        //         setTimeout(() => {
+        //             this.actualRemove(key);
+        //         }, 1000);
+        //     },
+        // );
     }
+
+    // public actualRemove(key: string) {
+    //     this.setState((prevState: IState) => {
+    //         return {
+    //             notices: prevState.notices.filter((notice: any) => notice.key !== key),
+    //         };
+    //     });
+    // }
 
     public addPrefix(name: string | string[]) {
         return prefix(this.props.classPrefix)(name);
@@ -142,8 +148,8 @@ export default class Notification extends Component<IProps, IState> {
                 transitionLeave={true}
                 showProp="animated"
                 transitionName={{
-                    enter: this.addPrefix("enter"),
-                    leave: this.addPrefix("exit"),
+                    enter: "fadeInDown",
+                    leave: "fadeOutUp",
                 }}
                 isRender={true}
             >

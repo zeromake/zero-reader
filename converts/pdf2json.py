@@ -58,7 +58,7 @@ class Pdf2Json(object):
         self.share = options['share']
         self.toc = options['toc']
         self.meta = options['meta']
-        self.content_class = 'html_content'
+        self.content_class = 'reader_content'
 
         self.meta_file = 'meta.json'
         self.pages = None
