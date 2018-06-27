@@ -6,13 +6,6 @@
   version "4.14.110"
   resolved "http://registry.npm.taobao.org/@types/lodash/download/@types/lodash-4.14.110.tgz#fb07498f84152947f30ea09d89207ca07123461e"
 
-"@types/material-ui@^0.21.2":
-  version "0.21.2"
-  resolved "http://registry.npm.taobao.org/@types/material-ui/download/@types/material-ui-0.21.2.tgz#dd278eeb9e1b7a12e6df453fe1e5e887877c5659"
-  dependencies:
-    "@types/react" "*"
-    "@types/react-addons-linked-state-mixin" "*"
-
 "@types/node@*":
   version "9.6.2"
   resolved "http://registry.npm.taobao.org/@types/node/download/@types/node-9.6.2.tgz#e49ac1adb458835e95ca6487bc20f916b37aff23"
@@ -20,12 +13,6 @@
 "@types/qs@^6.5.1":
   version "6.5.1"
   resolved "http://registry.npm.taobao.org/@types/qs/download/@types/qs-6.5.1.tgz#a38f69c62528d56ba7bd1f91335a8004988d72f7"
-
-"@types/react-addons-linked-state-mixin@*":
-  version "0.14.19"
-  resolved "http://registry.npm.taobao.org/@types/react-addons-linked-state-mixin/download/@types/react-addons-linked-state-mixin-0.14.19.tgz#7ef00a5618a089da4a99e1f58c9aa4c1781d46d5"
-  dependencies:
-    "@types/react" "*"
 
 "@types/react-dom@^16.0.6":
   version "16.0.6"
@@ -40,9 +27,9 @@
   dependencies:
     csstype "^2.0.0"
 
-"@types/react@^16.4.1":
-  version "16.4.1"
-  resolved "http://registry.npm.taobao.org/@types/react/download/@types/react-16.4.1.tgz#c53bbfb4a78933db587da085ac60dbf5fcf73f8f"
+"@types/react@^16.4.2":
+  version "16.4.2"
+  resolved "http://registry.npm.taobao.org/@types/react/download/@types/react-16.4.2.tgz#f1a9cf1ee85221530def2ac26aee20f910a9dac8"
   dependencies:
     csstype "^2.2.0"
 
@@ -449,15 +436,15 @@ autoprefixer@^6.3.1:
     postcss "^5.2.16"
     postcss-value-parser "^3.2.3"
 
-autoprefixer@^8.6.3:
-  version "8.6.3"
-  resolved "http://registry.npm.taobao.org/autoprefixer/download/autoprefixer-8.6.3.tgz#1d38a129e6a4582a565b6570d16f2d7d3de9cbf9"
+autoprefixer@^8.6.4:
+  version "8.6.4"
+  resolved "http://registry.npm.taobao.org/autoprefixer/download/autoprefixer-8.6.4.tgz#6bf501de426a3b95973f5d237dbcc9181e9904d2"
   dependencies:
     browserslist "^3.2.8"
-    caniuse-lite "^1.0.30000856"
+    caniuse-lite "^1.0.30000859"
     normalize-range "^0.1.2"
     num2fraction "^1.2.2"
-    postcss "^6.0.22"
+    postcss "^6.0.23"
     postcss-value-parser "^3.2.3"
 
 aws-sign2@~0.6.0:
@@ -533,9 +520,9 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-better-scroll@^1.12.1:
-  version "1.12.1"
-  resolved "http://registry.npm.taobao.org/better-scroll/download/better-scroll-1.12.1.tgz#6b46b3fff84215342e21002a585089034ff584ac"
+better-scroll@^1.12.4:
+  version "1.12.4"
+  resolved "http://registry.npm.taobao.org/better-scroll/download/better-scroll-1.12.4.tgz#27d722fe7b6844176feb136da4f2fd39c70f973e"
   dependencies:
     babel-runtime "^6.0.0"
 
@@ -834,9 +821,9 @@ caniuse-lite@^1.0.30000844:
   version "1.0.30000846"
   resolved "http://registry.npm.taobao.org/caniuse-lite/download/caniuse-lite-1.0.30000846.tgz#2092911eecad71a89dae1faa62bcc202fde7f959"
 
-caniuse-lite@^1.0.30000856:
-  version "1.0.30000858"
-  resolved "http://registry.npm.taobao.org/caniuse-lite/download/caniuse-lite-1.0.30000858.tgz#f6f203a9128bac507136de1cf6cfd966d2df027c"
+caniuse-lite@^1.0.30000859:
+  version "1.0.30000859"
+  resolved "http://registry.npm.taobao.org/caniuse-lite/download/caniuse-lite-1.0.30000859.tgz#da974adc5348fffe94724877a7ef8cb5d6d3d777"
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -3910,9 +3897,9 @@ opn@^5.1.0:
   dependencies:
     is-wsl "^1.1.0"
 
-optimize-css-assets-webpack-plugin@^4.0.2:
-  version "4.0.2"
-  resolved "http://registry.npm.taobao.org/optimize-css-assets-webpack-plugin/download/optimize-css-assets-webpack-plugin-4.0.2.tgz#813d511d20fe5d9a605458441ed97074d79c1122"
+optimize-css-assets-webpack-plugin@^4.0.3:
+  version "4.0.3"
+  resolved "http://registry.npm.taobao.org/optimize-css-assets-webpack-plugin/download/optimize-css-assets-webpack-plugin-4.0.3.tgz#4f714e276b279700892c4a6202b7e22812d6f683"
   dependencies:
     cssnano "^3.10.0"
     last-call-webpack-plugin "^3.0.0"
@@ -4471,9 +4458,9 @@ postcss@^6.0.0, postcss@^6.0.1:
     source-map "^0.6.1"
     supports-color "^5.3.0"
 
-postcss@^6.0.22:
-  version "6.0.22"
-  resolved "http://registry.npm.taobao.org/postcss/download/postcss-6.0.22.tgz#e23b78314905c3b90cbd61702121e7a78848f2a3"
+postcss@^6.0.23:
+  version "6.0.23"
+  resolved "http://registry.npm.taobao.org/postcss/download/postcss-6.0.23.tgz#61c82cc328ac60e677645f979054eb98bc0e3324"
   dependencies:
     chalk "^2.4.1"
     source-map "^0.6.1"
@@ -5817,9 +5804,9 @@ uglifyjs-webpack-plugin@^1.2.4:
     webpack-sources "^1.1.0"
     worker-farm "^1.5.2"
 
-uglifyjs-webpack-plugin@^1.2.6:
-  version "1.2.6"
-  resolved "http://registry.npm.taobao.org/uglifyjs-webpack-plugin/download/uglifyjs-webpack-plugin-1.2.6.tgz#f4bb44f02431e82b301d8d4624330a6a35729381"
+uglifyjs-webpack-plugin@^1.2.7:
+  version "1.2.7"
+  resolved "http://registry.npm.taobao.org/uglifyjs-webpack-plugin/download/uglifyjs-webpack-plugin-1.2.7.tgz#57638dd99c853a1ebfe9d97b42160a8a507f9d00"
   dependencies:
     cacache "^10.0.4"
     find-cache-dir "^1.0.0"
@@ -6163,9 +6150,9 @@ webpack-sources@^1.0.1, webpack-sources@^1.1.0:
     source-list-map "^2.0.0"
     source-map "~0.6.1"
 
-webpack@^4.12.1:
-  version "4.12.1"
-  resolved "http://registry.npm.taobao.org/webpack/download/webpack-4.12.1.tgz#9108078c67fdd72c2609cea22af87d7aed2acb08"
+webpack@^4.12.2:
+  version "4.12.2"
+  resolved "http://registry.npm.taobao.org/webpack/download/webpack-4.12.2.tgz#d2b8418eb40cedcbf2c1f5905d23a99546011ce9"
   dependencies:
     "@webassemblyjs/ast" "1.5.12"
     "@webassemblyjs/helper-module-context" "1.5.12"
