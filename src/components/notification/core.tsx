@@ -1,4 +1,4 @@
-import { h, Component, render } from "module-react";
+import { h, Component, render, unmountComponentAtNode, findDOMNode } from "module-react";
 import Animate from "preact-animate";
 import { prefix, NAME_SPACE } from "./utils";
 import Notice from "./notice";
@@ -11,7 +11,7 @@ interface IProps {
 }
 
 interface IProperties extends IProps {
-    duration: number;
+    duration?: number;
     getContainer?: () => Element;
 }
 
@@ -26,6 +26,12 @@ const getUid = () => {
   return `${NAME_SPACE}-notification-${Date.now()}-${id}`;
 };
 
+interface INotificationInstance {
+    notice(p: IProps): void;
+    remove(key: string): void;
+    destroy(): void;
+}
+
 export default class Notification extends Component<IProps, IState> {
     public static defaultProps = {
         classPrefix: `${NAME_SPACE}-notification`,
@@ -34,7 +40,7 @@ export default class Notification extends Component<IProps, IState> {
         },
     };
 
-    public static newInstance(properties?: IProperties): {notice(p: IProps): void} {
+    public static newInstance(properties?: IProperties): {} {
         const { getContainer, ...props } = properties || {} as IProperties;
         let div: Element;
         if (getContainer) {
@@ -53,6 +59,21 @@ export default class Notification extends Component<IProps, IState> {
                 if (notificationComponent) {
                     notificationComponent.add(noticeProps);
                 }
+            },
+            remove(key: string) {
+                if (notificationComponent) {
+                    notificationComponent.remove(key);
+                }
+            },
+            destroy() {
+                if (notificationComponent) {
+                    unmountComponentAtNode(findDOMNode(notificationComponent));
+                    document.body.removeChild(div);
+                    div = null;
+                }
+            },
+            component() {
+                return notificationComponent;
             },
         };
     }

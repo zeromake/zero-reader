@@ -43,7 +43,7 @@ declare module "preact" {
 }
 
 declare module "module-react" {
-    import { h, render, Component, findDOMNode, cloneElement, Children } from "zreact";
+    import { h, render, Component, findDOMNode, cloneElement, Children, unmountComponentAtNode } from "zreact";
     export {
         h,
         Component,
@@ -51,6 +51,7 @@ declare module "module-react" {
         cloneElement,
         Children,
         render,
+        unmountComponentAtNode,
     };
 }
 
@@ -59,6 +60,7 @@ declare module "react-import" {
     import Router, { Route, Link, route, getCurrentUrl, customHistory, AsyncRoute } from "zreact-router";
     // const customHistory: any;
     // const AsyncRoute: any;
+
     export {
         h,
         Component,

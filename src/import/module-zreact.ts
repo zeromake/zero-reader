@@ -1,4 +1,4 @@
-import { h, render, Component, findDOMNode, cloneElement, Children } from "zreact";
+import { h, render, Component, findDOMNode, cloneElement, Children, unmountComponentAtNode } from "zreact";
 export {
     h,
     Component,
@@ -6,4 +6,5 @@ export {
     render,
     cloneElement,
     Children,
+    unmountComponentAtNode,
 };

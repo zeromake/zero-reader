@@ -44,6 +44,18 @@ const Children = {
         return arraySlice.call(children);
     },
 };
+function Empty() {
+    return null;
+}
+const EmptyVNode = (h(Empty, null) as any);
+
+function unmountComponentAtNode(d: Element): boolean {
+    if (d && "__preactattr_" in d) {
+        render(EmptyVNode, (d as Element).parentElement, d);
+        return true;
+    }
+    return false;
+}
 export {
     h,
     Component,
@@ -51,4 +63,5 @@ export {
     render,
     cloneElement,
     Children,
+    unmountComponentAtNode,
 };

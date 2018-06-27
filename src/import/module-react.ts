@@ -1,5 +1,5 @@
 import { createElement as h, Component, cloneElement, Children } from "react";
-import { render, findDOMNode } from "react-dom";
+import { render, findDOMNode, unmountComponentAtNode } from "react-dom";
 
 export {
     h,
@@ -8,4 +8,5 @@ export {
     render,
     cloneElement,
     Children,
+    unmountComponentAtNode,
 };

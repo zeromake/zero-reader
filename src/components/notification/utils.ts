@@ -7,6 +7,13 @@ export const NOTICE_TYPES = {
     WARNING: "warning",
 };
 
+export const PLACEMENT_TYPES = {
+    TOPLEFT: "topLeft",
+    TOPRIGHT: "topRight",
+    BOTTOMLEFT: "bottomLeft",
+    BOTTOMRIGHT: "bottomRight",
+};
+
 export function prefix(fix: string) {
     return function _(className: string | string[]): string {
         if (!fix || !className) {

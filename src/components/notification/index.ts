@@ -1,2 +1,4 @@
 import Alert from "./component/Alert";
-export { Alert };
+import Notify from "./component/Notify";
+
+export { Alert, Notify };
