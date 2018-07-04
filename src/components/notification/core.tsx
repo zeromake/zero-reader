@@ -4,6 +4,7 @@ import { prefix, NAME_SPACE } from "./utils";
 import Notice from "./notice";
 
 interface IProps {
+    duration?: number;
     className?: string;
     classPrefix?: string;
     style?: any;
@@ -11,7 +12,6 @@ interface IProps {
 }
 
 interface IProperties extends IProps {
-    duration?: number;
     getContainer?: () => Element;
 }
 
@@ -79,12 +79,15 @@ export default class Notification extends Component<IProps, IState> {
     }
     public props: IProps;
     public state: IState;
+    public done: any;
     constructor(props: IProps, context: any) {
         super(props, context);
+        this.done = null;
         this.state = {
             animated: false,
             notices: [],
         };
+        this.onAfterLeave = this.onAfterLeave.bind(this);
     }
 
     public add(notice: any) {
@@ -96,11 +99,38 @@ export default class Notification extends Component<IProps, IState> {
             key = notice.key;
         }
         notice.key = key;
-        notice.animated = true;
-        if (!(notices.filter((n: any) => n.key === key).length)) {
-            this.setState({
-                notices: notices.concat(notice),
-            });
+        let has = false;
+        let data = null;
+        if (notices.length) {
+            for (const n of notices) {
+                if (n.key === key) {
+                    data = notices.filter((item) => item.key !== key);
+                    has = true;
+                    break;
+                }
+            }
+            if (!has) {
+                data = notices.concat(notice);
+            }
+        } else {
+            data = [notice];
+        }
+        if (has) {
+            this.done = notice;
+        }
+        this.setState({
+            notices: data,
+        });
+    }
+
+    public onAfterLeave(com: any) {
+        if (this.done) {
+            if (this.done.key === com.props.rawKey) {
+                 this.setState({
+                    notices: this.state.notices.concat(this.done),
+                });
+            }
+            this.done = null;
         }
     }
 
@@ -110,33 +140,7 @@ export default class Notification extends Component<IProps, IState> {
                 notices: prevState.notices.filter((notice: any) => notice.key !== key),
             };
         });
-        // this.actualRemove(key);
-        // const { notices } = this.state;
-        // const nextNotices = notices.map((n: any) => {
-        //     if (n.key === key) {
-        //         n.animated = false;
-        //     }
-        //     return n;
-        // });
-        // this.setState(
-        //     {
-        //         notices: nextNotices,
-        //     },
-        //     () => {
-        //         setTimeout(() => {
-        //             this.actualRemove(key);
-        //         }, 1000);
-        //     },
-        // );
     }
-
-    // public actualRemove(key: string) {
-    //     this.setState((prevState: IState) => {
-    //         return {
-    //             notices: prevState.notices.filter((notice: any) => notice.key !== key),
-    //         };
-    //     });
-    // }
 
     public addPrefix(name: string | string[]) {
         return prefix(this.props.classPrefix)(name);
@@ -167,7 +171,8 @@ export default class Notification extends Component<IProps, IState> {
                 componentProps={{className: classes, style}}
                 transitionEnter={true}
                 transitionLeave={true}
-                showProp="animated"
+                onAfterLeave={this.onAfterLeave}
+                // showProp="animated"
                 transitionName={{
                     enter: "fadeInDown",
                     leave: "fadeOutUp",

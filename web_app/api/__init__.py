@@ -159,9 +159,15 @@ class ApiView(HTTPMethodView):
                                     {
                                         "type": "object",
                                         "properties": {
-                                            "count": {
-                                                "type": "integer",
-                                                "description": "执行sql条数"
+                                            "meta": {
+                                                "type": "object",
+                                                "description": "额外数据",
+                                                "properties": {
+                                                    "count": {
+                                                        "type": "integer",
+                                                        "description": "执行sql条数"
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -255,18 +261,34 @@ class ApiView(HTTPMethodView):
                                     "$ref": '#/components/schemas/%s' % table_name
                                 }
                             },
-                            "count": {
-                                "type": "integer",
-                                "description": "总条数"
+                            "meta": {
+                                "type": "object",
+                                "description": "额外数据",
+                                "properties": {
+                                    "pagination": {
+                                        "type": "object",
+                                        "description": "分页数据",
+                                        "properties": {
+                                            "total": {
+                                                "type": "integer",
+                                                "description": "总条数"
+                                            },
+                                            "count": {
+                                                "type": "integer",
+                                                "description": "条数"
+                                            },
+                                            "limit": {
+                                                "type": "integer",
+                                                "description": "取出多少条"
+                                            },
+                                            "skip": {
+                                                "type": "integer",
+                                                "description": "略过多少条"
+                                            }
+                                        }
+                                    }
+                                },
                             },
-                            "limit": {
-                                "type": "integer",
-                                "description": "取出多少条"
-                            },
-                            "skip": {
-                                "type": "integer",
-                                "description": "略过多少条"
-                            }
                         }
                     }
                 ]
@@ -408,7 +430,7 @@ class ApiView(HTTPMethodView):
         app_.add_route(view, url + "/<primary_key:int>")
         return view
 
-    async def execute_dml(self, sql, message="execute ok", data=None):
+    async def execute_dml(self, sql, message="execute ok", data=None, status=200):
         """
         执行DML语句
         """
@@ -416,7 +438,7 @@ class ApiView(HTTPMethodView):
         engine = app.engine
         try:
             async with engine.acquire() as conn:
-                async with conn.begin() as begin:
+                async with conn.begin():
                     count = 0
                     if isinstance(sql, list):
                         for sql_ in sql:
@@ -425,7 +447,13 @@ class ApiView(HTTPMethodView):
                     else:
                         async with conn.execute(sql, data) as cursor:
                             count = cursor.rowcount
-                    return {'status': 200, 'message': message, 'count': count}
+                    return {
+                        'status': status,
+                        'message': message,
+                            'meta': {
+                                "count": count
+                            }
+                        }
         except Exception as e:
             return {'status': 500, 'message': str(e)}
 
@@ -446,8 +474,21 @@ class ApiView(HTTPMethodView):
                         row_id = await db_.get_last_row_id(conn, cursor)
                     if form_data:
                         form_data["row_id"] = row_id
-                        return {'status': 200, 'message': message, 'count': count, "data": form_data}
-                    return {'status': 200, 'message': message, 'count': count, "row_id": row_id}
+                        return {
+                            'status': 201,
+                            'message': message,
+                            'meta': {
+                                "count": count
+                            }
+                        }
+                    return {
+                        'status': 201,
+                        'message': message,
+                        'meta': {
+                            "count": count,
+                            "row_id": row_id
+                        }
+                    }
         except Exception as e:
             return {'status': 500, 'message': str(e)}
 
@@ -469,7 +510,7 @@ class ApiView(HTTPMethodView):
         if sql is None:
             return {'status': 400, 'message': 'param is error'}
         if isinstance(form_data, list):
-            return await self.execute_dml(sql, "insert ok")
+            return await self.execute_dml(sql, "insert ok", 201)
         return await self.execute_insert(sql, "insert ok", form_data)
 
     def insert(self, form_data):
@@ -493,7 +534,7 @@ class ApiView(HTTPMethodView):
         sql = self.delete_sql(form_data)
         if sql is None:
             return {'status': 400, 'message': 'param is error'}
-        return await self.execute_dml(sql, "delete ok")
+        return await self.execute_dml(sql, "delete ok", 204)
 
     def delete_sql(self, form_data):
         """
@@ -520,7 +561,7 @@ class ApiView(HTTPMethodView):
             data = form_data.get("data")
         if sql is None:
             return {'status': 400, 'message': 'param is error'}
-        return await self.execute_dml(sql, "update ok", data)
+        return await self.execute_dml(sql, "update ok", data, 204)
 
     async def patch(self, request, *args, **kwargs):
         """
@@ -644,19 +685,25 @@ class ApiView(HTTPMethodView):
                         data = [model_row_to_dict(row) for row in data]
                         return {'status': 200, 'message': "ok", 'data': data}
                 else:
-                    count = 0
+                    total = 0
                     async with conn.execute(count_sql) as cursor:
-                        count = (await cursor.first()).count
+                        total = (await cursor.first()).count
                     async with conn.execute(limit_sql) as cursor:
                         data = await cursor.fetchall()
                         data = [model_row_to_dict(row) for row in data]
+                        count = len(data)
                         return {
                             'status': 200,
                             'message': "ok",
                             'data': data,
-                            'count': count,
-                            'skip': limit[0],
-                            'limit': limit[1]
+                            "meta": {
+                                "pagination": {
+                                    "total": total,
+                                    "count": count,
+                                    'skip': limit[0],
+                                    'limit': limit[1]
+                                }
+                            }
                         }
         except Exception as e:
             return {'status': 500, 'message': str(e)}

@@ -122,31 +122,20 @@ function notice(config: IConfig) {
     });
 }
 
+function wrapper(type: string) {
+    return (config: IConfig) => {
+        config.type = type;
+        notice(config);
+    };
+}
+
 export default {
-    open(config: IConfig) {
-        notice(config);
-    },
-    success(config: IConfig) {
-        config.type = NOTICE_TYPES.SUCCESS;
-        notice(config);
-    },
-    error(config: IConfig) {
-        config.type = NOTICE_TYPES.ERROR;
-        notice(config);
-    },
-    info(config: IConfig) {
-        config.type = NOTICE_TYPES.INFO;
-        notice(config);
-    },
-    warning(config: IConfig) {
-        config.type = NOTICE_TYPES.WARNING;
-        notice(config);
-    },
-    remove(key: string) {
-        if (notityInstance[defaultPlacement]) {
-            notityInstance[defaultPlacement].remove(key);
-        }
-    },
+    open: notice,
+    success: wrapper(NOTICE_TYPES.SUCCESS),
+    error: wrapper(NOTICE_TYPES.SUCCESS),
+    info: wrapper(NOTICE_TYPES.SUCCESS),
+    warning: wrapper(NOTICE_TYPES.SUCCESS),
+    remove: wrapper(NOTICE_TYPES.SUCCESS),
     /**
      * 全局配置方法
      * @param {*} options{

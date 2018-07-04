@@ -18,32 +18,48 @@ function getInstance(instance) {
     })
   );
 }
-function notice(content: any, duration: number = defaultDuration, onClose: () => void, type: string) {
-    alertInstance = getInstance(alertInstance);
-    if (typeof content === "function") {
-        content = content();
+
+function getAlertConfig(config) {
+    const cfg = {closable: true, ...config};
+    if (cfg.duration == null) {
+        cfg.duration = defaultDuration;
     }
-    alertInstance.notice({
-        content,
-        duration,
-        onClose,
-        type,
-        closable: true,
-    });
+    if (typeof cfg.content === "function") {
+        cfg.content = cfg.content();
+    }
+    return cfg;
 }
+
+function notice(config) {
+    alertInstance = getInstance(alertInstance);
+    alertInstance.notice(getAlertConfig(config));
+}
+
+function levelAlert(type: string) {
+    return function Alert_(content: any, duration?: number, onClose?: () => void, key?: string) {
+        let config;
+        if (typeof content === "object") {
+            config = content;
+            config.type = type;
+        } else {
+            config = {
+                content,
+                duration,
+                onClose,
+                type,
+                key,
+            };
+        }
+        return notice(config);
+    };
+}
+
 export default {
-    success(content: any, duration?: number, onClose?: () => void) {
-        notice(content, duration, onClose, NOTICE_TYPES.SUCCESS);
-    },
-    error(content: any, duration?: number, onClose?: () => void) {
-        notice(content, duration, onClose, NOTICE_TYPES.ERROR);
-    },
-    info(content: any, duration?: number, onClose?: () => void) {
-        notice(content, duration, onClose, NOTICE_TYPES.INFO);
-    },
-    warning(content: any, duration?: number, onClose?: () => void) {
-        notice(content, duration, onClose, NOTICE_TYPES.WARNING);
-    },
+    open: notice,
+    success: levelAlert(NOTICE_TYPES.SUCCESS),
+    error: levelAlert(NOTICE_TYPES.ERROR),
+    info: levelAlert(NOTICE_TYPES.INFO),
+    warning: levelAlert(NOTICE_TYPES.WARNING),
     config(options) {
         if (options.top !== undefined) {
             defaultTop = options.top;

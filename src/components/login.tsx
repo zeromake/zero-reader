@@ -12,6 +12,8 @@ enum Matche {
     HREF = "href",
 }
 
+const AlertKey = "login_alert";
+
 export default class LoginView extends Component<any, any> {
     private bindUpdateForm: (attrName: string) => IFormProps;
     public refs: any;
@@ -25,7 +27,12 @@ export default class LoginView extends Component<any, any> {
             },
         };
         if (p.matches![Matche.ERROR]) {
-            Alert.error(p.matches![Matche.ERROR], 0);
+            Alert.error({
+                content: p.matches![Matche.ERROR],
+                // type: "error",
+                duration: 0,
+                key: AlertKey,
+            });
         }
         this.bindUpdateForm = bindUpdateForm(this, LoginForm, "form", true);
         this.loginEvent = this.loginEvent.bind(this);
@@ -41,7 +48,7 @@ export default class LoginView extends Component<any, any> {
             res = await $ajax.post("/api/login", this.state.form);
             jsonObj = res && await res.json();
         } catch (e) {
-            Alert.error((res && res.statusText) + ": " + e.message, 0);
+            Alert.error((res && res.statusText) + ": " + e.message, 0, null, AlertKey);
             return;
         }
         if (jsonObj && jsonObj.status === 200) {
@@ -52,7 +59,7 @@ export default class LoginView extends Component<any, any> {
             Alert.success("登录成功!");
             route(url);
         } else {
-            Alert.error(jsonObj.message, 0);
+            Alert.error(jsonObj.message, 0, null, AlertKey);
         }
     }
 
