@@ -35,9 +35,9 @@ interface INotificationInstance {
 export default class Notification extends Component<IProps, IState> {
     public static defaultProps = {
         classPrefix: `${NAME_SPACE}-notification`,
-        style: {
-            top: "5px",
-        },
+        // style: {
+        //     top: "5px",
+        // },
     };
 
     public static newInstance(properties?: IProperties): {} {
@@ -165,6 +165,13 @@ export default class Notification extends Component<IProps, IState> {
             );
         });
         const classes = [classPrefix, className].join(" ");
+        const transitionName = style.top ? {
+            enter: "fadeInDown",
+            leave: "fadeOutUp",
+        } : {
+            enter: "fadeInUp",
+            leave: "fadeOutDown",
+        };
         return (
             <Animate
                 component="div"
@@ -173,10 +180,7 @@ export default class Notification extends Component<IProps, IState> {
                 transitionLeave={true}
                 onAfterLeave={this.onAfterLeave}
                 // showProp="animated"
-                transitionName={{
-                    enter: "fadeInDown",
-                    leave: "fadeOutUp",
-                }}
+                transitionName={transitionName}
                 isRender={true}
             >
                 {notieNodes}

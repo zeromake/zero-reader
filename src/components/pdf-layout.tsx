@@ -3,13 +3,15 @@ import AbcLayout, { IabcState } from "./abc-layout";
 import styl from "../css/layout.styl";
 import BottomBar from "./pdf-bottom-bar";
 import { addStyle, buildBlock, filterPropsComponent } from "../utils";
-import Toc from "./toc";
+// import Toc from "./toc";
 import throttle from "lodash.throttle";
 import { IPdfMeta, IAbcToc } from "../types/index";
 import PdfContent from "./pdf-content";
-import hotkeys from "hotkeys-js";
+// import hotkeys from "hotkeys-js";
 import TopBar from "./top-bar";
-import BScroll from "better-scroll";
+
+import { Alert } from "./notification/index";
+// import BScroll from "better-scroll";
 
 interface IZoom {
     select: string;
@@ -37,7 +39,6 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
 
     constructor(props, content) {
         super(props, content);
-        // console.log("props: ", props);
         this.state.offset = 0;
         this.load = false;
         this.tocClick = this.tocClick.bind(this);
@@ -143,7 +144,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                     this.barToggler(false);
                     this.tocToggler(true);
                 }).catch((msg) => {
-                    console.warn(msg);
+                    Alert.warning(msg);
                 });
             }
         }
@@ -158,8 +159,6 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
                 event.preventDefault();
                 const pageData = JSON.parse(dataHref);
                 this.setPage(pageData.index);
-            } else {
-                console.warn("out link", href);
             }
         } else {
             event.preventDefault();

@@ -1,11 +1,21 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="version" content="<%= htmlWebpackPlugin.options.version %>">
-    <meta name="buildTime" content="<%= htmlWebpackPlugin.options.buildTime %>">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <!-- UC强制全屏 --> 
+    <meta name="full-screen" content="yes">
+    <!-- UC应用模式 --> 
+    <meta name="browsermode" content="application">
+    <!-- QQ强制全屏 -->
+    <meta name="x5-fullscreen" content="true">
+    <!-- QQ应用模式 -->
+    <meta name="x5-page-mode" content="app">
+    <meta name="version" content="<%= htmlWebpackPlugin.options.version %>"/>
+    <meta name="buildTime" content="<%= htmlWebpackPlugin.options.buildTime %>"/>
     <title>zero-reader</title>
     <% if (htmlWebpackPlugin.options.config){%>
     <%= htmlWebpackPlugin.options.config %>

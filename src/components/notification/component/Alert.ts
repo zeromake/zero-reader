@@ -3,14 +3,16 @@ import Notification from "../core";
 let alertInstance: {notice(p: any): void};
 let defaultDuration = 2000;
 let defaultTop = 5;
+let defaultBottom;
 let defaultClassPrefix = `${NAME_SPACE}-notification`;
 let getContainer;
 const addPrefix = (name) => prefix(defaultClassPrefix)(name);
 function getInstance(instance) {
+  const style = defaultTop ? { top: defaultTop } : { bottom: defaultBottom };
   return (
     instance ||
     Notification.newInstance({
-      style: { top: defaultTop },
+      style,
       duration: defaultDuration,
       className: addPrefix("alert"),
       classPrefix: defaultClassPrefix,
@@ -63,6 +65,10 @@ export default {
     config(options) {
         if (options.top !== undefined) {
             defaultTop = options.top;
+            alertInstance = null;
+        }
+        if (options.bottom !== undefined) {
+            defaultBottom = options.bottom;
             alertInstance = null;
         }
         if (options.duration !== undefined) {

@@ -117,3 +117,13 @@ declare module "qs" {
     const qs: any;
     export default qs;
 }
+
+declare module "fscreen" {
+    const fscreen : {
+        fullscreenEnabled: boolean,
+        fullscreenElement?: Element,
+        requestFullscreen: (e: Element) => void;
+        exitFullscreen: () => void;
+    };
+    export default fscreen;
+}

@@ -7,6 +7,7 @@ import Toc from "./toc";
 import hotkeys from "hotkeys-js";
 import SvgIcon from "./svg-icon";
 import Dialog from "./dialog";
+import { Alert } from "./notification/index";
 
 interface IabcProps<AbcMeta> {
     path: string;
@@ -92,7 +93,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                         this.tocs = tocs;
                         this.tocToggler(true);
                     }).catch((msg) => {
-                        console.warn(msg);
+                        Alert.warning(msg);
                     });
                 }
             },
@@ -158,7 +159,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                             this.page.scrollTop = 0;
                             // this.page.scroll(0, 0);
                         } else {
-                            console.log("page no has scroll: ");
+                            Alert.error("page no has scroll: ");
                         }
                     } finally {
                         const pathname = this.props.history ? this.props.history.location.pathname : location.pathname;
@@ -213,13 +214,17 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
     protected abstract renderContent(): JSX.Element | string | Array<JSX.Element|string>;
 
     protected clickPageUrl(event: MouseEvent): void {
-        console.warn("on PageUrl handle");
+        Alert.warning("on PageUrl handle");
     }
 
     protected nextPage() {
         const page = this.state.page + 1;
         if (page >= this.pageNum) {
             this.load = false;
+            Alert.warning({
+                content: "没有下一页!",
+                key: "setpage",
+            });
             return;
         }
         return this.setPage(page);
@@ -229,6 +234,10 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         const page = this.state.page - 1;
         if (page < 0) {
             this.load = false;
+            Alert.warning({
+                content: "没有上一页!",
+                key: "setpage",
+            });
             return;
         }
         return this.setPage(page);

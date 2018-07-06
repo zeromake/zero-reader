@@ -6,6 +6,7 @@ import throttle from "lodash.throttle";
 import TopBar from "./top-bar";
 import BottomBar from "./pdf-bottom-bar";
 import EpubContent from "./epub-content";
+import fscreen from "fscreen";
 
 export default class EpubLayout extends AbcLayout<any, any> {
     protected isBlock;
@@ -107,6 +108,10 @@ export default class EpubLayout extends AbcLayout<any, any> {
             state.columnCount = columnCount === 2 ? 0 : this.state.columnCount + 1;
             state.columnOffset = 0;
             this.setState(state);
+        } else if (type === 3) {
+            if (fscreen.fullscreenEnabled) {
+                fscreen.requestFullscreen(findDOMNode(this));
+            }
         }
     }
 
@@ -123,8 +128,6 @@ export default class EpubLayout extends AbcLayout<any, any> {
                     route(`${pathname}${href}`, true);
                     this.scrollHash(pageData.hash);
                 });
-            } else {
-                console.log("out link", href);
             }
         } else {
             event.preventDefault();

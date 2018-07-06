@@ -9,6 +9,7 @@ import argparse
 import asyncio
 import logging
 
+
 def add_args():
     """
     处理命令行参数
@@ -64,6 +65,7 @@ def add_args():
     )
     return parser.parse_args()
 
+
 def main():
     """
     主函数
@@ -108,6 +110,7 @@ def main():
             converts = convert(options, loop)
             loop.run_until_complete(converts.run())
             logger.debug("meta: %s", converts.meta_data)
+
 
 if __name__ == '__main__':
     main()

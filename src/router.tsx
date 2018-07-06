@@ -3,7 +3,7 @@ import Library from "./components/library";
 import Home from "./components/home";
 import LoginView from "~/components/login";
 import RegisterView from "~/components/register";
-import { h, Router, Route, Link, AsyncRoute } from "react-import";
+import { h, Router, Route, route, Link, AsyncRoute, Component } from "react-import";
 import Animate from "preact-animate";
 import { togglerFullScreen } from "./utils";
 // import AsyncRoute from "./assets/router/async-route";
@@ -37,9 +37,22 @@ const text = (props) => {
     return <h1>Text</h1>;
 };
 
+// class Redirect extends Component<any, any> {
+//     public componentDidMount() {
+//         setTimeout(() => {
+//             if (this.props.to) {
+//                 route(this.props.to, true);
+//             }
+//         });
+//     }
+//     public render() {
+//         return null;
+//     }
+// }
+
 const MainRouter = () => (
     <Router history={tmpHistory}
-        redirect={{"/": "/login"}}
+        // redirect={{"/": "/login"}}
         beforeEach={(to: string, form: string, next: (url?: string) => boolean) => {
             const raw = to;
             if (to.lastIndexOf("?") !== -1) {
