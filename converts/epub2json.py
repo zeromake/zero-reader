@@ -13,6 +13,7 @@ import tempfile
 import asyncio
 import shutil
 # import lxml
+from PIL import Image
 from io import StringIO
 # from lxml import etree, html
 from urllib import parse
@@ -126,6 +127,7 @@ class Epub2Json(object):
         
         self.meta_data = None
         self.container_class = "reader_content"
+        self.lozad_size = True
 
     async def run(self):
         """
@@ -702,6 +704,12 @@ class Epub2Json(object):
                         img_zip_path,
                         img_out_name
                     )
+                    if self.lozad_size:
+                        im = Image.open(os.path.join(self.dist, img_out_name))
+                        size = im.size
+                        im.close()
+                        img.set("data-width", "%d" % size[0])
+                        img.set("data-height", "%d" % size[1])
                     old_class = img.get('class')
                     tmp = 'lozad'
                     if old_class:

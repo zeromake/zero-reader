@@ -22,3 +22,4 @@ PyJWT = "*"
 [dev-packages]
 pylint = "*"
 pytest = "*"
+pillow = "*"

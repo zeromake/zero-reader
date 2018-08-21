@@ -37,7 +37,8 @@ export default class EpubLayout extends AbcLayout<any, any> {
                 if (propsLocation) {
                     const hash = propsLocation.hash;
                     if (hash) {
-                        this.scrollHash(hash.substring(1));
+                        // 设置到下次事件循环中，保证图片已经设置了高度
+                        setTimeout(() => this.scrollHash(hash.substring(1)));
                     }
                 }
             });

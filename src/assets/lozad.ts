@@ -82,5 +82,8 @@ export default function _(selector = ".lozad", options = {}) {
             obj.elements = Array.prototype.slice.apply(target.querySelectorAll(selector));
             this.observe();
         },
+        elements() {
+            return obj.elements;
+        },
     };
 }

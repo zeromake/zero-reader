@@ -88,14 +88,34 @@ export default class EpubContent extends Component<any, any> {
             }
         });
         if (!this.observer) {
+            const target = findDOMNode(this);
             this.observer = lozad("img.lozad", {
-                target: findDOMNode(this),
+                target,
                 load: (element: HTMLImageElement) => {
                     const dataSrc = element.getAttribute("data-src");
                     if (dataSrc) {
                         element.src = this.props.library.image(dataSrc);
+                        element.onload = () => {
+                            element.style.height = "";
+                            element.style.display = "";
+                            delete element.onload;
+                        };
                     }
                 },
+            });
+            const elements = this.observer.elements();
+            elements.forEach((element: HTMLImageElement) => {
+                if (element.hasAttribute("data-width")) {
+                    const width = + element.getAttribute("data-width");
+                    const height = + element.getAttribute("data-height");
+                    const clientWidth = element.clientWidth;
+                    if (clientWidth > width) {
+                        element.style.height = (height * (clientWidth / width)) + "px";
+                    } else if (clientWidth < width) {
+                        element.style.display = "inline-block";
+                        element.style.height = height + "px";
+                    }
+                }
             });
             this.observer.observe();
         } else {

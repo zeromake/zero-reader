@@ -587,10 +587,7 @@ class ApiView(HTTPMethodView):
                 sql = None
         else:
             where = handle_param_primary(self._columns_name, form_data.get("where", {}))
-            values = form_data.get("values", {})
-            for key, val in values.items():
-                if isinstance(val, dict):
-                    opt = val.get("opt", "$incr")
+            values = form_data.get("values")
 
             if not where is None and values and isinstance(values, dict):
                 for key, val in values.items():
