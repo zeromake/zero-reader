@@ -13,6 +13,7 @@ const defaultConfig = {
             element.style.backgroundImage = "url(' + element.getAttribute(\"data-background-image\") + ')";
         }
     },
+    injection: null,
 };
 
 function markAsLoaded(element) {
@@ -37,7 +38,7 @@ const onIntersection = (load, obj) => (entries, observer) => {
 };
 
 export default function _(selector = ".lozad", options = {}) {
-    const { rootMargin, threshold, load, target } = {...defaultConfig, ...options } as typeof defaultConfig;
+    const { rootMargin, threshold, load, target, injection } = {...defaultConfig, ...options } as typeof defaultConfig;
     let observer;
 
     const elements: Node[] = Array.prototype.slice.apply(target.querySelectorAll(selector));
@@ -58,6 +59,9 @@ export default function _(selector = ".lozad", options = {}) {
                     continue;
                 }
                 if (observer) {
+                    if (injection != null) {
+                        injection(element);
+                    }
                     (element as Element).setAttribute("data-loaded", "false");
                     observer.observe(element);
                     continue;

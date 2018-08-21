@@ -3,6 +3,7 @@
 """
 import json
 import os
+import asyncio
 from sanic import response
 from mimetypes import guess_type
 from sanic.exceptions import NotFound
@@ -44,6 +45,8 @@ def safe_file_path(file_uri: str):
 @app.route("/api/librarys/<file_uri:\/?.+>")
 async def librarys(request, file_uri):
     file_name = root_resolve("../librarys", safe_file_path(file_uri))
+    if file_uri.endswith(".png"):
+        await asyncio.sleep(2)
     return await zero_copy_stream(file_name, chunked=False)
 
 @app.route("/")

@@ -89,33 +89,37 @@ export default class EpubContent extends Component<any, any> {
         });
         if (!this.observer) {
             const target = findDOMNode(this);
+            const onload = function()  {
+                this.style.height = "";
+                this.style.width = "";
+                this.style.display = "";
+                this.style.backgroundColor = "";
+                delete this.onload;
+            };
             this.observer = lozad("img.lozad", {
                 target,
                 load: (element: HTMLImageElement) => {
                     const dataSrc = element.getAttribute("data-src");
                     if (dataSrc) {
                         element.src = this.props.library.image(dataSrc);
-                        element.onload = () => {
-                            element.style.height = "";
-                            element.style.display = "";
-                            delete element.onload;
-                        };
+                        element.onload = onload;
                     }
                 },
-            });
-            const elements = this.observer.elements();
-            elements.forEach((element: HTMLImageElement) => {
-                if (element.hasAttribute("data-width")) {
-                    const width = + element.getAttribute("data-width");
-                    const height = + element.getAttribute("data-height");
-                    const clientWidth = element.clientWidth;
-                    if (clientWidth > width) {
-                        element.style.height = (height * (clientWidth / width)) + "px";
-                    } else if (clientWidth < width) {
-                        element.style.display = "inline-block";
-                        element.style.height = height + "px";
+                injection: (element: HTMLImageElement) => {
+                    if (element.hasAttribute("data-width")) {
+                        const width = + element.getAttribute("data-width");
+                        const height = + element.getAttribute("data-height");
+                        const clientWidth = element.clientWidth;
+                        if (clientWidth > width) {
+                            element.style.height = (height * (clientWidth / width)) + "px";
+                        } else if (clientWidth < width) {
+                            element.style.display = "inline-block";
+                            element.style.height = height + "px";
+                            element.style.width = width + "px";
+                            element.style.backgroundColor = "#F4ECD8";
+                        }
                     }
-                }
+                },
             });
             this.observer.observe();
         } else {
