@@ -93,7 +93,7 @@ export default class EpubContent extends Component<any, any> {
                 this.style.height = "";
                 this.style.width = "";
                 this.style.display = "";
-                this.style.backgroundColor = "";
+                // this.style.backgroundColor = "";
                 delete this.onload;
             };
             this.observer = lozad("img.lozad", {
@@ -116,7 +116,7 @@ export default class EpubContent extends Component<any, any> {
                             element.style.display = "inline-block";
                             element.style.height = height + "px";
                             element.style.width = width + "px";
-                            element.style.backgroundColor = "#F4ECD8";
+                            // element.style.backgroundColor = "#F4ECD8";
                         }
                     }
                 },
