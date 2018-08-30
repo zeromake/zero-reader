@@ -145,19 +145,20 @@ async def zero_copy_stream(
     """
     Accepts an coroutine `streaming_fn`
     """
-    return ZeroCopyStreamingHTTPResponse(
+    if hasattr(os, "sendfile"):
+        return ZeroCopyStreamingHTTPResponse(
+            file_path,
+            file_name=file_name,
+            chunked=chunked,
+            chunk_size=chunk_size,
+            headers=headers,
+            content_type=mime_type,
+            status=status
+        )
+    return await file_stream(
         file_path,
-        file_name=file_name,
-        chunked=chunked,
         chunk_size=chunk_size,
+        mime_type=mime_type,
         headers=headers,
-        content_type=mime_type,
-        status=status
+        filename=file_name,
     )
-    # return await file_stream(
-    #     file_path,
-    #     chunk_size=chunk_size,
-    #     mime_type=mime_type,
-    #     headers=headers,
-    #     filename=file_name,
-    # )

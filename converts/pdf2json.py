@@ -113,7 +113,7 @@ class Pdf2Json(object):
         meta['base64'] = self.base64
         if 'title' not in meta:
             meta['title'] = self.pdf_name[
-                self.pdf_name.rfind('/') + 1: self.pdf_name.rfind('.')
+                self.pdf_name.rfind(os.path.sep) + 1: self.pdf_name.rfind('.')
             ]
         meta['type'] = 'pdf'
         meta['page_style'] = self.page_css
@@ -174,7 +174,7 @@ class Pdf2Json(object):
                     return
 
         pdf2html_dict = {
-            "Windows": ('bin/pdf2htmlEX-win32.zip', 'bin/pdf2htmlEX.exe'),
+            "Windows": (None, 'bin\\pdf2htmlEX.exe'),
             "Linux": ('bin/pdf2htmlEX-linux-x64.zip', 'bin/pdf2htmlEX.sh'),
             "Darwin": (None, "pdf2htmlex")
         }
@@ -188,8 +188,8 @@ class Pdf2Json(object):
         if self.sysstr == 'Linux':
             subprocess.call(["chmod", "+x", pdf2html[1]])
             subprocess.call(["chmod", "+x", 'bin/pdf2htmlEX'])
-        temp_name = tempfile.mktemp()
-        shutil.copyfile(self.pdf_name, temp_name)
+        # temp_name = tempfile.mktemp()
+        # shutil.copyfile(self.pdf_name, temp_name)
         try:
             exec_str = " ".join([
                 pdf2html[1],
@@ -208,7 +208,7 @@ class Pdf2Json(object):
                 '--page-filename', self.page,
                 '--data-dir', self.share,
                 '--dest-dir', self.out,
-                temp_name,
+                self.pdf_name,
                 'index.html'
             ])
             popen_obj = subprocess.Popen(
@@ -388,7 +388,7 @@ class Pdf2Json(object):
         join_dir = 'img'
         input_name = os.path.join(input_dir, page_name)
         out_name = os.path.join(out_dir, page_name)
-        class_pat = re.compile(r'pages/page-(\d+)\.html')
+        class_pat = re.compile(r'pages[/\\]page-(\d+)\.html')
         class_name_join = class_pat.match(page_name).group(1)
         with file_open(input_name, 'r', encoding='utf8', errors="ignore") as file_:
             tree = etree.parse(file_)

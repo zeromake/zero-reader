@@ -289,8 +289,8 @@ def get_file_path_dir(file_name):
     """
     获取文件的目录
     """
-    if '/' in file_name:
-        return file_name[:file_name.rindex('/')]
+    if os.path.sep in file_name:
+        return file_name[:file_name.rindex(os.path.sep)]
     else:
         return ''
 
@@ -298,8 +298,8 @@ def get_file_path_name(file_name):
     """
     获取文件的名字
     """
-    if '/' in file_name:
-        return file_name[file_name.rindex('/') + 1:]
+    if os.path.sep in file_name:
+        return file_name[file_name.rindex(os.path.sep) + 1:]
     else:
         return file_name
 
@@ -407,6 +407,6 @@ def open_temp_file(tar_file, output_path, *args, **k):
     return temp_file
 
 PNGBIN = {
-    'Windows': 'bin/pngquant.exe',
+    'Windows': 'bin\\pngquant.exe',
     'Linux': 'bin/pngquant'
 }

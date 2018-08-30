@@ -155,7 +155,7 @@ async def register(request):
     }
     sql = model.insert(insert_data)
     res = await model.execute_insert(sql, "注册成功!")
-    del res['row_id']
+    # del res['row_id']
     return response.json(res, status=res["status"])
 
 def verify_token(payload: dict, sort: int) -> str:
