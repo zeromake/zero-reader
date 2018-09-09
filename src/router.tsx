@@ -3,18 +3,18 @@ import Library from "./components/library";
 import Home from "./components/home";
 import LoginView from "~/components/login";
 import RegisterView from "~/components/register";
-import { h, Router, Route, route, Link, AsyncRoute, Component } from "react-import";
+import { h, Router, Route, Link, Component, Redirect } from "react-import";
 import Animate from "preact-animate";
 import { togglerFullScreen } from "./utils";
 // import AsyncRoute from "./assets/router/async-route";
-import createHashHistory from "history/createHashHistory";
-import { Alert } from "rsuite-notification";
+// import createHashHistory from "history/createHashHistory";
+// import { Alert } from "rsuite-notification";
 
-let tmpHistory = null;
-if (process.env.platform === "cordova") {
-    // const createHashHistory = require("history/createHashHistory").default;
-    tmpHistory = createHashHistory();
-}
+// let tmpHistory = null;
+// if (process.env.platform === "cordova") {
+//     // const createHashHistory = require("history/createHashHistory").default;
+//     tmpHistory = createHashHistory();
+// }
 
 // const Library = () => import("@/components/library").then((modul) => modul.default);
 // const BookLayout = () => import("@/components/book-layout").then((modul) => modul.default);
@@ -33,9 +33,9 @@ if (process.env.platform === "cordova") {
     };
 }
 
-const text = (props) => {
-    return <h1>Text</h1>;
-};
+// const text = (props) => {
+//     return <h1>Text</h1>;
+// };
 
 // class Redirect extends Component<any, any> {
 //     public componentDidMount() {
@@ -51,24 +51,24 @@ const text = (props) => {
 // }
 
 const MainRouter = () => (
-    <Router history={tmpHistory}
+    <Router
         // redirect={{"/": "/login"}}
-        beforeEach={(to: string, form: string, next: (url?: string) => boolean) => {
-            const raw = to;
-            if (to.lastIndexOf("?") !== -1) {
-                to = to.split("?")[0];
-            }
-            if (to.startsWith("/library")) {
-                const token = localStorage.getItem("token");
-                if (token && token !== "") {
-                    next();
-                } else {
-                    next(`/login?href=${encodeURIComponent(raw)}&error=未登录!`);
-                }
-            } else {
-                next();
-            }
-        }}
+        // beforeEach={(to: string, form: string, next: (url?: string) => boolean) => {
+        //     const raw = to;
+        //     if (to.lastIndexOf("?") !== -1) {
+        //         to = to.split("?")[0];
+        //     }
+        //     if (to.startsWith("/library")) {
+        //         const token = localStorage.getItem("token");
+        //         if (token && token !== "") {
+        //             next();
+        //         } else {
+        //             next(`/login?href=${encodeURIComponent(raw)}&error=未登录!`);
+        //         }
+        //     } else {
+        //         next();
+        //     }
+        // }}
     >
         <Animate
             component="div"
@@ -79,12 +79,12 @@ const MainRouter = () => (
             transitionName={{ enter: "fadeIn", leave: "fadeOut" }}
             isRender={false}
             >
-            <Route
+            <Redirect
                 key="redirect"
-                path="/"
-                redirect="/login"
-            >
-            </Route>
+                from="/"
+                to="/login"
+                noThrow={true}
+            />
             <Route
                 key="1"
                 component={Home}
@@ -123,7 +123,7 @@ const MainRouter = () => (
                         <Link href="/">回到首页</Link>
                     </div>);
                 }}
-                path="*"
+                default={true}
             >
             </Route>
         </Animate>

@@ -1,4 +1,4 @@
-import { h, Component, findDOMNode, route } from "react-import";
+import { h, Component, findDOMNode, navigate } from "react-import";
 import { addLinkCss, addStyle, removeHead, filterPropsComponent } from "~/utils";
 import styl from "~/css/layout.styl";
 import { IAbcMeta, IAbcToc } from "../types/index";
@@ -132,7 +132,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         }
         this.container = await this.library.json(meta.container);
         this.pageNum = this.container.length;
-        const page = Number(this.props.matches && this.props.matches.page) || 0;
+        const page = Number((this.props as  any).params && (this.props as any).params.page) || 0;
         const pageHtml = await this.getPage(page);
         return Promise.resolve({
             pageHtml,
@@ -163,7 +163,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                         }
                     } finally {
                         const pathname = this.props.history ? this.props.history.location.pathname : location.pathname;
-                        route(`${pathname}?page=${num}`, true);
+                        navigate(`${pathname}?page=${num}`, {replace: true});
                         this.load = false;
                         resolve();
                     }

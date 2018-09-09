@@ -1,4 +1,4 @@
-import { h, Component, Link, route } from "react-import";
+import { h, Component, Link, navigate } from "react-import";
 import LoginForm from "../../form/login.json";
 import { bindUpdateForm, IFormProps } from "../utils";
 import { $ajax } from "../http/index";
@@ -26,9 +26,10 @@ export default class LoginView extends Component<any, any> {
                 rememberme: false,
             },
         };
-        if (p.matches![Matche.ERROR]) {
+        const params: URLSearchParams = p.location.searchParams;
+        if (params && params.has(Matche.ERROR)) {
             Alert.error({
-                content: p.matches![Matche.ERROR],
+                content: params.get(Matche.ERROR),
                 // type: "error",
                 duration: 0,
                 key: AlertKey,
@@ -55,9 +56,10 @@ export default class LoginView extends Component<any, any> {
             for (const name in jsonObj.data) {
                 localStorage.setItem(name, jsonObj.data[name]);
             }
-            const url = (this.props.matches && this.props.matches[Matche.HREF]) || "/library";
+            const params: URLSearchParams = this.props.location.searchParams;
+            const url = (params && params.has(Matche.HREF) && params.get(Matche.HREF)) || "/library";
             Alert.success("登录成功!");
-            route(url);
+            navigate(url);
         } else {
             Alert.error(jsonObj.message, 0, null, AlertKey);
         }

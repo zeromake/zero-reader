@@ -1,5 +1,5 @@
 import AbcLayout from "./abc-layout";
-import { findDOMNode, h, route } from "react-import";
+import { findDOMNode, h, navigate } from "react-import";
 import { buildBlock } from "../utils";
 import styl from "../css/layout.styl";
 import throttle from "lodash.throttle";
@@ -33,7 +33,8 @@ export default class EpubLayout extends AbcLayout<any, any> {
                     callback();
                 }
                 this.resize(null, true);
-                const propsLocation = (this.props.history && this.props.history.location) || location;
+                const propsLocation = (this.props as any).location || location;
+                // const propsLocation = (this.props.history && this.props.history.location) || location;
                 if (propsLocation) {
                     const hash = propsLocation.hash;
                     if (hash) {
@@ -78,12 +79,13 @@ export default class EpubLayout extends AbcLayout<any, any> {
     protected tocClick(toc) {
         this.setPage(toc.index).then(() => {
             let href = `?page=${toc.index}`;
-            const pathname = this.props.history ? this.props.history.location.pathname : location.pathname;
+            const propsLocation = (this.props as any).location;
+            const pathname = propsLocation ? propsLocation.pathname : location.pathname;
             if (toc.hash) {
                 href += "#" + toc.hash;
                 this.scrollHash(toc.hash);
             }
-            route(`${pathname}${href}`, true);
+            navigate(`${pathname}${href}`, { replace: true });
             this.tocToggler(false);
         });
     }
@@ -125,8 +127,9 @@ export default class EpubLayout extends AbcLayout<any, any> {
                 event.preventDefault();
                 const pageData = JSON.parse(dataHref);
                 this.setPage(pageData.page).then(() => {
-                    const pathname = this.props.history ? this.props.history.location.pathname : location.pathname;
-                    route(`${pathname}${href}`, true);
+                    const propsLocation = (this.props as any).location;
+                    const pathname = propsLocation ? propsLocation.pathname : location.pathname;
+                    navigate(`${pathname}${href}`, {replace: true});
                     this.scrollHash(pageData.hash);
                 });
             }

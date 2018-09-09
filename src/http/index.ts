@@ -1,4 +1,4 @@
-import { customHistory, route, getCurrentUrl } from "react-import";
+import { navigate } from "react-import";
 import qs from "qs";
 let baseUrl = "";
 
@@ -102,10 +102,10 @@ function $ajaxRaw(url: string, options?: RequestInit): Promise<Response | void> 
     }
     const catchToken = (reason) => {
         clearToken();
-        const customLocation = (customHistory && customHistory.location) || location;
-        const currentUrl: string = getCurrentUrl();
+        // const customLocation = (customHistory && customHistory.location) || location;
+        // const currentUrl: string = getCurrentUrl();
         // if (currentUrl && currentUrl.lastIndexOf("?href") !== -1) {
-        route("/?href=" +  encodeURIComponent(currentUrl) + "&error=" + encodeURIComponent(String(reason)));
+        navigate("/" + "?error=" + encodeURIComponent(String(reason)));
         // } else {
         //     route("/?error=" + encodeURIComponent(String(reason)));
         // }

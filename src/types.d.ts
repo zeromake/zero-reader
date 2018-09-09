@@ -13,15 +13,11 @@ declare module "*.json" {
 }
 
 declare module "zreact-router" {
-    export const Router: any;
+    export const DRouter: any;
     export const Link: any;
     export const Route: any;
-    export const route: (url: string, replace?: boolean) => boolean;
-    export const getCurrentUrl: () => string;
-    export const customHistory: any;
-    export const Match: any;
-    export const AsyncRoute: any;
-    export default Router;
+    export const navigate: (to, opt?: {state?: any; replace?: boolean; }) => void;
+    export const Redirect: any;
 }
 declare module "preact-animate" {
     const Animate: any;
@@ -57,7 +53,7 @@ declare module "module-react" {
 
 declare module "react-import" {
     import { h, render, Component, findDOMNode, cloneElement, Children } from "zreact";
-    import Router, { Route, Link, route, getCurrentUrl, customHistory, AsyncRoute } from "zreact-router";
+    import { DRouter, Route, Link, navigate, Redirect } from "zreact-router";
     // const customHistory: any;
     // const AsyncRoute: any;
 
@@ -68,13 +64,11 @@ declare module "react-import" {
         cloneElement,
         Children,
         render,
-        Router,
+        DRouter as Router,
         Route,
-        route,
         Link,
-        AsyncRoute,
-        getCurrentUrl,
-        customHistory,
+        navigate,
+        Redirect,
     };
 }
 

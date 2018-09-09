@@ -1,5 +1,5 @@
 import { h, Component, render, findDOMNode, Children } from "./module-react";
-import { Router, Route, Link, route, getCurrentUrl, customHistory, Match, AsyncRoute } from "zreact-router";
+import { DRouter, Route, Link, Redirect, navigate } from "zreact-router";
 // import Router from "preact-router";
 
 export {
@@ -8,12 +8,9 @@ export {
     Children,
     findDOMNode,
     render,
-    Router,
+    DRouter as Router,
     Route,
     Link,
-    route,
-    Match,
-    AsyncRoute,
-    getCurrentUrl,
-    customHistory,
+    Redirect,
+    navigate,
 };

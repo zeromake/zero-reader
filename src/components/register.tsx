@@ -1,4 +1,4 @@
-import { h, Component, Link, route } from "react-import";
+import { h, Component, Link, navigate } from "react-import";
 import registerForm from "../../form/register.json";
 import { bindUpdateForm, IFormProps } from "../utils";
 import { $ajax } from "../http/index";
@@ -43,7 +43,7 @@ export default class RegisterView extends Component<any, any> {
             return;
         }
         if (jsonObj && jsonObj.status === 200) {
-            route("/login");
+            navigate("/login");
         } else {
             // this.togglerAlert(jsonObj.message);
         }
