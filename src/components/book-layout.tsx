@@ -16,7 +16,7 @@ export default class BookLayout extends Component<any, any> {
     private library: any;
     constructor(p, c) {
         super(p, c);
-        this.library = libraryData(p.params.base64);
+        this.library = libraryData(p.params.base64, p.location, p.navigate);
         this.state = {
             layoutType: null,
             meta: null,

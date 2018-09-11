@@ -3,14 +3,18 @@ import Library from "./components/library";
 import Home from "./components/home";
 import LoginView from "~/components/login";
 import RegisterView from "~/components/register";
-import { h, Router, Route, Link, Component, Redirect } from "react-import";
+import { h, Router, Route, Link, Component, Redirect, LocationProvider, Location } from "react-import";
 import Animate from "preact-animate";
 import { togglerFullScreen } from "./utils";
+import { history } from "router-history";
+
+import { rawVerifyToken } from "./http/index";
 // import AsyncRoute from "./assets/router/async-route";
 // import createHashHistory from "history/createHashHistory";
 // import { Alert } from "rsuite-notification";
 
-// let tmpHistory = null;
+// const source = createHashSource();
+// const tmpHistory = createHistory(source);
 // if (process.env.platform === "cordova") {
 //     // const createHashHistory = require("history/createHashHistory").default;
 //     tmpHistory = createHashHistory();
@@ -20,18 +24,18 @@ import { togglerFullScreen } from "./utils";
 // const BookLayout = () => import("@/components/book-layout").then((modul) => modul.default);
 // const Login = () => import("@/components/login").then((modul) => modul.default);
 
-let onAfterEnter = null;
-if (process.env.platform === "cordova") {
-    onAfterEnter = function _(component) {
-        if (component && component.props) {
-            let flag = true;
-            if (component.props.rawKey !== "3") {
-                flag = false;
-            }
-            requestAnimationFrame(() => togglerFullScreen(flag));
-        }
-    };
-}
+// let onAfterEnter = null;
+// if (process.env.platform === "cordova") {
+//     onAfterEnter = function _(component) {
+//         if (component && component.props) {
+//             let flag = true;
+//             if (component.props.rawKey !== "3") {
+//                 flag = false;
+//             }
+//             requestAnimationFrame(() => togglerFullScreen(flag));
+//         }
+//     };
+// }
 
 // const text = (props) => {
 //     return <h1>Text</h1>;
@@ -50,73 +54,34 @@ if (process.env.platform === "cordova") {
 //     }
 // }
 
-const MainRouter = () => (
-    <Router
-        // redirect={{"/": "/login"}}
-        // beforeEach={(to: string, form: string, next: (url?: string) => boolean) => {
-        //     const raw = to;
-        //     if (to.lastIndexOf("?") !== -1) {
-        //         to = to.split("?")[0];
-        //     }
-        //     if (to.startsWith("/library")) {
-        //         const token = localStorage.getItem("token");
-        //         if (token && token !== "") {
-        //             next();
-        //         } else {
-        //             next(`/login?href=${encodeURIComponent(raw)}&error=未登录!`);
-        //         }
-        //     } else {
-        //         next();
-        //     }
-        // }}
-    >
-        <Animate
-            component="div"
-            componentProps={{className: "reader-main"}}
-            onAfterEnter={onAfterEnter}
-            transitionEnter={true}
-            transitionLeave={true}
-            transitionName={{ enter: "fadeIn", leave: "fadeOut" }}
-            isRender={false}
-            >
-            <Redirect
-                key="redirect"
-                from="/"
-                to="/login"
-                noThrow={true}
-            />
+const MainRouter = () => {
+    const verifyToken = rawVerifyToken();
+    const routes = [
+        <Redirect
+            key="redirect"
+            from="/"
+            to={verifyToken ? "/librarys" : "/home/login"}
+            noThrow={true}
+        />,
+        <Route
+            key="1"
+            component={Home}
+            path="/home"
+        >
             <Route
-                key="1"
-                component={Home}
-                path="/"
-            >
-                <Route
-                    key="1-1"
-                    path="login"
-                    component={LoginView}
-                >
-                </Route>
-                <Route
-                    key="1-2"
-                    path="register"
-                    component={RegisterView}
-                >
-                </Route>
-            </Route>
-            <Route
-                key="2"
-                component={Library}
-                path="/library"
+                key="1-1"
+                path="login"
+                component={LoginView}
             >
             </Route>
             <Route
-                key="3"
-                component={BookLayout}
-                path="/library/:base64/"
+                key="1-2"
+                path="register"
+                component={RegisterView}
             >
             </Route>
             <Route
-                key="4"
+                key="1-3"
                 component={() => {
                     return (<div>
                         <h3>404</h3>
@@ -126,7 +91,53 @@ const MainRouter = () => (
                 default={true}
             >
             </Route>
-        </Animate>
-    </Router>
-);
+        </Route>,
+    ];
+    if (verifyToken) {
+        routes.push(
+            <Route
+                key="2"
+                component={Library}
+                path="/librarys"
+            >
+            </Route>,
+            <Route
+                key="3"
+                component={BookLayout}
+                path="/library/:base64"
+            >
+            </Route>,
+        );
+    }
+    routes.push(
+        <Route
+            key="4"
+            component={() => {
+                return (<div>
+                    <h3>404</h3>
+                    <Link href="/">回到首页</Link>
+                </div>);
+            }}
+            default={true}
+        >
+        </Route>,
+    );
+    return (
+        <LocationProvider history={history}>
+            <Router>
+                <Animate
+                    component="div"
+                    componentProps={{className: "reader-main"}}
+                    // onAfterEnter={onAfterEnter}
+                    transitionEnter={true}
+                    transitionLeave={true}
+                    transitionName={{ enter: "fadeIn", leave: "fadeOut" }}
+                    isRender={false}
+                    >
+                    {...routes}
+                </Animate>
+            </Router>;
+        </LocationProvider>
+    );
+};
 export default MainRouter;

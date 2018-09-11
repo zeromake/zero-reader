@@ -45,7 +45,7 @@ def safe_file_path(file_uri: str):
 @app.route("/api/librarys/<file_uri:\/?.+>")
 async def librarys(request, file_uri):
     file_name = root_resolve("..", "librarys", safe_file_path(file_uri))
-    print(file_name)
+    # print(file_name)
     # if file_uri.endswith(".png"):
     #     await asyncio.sleep(2)
     return await zero_copy_stream(file_name, chunked=False)

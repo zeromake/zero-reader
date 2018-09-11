@@ -176,7 +176,7 @@ const config = {
         modules: [path.resolve(__dirname, '../node_modules')],
         alias: Object.assign({
             'zreact/devtools': isProd || isCordova ? resolve('../src/import/devtools.ts') : 'zreact/devtools',
-            'history/createHashHistory': isCordova ? 'history/createHashHistory' : resolve('../src/import/history.ts'),
+            'router-history': isCordova ? resolve('../src/import/hash-history.ts') : resolve('../src/import/history.ts'),
             // 'sweetalert2': 'sweetalert2/dist/sweetalert2.js',
             '~': resolve('../src')
         }, zreactAlias),
@@ -184,7 +184,7 @@ const config = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            config: isProd && !isCordova ? "{{ config|safe }}" : isCordova ? false : "<script type=\"text/javascript\">\n    window.projectConfig=" + JSON.stringify({
+            config: isProd && !isCordova ? "{{ config|safe }}" : isProd && isCordova ? false : "<script type=\"text/javascript\">\n    window.projectConfig=" + JSON.stringify({
                 "sign_up": true,
                 "sign_up_code": true
             }) + "\n    </script>",

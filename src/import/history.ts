@@ -1,3 +1,5 @@
-const history_ = null;
+import { globalHistory } from "zreact-router";
 
-export default history_;
+export {
+    globalHistory as history,
+};

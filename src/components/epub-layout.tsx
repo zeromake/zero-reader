@@ -1,5 +1,5 @@
 import AbcLayout from "./abc-layout";
-import { findDOMNode, h, navigate } from "react-import";
+import { findDOMNode, h } from "react-import";
 import { buildBlock } from "../utils";
 import styl from "../css/layout.styl";
 import throttle from "lodash.throttle";
@@ -79,13 +79,13 @@ export default class EpubLayout extends AbcLayout<any, any> {
     protected tocClick(toc) {
         this.setPage(toc.index).then(() => {
             let href = `?page=${toc.index}`;
-            const propsLocation = (this.props as any).location;
-            const pathname = propsLocation ? propsLocation.pathname : location.pathname;
+            // const propsLocation = (this.props as any).location;
+            // const pathname = propsLocation ? propsLocation.pathname : location.pathname;
             if (toc.hash) {
                 href += "#" + toc.hash;
                 this.scrollHash(toc.hash);
             }
-            navigate(`${pathname}${href}`, { replace: true });
+            this.props.navigate(`${href}`, { replace: true });
             this.tocToggler(false);
         });
     }
@@ -127,9 +127,9 @@ export default class EpubLayout extends AbcLayout<any, any> {
                 event.preventDefault();
                 const pageData = JSON.parse(dataHref);
                 this.setPage(pageData.page).then(() => {
-                    const propsLocation = (this.props as any).location;
-                    const pathname = propsLocation ? propsLocation.pathname : location.pathname;
-                    navigate(`${pathname}${href}`, {replace: true});
+                    // const propsLocation = (this.props as any).location;
+                    // const pathname = propsLocation ? propsLocation.pathname : location.pathname;
+                    this.props.navigate(`${href}`, {replace: true});
                     this.scrollHash(pageData.hash);
                 });
             }

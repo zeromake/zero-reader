@@ -1,4 +1,4 @@
-import { h, Component, Link, navigate } from "react-import";
+import { h, Component, Link } from "react-import";
 import LoginForm from "../../form/login.json";
 import { bindUpdateForm, IFormProps } from "../utils";
 import { $ajax } from "../http/index";
@@ -57,9 +57,9 @@ export default class LoginView extends Component<any, any> {
                 localStorage.setItem(name, jsonObj.data[name]);
             }
             const params: URLSearchParams = this.props.location.searchParams;
-            const url = (params && params.has(Matche.HREF) && params.get(Matche.HREF)) || "/library";
+            const url = (params && params.has(Matche.HREF) && params.get(Matche.HREF)) || "/librarys";
             Alert.success("登录成功!");
-            navigate(url);
+            this.props.navigate(url);
         } else {
             Alert.error(jsonObj.message, 0, null, AlertKey);
         }

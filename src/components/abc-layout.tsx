@@ -1,4 +1,4 @@
-import { h, Component, findDOMNode, navigate } from "react-import";
+import { h, Component, findDOMNode } from "react-import";
 import { addLinkCss, addStyle, removeHead, filterPropsComponent } from "~/utils";
 import styl from "~/css/layout.styl";
 import { IAbcMeta, IAbcToc } from "../types/index";
@@ -16,8 +16,9 @@ interface IabcProps<AbcMeta> {
     meta: AbcMeta;
     library: any;
     page?: string;
-    history?: any;
-    matches?: {
+    location?: any;
+    navigate: (to: number|string, opt?: any) => Promise<null>;
+    params?: {
         [key: string]: string;
     };
 }
@@ -132,7 +133,12 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         }
         this.container = await this.library.json(meta.container);
         this.pageNum = this.container.length;
-        const page = Number((this.props as  any).params && (this.props as any).params.page) || 0;
+        const propsLocation =  this.props.location || location;
+        const page = Number(
+            propsLocation.searchParams &&
+            propsLocation.searchParams.has("page") &&
+            propsLocation.searchParams.get("page"),
+        ) || 0;
         const pageHtml = await this.getPage(page);
         return Promise.resolve({
             pageHtml,
@@ -162,8 +168,8 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                             Alert.error("page no has scroll: ");
                         }
                     } finally {
-                        const pathname = this.props.history ? this.props.history.location.pathname : location.pathname;
-                        navigate(`${pathname}?page=${num}`, {replace: true});
+                        // const pathname = this.props.location ? this.props.location.pathname : location.pathname;
+                        this.props.navigate(`?page=${num}`, {replace: true});
                         this.load = false;
                         resolve();
                     }
@@ -318,10 +324,7 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
         });
     }
     protected onBack = () => {
-        const propHistory = this.props.history || history;
-        if (propHistory && propHistory.go) {
-            propHistory.go(-1);
-        }
+        this.props.navigate(-1);
     }
 
     protected abstract tocClick(toc: IAbcToc): void;

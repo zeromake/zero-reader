@@ -13,7 +13,7 @@ export default class Library extends Component<any, any> {
         };
     }
     public componentDidMount() {
-        (libraryData as any).json("/db.json").then((data: any) => {
+        (libraryData as any).json("/db.json", this.props.location, this.props.navigate).then((data: any) => {
             this.setState({ library: data });
         });
     }
@@ -24,7 +24,7 @@ export default class Library extends Component<any, any> {
             <div {...Animate.filterProps(this.props, {className: styl.library + " animated"})}>
                 {
                     state.library.map((book) => {
-                        const href = `/library/${book.base64}/`;
+                        const href = `/library/${book.base64}`;
                         const title = book.title || book.file_name;
                         return (
                             <div key={book.sha} className={styl.center_book}>

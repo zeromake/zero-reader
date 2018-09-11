@@ -1,5 +1,5 @@
 import { h, render, Component, findDOMNode, cloneElement, Children } from "./module-zreact";
-import { DRouter, Route, Link, Redirect, navigate } from "zreact-router";
+import { DRouter, Route, Link, Redirect, LocationProvider, Location } from "zreact-router";
 
 export {
     h,
@@ -12,5 +12,6 @@ export {
     Route,
     Link,
     Redirect,
-    navigate,
+    LocationProvider,
+    Location,
 };

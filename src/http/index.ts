@@ -1,4 +1,4 @@
-import { navigate } from "react-import";
+// import { navigate } from "react-import";
 import qs from "qs";
 let baseUrl = "";
 
@@ -56,6 +56,18 @@ function raw_fetch(url, options?: RequestInit): Promise<Response> {
     }
     return fetch(url, options);
 }
+
+export function rawVerifyToken(): boolean {
+    const tokenInfo = getToken();
+    const timeNow = new Date().getTime();
+    if (tokenInfo.exp && (tokenInfo.exp - timeNow) >= 2000) {
+        if (tokenInfo.refresh_exp && (tokenInfo.refresh_exp - timeNow) >= 2000) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function verifyToken(): Promise<string> {
     const tokenInfo = getToken();
     const timeNow = new Date().getTime();
@@ -96,7 +108,7 @@ const WhiteList = {
     "/api/forgotpwd": true,
 };
 
-function $ajaxRaw(url: string, options?: RequestInit): Promise<Response | void> {
+function $ajaxRaw(url: string, location, navigate, options?: RequestInit): Promise<Response | void> {
     if (url in WhiteList) {
         return raw_fetch(url, options);
     }
@@ -105,7 +117,14 @@ function $ajaxRaw(url: string, options?: RequestInit): Promise<Response | void> 
         // const customLocation = (customHistory && customHistory.location) || location;
         // const currentUrl: string = getCurrentUrl();
         // if (currentUrl && currentUrl.lastIndexOf("?href") !== -1) {
-        navigate("/" + "?error=" + encodeURIComponent(String(reason)));
+        let currentUrl = location.pathname;
+        if (location.search !== "") {
+            currentUrl += location.search;
+        }
+        if (location.hash !== "") {
+            currentUrl += "#" + location.hash;
+        }
+        navigate("/?href=" + currentUrl + "&error=" + encodeURIComponent(String(reason)));
         // } else {
         //     route("/?error=" + encodeURIComponent(String(reason)));
         // }
@@ -225,7 +244,7 @@ const cache = (max: number = 10) => {
 const cacheData = cache(20);
 
 const libraryBaseUrl = "/api/librarys";
-export function libraryData(sha: string) {
+export function libraryData(sha: string, location, navigate) {
     return {
         get(url: string, callback) {
             url = libraryBaseUrl + url;
@@ -234,7 +253,7 @@ export function libraryData(sha: string) {
                 // console.log(cacheData.info());
                 return Promise.resolve(cacheValue);
             } else {
-                return $ajaxRaw(url).then(callback).then((value: any) => {
+                return $ajaxRaw(url, location, navigate).then(callback).then((value: any) => {
                     cacheData.add(url, value);
                     return Promise.resolve(value);
                 });
@@ -264,24 +283,18 @@ export function libraryData(sha: string) {
         },
     };
 }
-(libraryData as any).json = function _(url) {
+(libraryData as any).json = function _(url, location, navigate) {
     url = libraryBaseUrl + url;
     const cacheValue = cacheData.get(url);
     if (cacheValue) {
         return Promise.resolve(cacheValue);
     } else {
-        return $ajaxRaw(url).then(json).then((value: any) => {
+        return $ajaxRaw(url, location, navigate).then(json).then((value: any) => {
             cacheData.add(url, value);
             return Promise.resolve(value);
         });
     }
 };
-// function $ajaxRaw(url: string, options?: RequestInit): Promise<void | Response> {
-//     // if (baseUrl && baseUrl !== "") {
-//     //     url = baseUrl + url;
-//     // }
-//     return baseFetch(url, options);
-// }
 function $ajaxBody(url, method: string, params?: IFromData | null, init?: RequestInit): Promise<void | Response> {
     let options: RequestInit;
     if (init) {
@@ -297,7 +310,7 @@ function $ajaxBody(url, method: string, params?: IFromData | null, init?: Reques
     if (params) {
         options.body = JSON.stringify(params);
     }
-    return $ajaxRaw(url, options);
+    return raw_fetch(url, options);
 }
 interface IFromData {
     [name: string]: string | null | undefined | boolean | number;
@@ -309,7 +322,7 @@ export const $ajax = {
         if (params) {
             url += "?" + qs.stringify(params);
         }
-        return $ajaxRaw(url, init);
+        return raw_fetch(url, init);
     },
     post(url, params?: IFromData | null, init?: RequestInit): Promise<void | Response> {
         return $ajaxBody(url, "POST", params, init);

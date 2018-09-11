@@ -16,8 +16,16 @@ declare module "zreact-router" {
     export const DRouter: any;
     export const Link: any;
     export const Route: any;
-    export const navigate: (to, opt?: {state?: any; replace?: boolean; }) => void;
+    // export const navigate: (to, opt?: {state?: any; replace?: boolean; }) => void;
     export const Redirect: any;
+    export const LocationProvider:any;
+    export const Location: any;
+    export const globalHistory: any;
+}
+
+declare module "hash-source" {
+    const createHashSource: () => any;
+    export default createHashSource;
 }
 declare module "preact-animate" {
     const Animate: any;
@@ -53,7 +61,7 @@ declare module "module-react" {
 
 declare module "react-import" {
     import { h, render, Component, findDOMNode, cloneElement, Children } from "zreact";
-    import { DRouter, Route, Link, navigate, Redirect } from "zreact-router";
+    import { DRouter, Route, Link, Redirect, LocationProvider, Location } from "zreact-router";
     // const customHistory: any;
     // const AsyncRoute: any;
 
@@ -67,8 +75,9 @@ declare module "react-import" {
         DRouter as Router,
         Route,
         Link,
-        navigate,
         Redirect,
+        LocationProvider,
+        Location,
     };
 }
 
@@ -88,9 +97,8 @@ declare module "hotkeys-js" {
     export default hotkeys;
 }
 
-declare module "history/createHashHistory" {
-    const History: any;
-    export default History;
+declare module "router-history" {
+    export const history: any;
 }
 
 declare module "material-ui/Button" {
