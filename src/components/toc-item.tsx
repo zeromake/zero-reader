@@ -23,9 +23,9 @@ export default class TocItem extends Component<ITocProps, IAbcToc> {
         this.itemClick = this.itemClick.bind(this);
         this.itemToggler = this.itemToggler.bind(this);
     }
-    public componentWillReceiveProps(props: ITocProps, context: any) {
-        this.setState(TocItem.getDerivedStateFromProps(props, this.state));
-    }
+    // public componentWillReceiveProps(props: ITocProps, context: any) {
+    //     this.setState(TocItem.getDerivedStateFromProps(props, this.state));
+    // }
 
     public shouldComponentUpdate(nextProps: ITocProps, nextState: IAbcToc, nextContext: any): boolean {
         const flag = shallowDiffers(this.state, nextState);

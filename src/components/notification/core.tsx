@@ -80,6 +80,7 @@ export default class Notification extends Component<IProps, IState> {
     public props: IProps;
     public state: IState;
     public done: any;
+    public refs: any;
     constructor(props: IProps, context: any) {
         super(props, context);
         this.done = null;
@@ -185,6 +186,9 @@ export default class Notification extends Component<IProps, IState> {
             >
                 {notieNodes}
             </Animate>
+            // <div className={classes} style={style}>
+            //     {notieNodes}
+            // </div>
         );
     }
 }

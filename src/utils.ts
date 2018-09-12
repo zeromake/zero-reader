@@ -152,13 +152,16 @@ function _updateForm(component: Component<any, any>, attName: string, inputType?
                 }
             }
         }
+        const target = e.target;
         // const old = component.state[formName] || {};
         if (update) {
             component.setState(updateData, () => {
                 if (callback) {
                     callback(e, value);
                 }
-                e.target.checkValidity();
+                if (target) {
+                    target.checkValidity();
+                }
             });
         }
     };
@@ -241,8 +244,8 @@ const FormList = [
     "placeholder",
     "min",
     "max",
-    "minlength",
-    "maxlength",
+    "minLength",
+    "maxLength",
 ];
 
 export enum FromType {

@@ -3,8 +3,8 @@
     "type": "text",
     "pattern": "[A-z0-9_\\-]+",
     "title": "英文,数字,_ 且在4-32长度之间!",
-    "minlength": 4,
-    "maxlength": 32,
+    "minLength": 4,
+    "maxLength": 32,
     "required": true,
     "placeholder": "用户"
   },

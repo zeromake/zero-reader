@@ -72,7 +72,7 @@ export default class LoginView extends Component<any, any> {
                 <h1>登录</h1>
             </div>
             <div className={styl.form_item} key="1">
-                <input className={styl.input} autofocus={true} {...this.bindUpdateForm("account")}/>
+                <input className={styl.input} autoFocus={true} {...this.bindUpdateForm("account")}/>
             </div>
             <div className={styl.form_item} key="2">
                 <input className={styl.input} {...this.bindUpdateForm("password")}/>
@@ -80,17 +80,17 @@ export default class LoginView extends Component<any, any> {
             <div className={styl.form_item + " " + styl.form_item_back} key="3">
                 <div className={styl.rememberme}>
                     <input id="rememberme" {...this.bindUpdateForm("rememberme")} className={styl.rememberme_check}/>
-                    <label for="rememberme" className={styl.rememberme_label}>记住我</label>
+                    <label htmlFor="rememberme" className={styl.rememberme_label}>记住我</label>
                 </div>
                 <div className={styl.back}>
-                    <Link href="/forgotpwd">忘记密码</Link>
+                    <Link href="/home/forgotpwd">忘记密码</Link>
                 </div>
             </div>
             <div className={styl.form_item} key="4">
                 <Button appearance="primary" block type="submit">登录</Button>
             </div>
             <div className={styl.form_item} key="5">
-                <Link href="/register">注册</Link>
+                <Link href="/home/register">注册</Link>
             </div>
             </form>
         </div>;

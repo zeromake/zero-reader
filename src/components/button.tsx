@@ -11,6 +11,7 @@ export default class Button extends Component<any, any> {
     };
     public state: any;
     public props: any;
+    public refs: any;
     constructor(p: any, c: any) {
         super(p, c);
     }

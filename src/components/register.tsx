@@ -56,7 +56,7 @@ export default class RegisterView extends Component<any, any> {
                     <h1>注册</h1>
                 </div>
                 <div className={styl.form_item} key="1">
-                    <input className={styl.input} autofocus={true} {...this.bindUpdateForm("account")}/>
+                    <input className={styl.input} autoFocus={true} {...this.bindUpdateForm("account")}/>
                 </div>
                 <div className={styl.form_item} key="2">
                     <input className={styl.input} {...this.bindUpdateForm("password")}/>

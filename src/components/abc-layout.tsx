@@ -1,5 +1,5 @@
 import { h, Component, findDOMNode } from "react-import";
-import { addLinkCss, addStyle, removeHead, filterPropsComponent } from "~/utils";
+import { addLinkCss, addStyle, removeHead, filterPropsComponent, togglerFullScreen } from "~/utils";
 import styl from "~/css/layout.styl";
 import { IAbcMeta, IAbcToc } from "../types/index";
 import Animate from "preact-animate";
@@ -140,12 +140,14 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
             propsLocation.searchParams.get("page"),
         ) || 0;
         const pageHtml = await this.getPage(page);
+        if (process.env.platform === "cordova") {
+            togglerFullScreen(true);
+        }
         return Promise.resolve({
             pageHtml,
             page,
             callback: () => window.addEventListener("resize", this.resize),
         });
-        // await this.setPage(0);
     }
     protected setPage(num: number, obj: any = {}) {
         if (this.load) {
@@ -204,6 +206,9 @@ export default abstract class AbcLayout<AbcState extends IabcState, AbcMeta exte
                 removeHead(cssId);
                 cssId = this.mountCss.pop();
             }
+        }
+        if (process.env.platform === "cordova") {
+            togglerFullScreen(false);
         }
     }
     /**
