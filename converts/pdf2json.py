@@ -459,6 +459,7 @@ class Pdf2Json(object):
                         parent_link.set('href', '?page=%s' % page_data[0])
                 else:
                     parent_link.set("target", "_blank")
+                    parent_link.set("rel", "noopener noreferrer nofollow")
                 class_index += 1
                 for style_item in style_arr:
                     match = px_and_pat.match(style_item)

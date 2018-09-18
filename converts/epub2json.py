@@ -684,6 +684,7 @@ class Epub2Json(object):
                             link.set('data-href', json.dumps(data))
                         else:
                             link.set("target", "_blank")
+                            link.set("rel", "noopener noreferrer nofollow")
                 images = tree.xpath(
                     '//img[@src]'
                 )
