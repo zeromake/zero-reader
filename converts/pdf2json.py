@@ -265,7 +265,8 @@ class Pdf2Json(object):
                         offset_start = False
                         old_line = b''
         finally:
-            os.remove(temp_name)
+            pass
+            # os.remove(temp_name)
         with file_open(os.path.join(self.out, 'exec.lock'), 'w') as file_:
             file_.write(str(state))
 

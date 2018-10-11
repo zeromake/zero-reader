@@ -92,6 +92,10 @@ def main():
     if options['web'] == 1:
         from web_app import app
         app.run(host="0.0.0.0", workers=1, access_log=False, debug=False)
+        # app.config.REQUEST_TIMEOUT = 500
+        # app.config.RESPONSE_TIMEOUT = 500
+        # app.config.KEEP_ALIVE = False
+        # app.config.KEEP_ALIVE_TIMEOUT = 60
     else:
         from converts.utils import logger
         from converts.epub2json import Epub2Json

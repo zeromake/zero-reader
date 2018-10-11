@@ -145,7 +145,7 @@ async def zero_copy_stream(
     """
     Accepts an coroutine `streaming_fn`
     """
-    if hasattr(os, "sendfile"):
+    if hasattr(os, "sendfile") and False:
         return ZeroCopyStreamingHTTPResponse(
             file_path,
             file_name=file_name,

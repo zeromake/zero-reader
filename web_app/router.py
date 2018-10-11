@@ -53,7 +53,7 @@ async def librarys(request, file_uri):
 @app.route("/")
 def index(request):
     return template("index.html", headers={
-        "Content-Security-Policy": CSP
+        # "Content-Security-Policy": CSP
     }, config=app.config.project)
 
 @app.route("/config.js")
@@ -80,7 +80,7 @@ def fall_back(request, exception):
     全部重定向到index.html
     """
     return template("index.html", headers={
-        "Content-Security-Policy": CSP
+        # "Content-Security-Policy": CSP
     }, config=app.config.project)
 
 # @app.route("/librarys/<file_uri:/?.+>", methods=["GET", "OPTIONS"])

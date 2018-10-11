@@ -18,7 +18,6 @@ export default class Library extends Component<any, any> {
         });
     }
     public render() {
-        const props = this.props;
         const state = this.state;
         return (
             <div {...Animate.filterProps(this.props, {className: styl.library + " animated"})}>
