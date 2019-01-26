@@ -206,6 +206,11 @@
   resolved "http://registry.npm.taobao.org/@xtuc/long/download/@xtuc/long-4.2.1.tgz#5c85d662f76fa1d34575766c5dcd6615abcd30d8"
   integrity sha1-XIXWYvdvodNFdXZsXc1mFavNMNg=
 
+"@zeromake/zreact@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/@zeromake/zreact/-/zreact-1.0.0.tgz#902efc6cb021924da487525eb8d8c8ae24ac91f3"
+  integrity sha512-yt/FLHI7pmY5y+lR/lo384RmweHCYyD0Gv2j3fooqs13ynoM+NqTe9ogsb0SjvxYQYSgbZT5/3ne+orpW++abw==
+
 JSV@^4.0.x:
   version "4.0.2"
   resolved "http://registry.npm.taobao.org/JSV/download/JSV-4.0.2.tgz#d077f6825571f82132f9dffaed587b4029feff57"

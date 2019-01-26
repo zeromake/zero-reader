@@ -129,3 +129,12 @@ declare module "fscreen" {
     };
     export default fscreen;
 }
+declare module "@zeromake/zreact" {
+    export const createElement: any;
+    export const Component: any;
+    export const findDOMNode: any;
+    export const render: any;
+    export const cloneElement: any;
+    export const Children: any;
+    export const unmountComponentAtNode: any;
+}

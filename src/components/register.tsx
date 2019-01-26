@@ -77,7 +77,7 @@ export default class RegisterView extends Component<any, any> {
                     <Button appearance="primary" block type="submit">注册</Button>
                 </div>
                 <div className={styl.form_item} key="5">
-                    <Link href="/login">登陆</Link>
+                    <Link href="/home/login">登陆</Link>
                 </div>
             </form>
         </div>;

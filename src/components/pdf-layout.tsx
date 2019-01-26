@@ -63,7 +63,7 @@ export default class PdfLayout extends AbcLayout<IBookState, IPdfMeta> {
         if (typeof requestAnimationFrame !== "undefined") {
             requestAnimationFrame(callback);
         } else {
-            setTimeout(callback());
+            setTimeout(callback);
         }
     }
 

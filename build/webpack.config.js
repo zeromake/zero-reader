@@ -98,6 +98,18 @@ const reactAlias = {
     'preact-animate': 'preact-animate/dist/react-animate-esm.js',
     'zreact-router': 'zreact-router/dist/react-router-esm.js',
 }
+
+const sZreactAlias = {
+    'react': '@zeromake/zreact',
+    'react-dom': '@zeromake/zreact',
+    'zreact': '@zeromake/zreact',
+    'zreact/devtools': '@zeromake/zreact/lib/devtools.js', 
+    'preact': resolve('../src/import/module-szreact.ts'),
+    'module-react': resolve('../src/import/module-szreact.ts'),
+    'react-import': resolve('../src/import/react-import.ts'),
+    'preact-animate': 'preact-animate/dist/react-animate-esm.js',
+    'zreact-router': 'zreact-router/dist/react-router-esm.js',
+}
 const preactAlias = {
     'react': 'preact',
     'react-dom': 'preact',
@@ -179,7 +191,7 @@ const config = {
             'router-history': isCordova ? resolve('../src/import/hash-history.ts') : resolve('../src/import/history.ts'),
             // 'sweetalert2': 'sweetalert2/dist/sweetalert2.js',
             '~': resolve('../src')
-        }, zreactAlias),
+        }, sZreactAlias),
         extensions: ['.js', '.ts', '.tsx']
     },
     plugins: [
