@@ -191,7 +191,7 @@ const config = {
             'router-history': isCordova ? resolve('../src/import/hash-history.ts') : resolve('../src/import/history.ts'),
             // 'sweetalert2': 'sweetalert2/dist/sweetalert2.js',
             '~': resolve('../src')
-        }, sZreactAlias),
+        }, reactAlias),
         extensions: ['.js', '.ts', '.tsx']
     },
     plugins: [
