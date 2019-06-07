@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="full-screen" content="yes"><!--UC强制全屏-->
+    <meta name="browsermode" content="application"><!--UC应用模式-->
+    <meta name="x5-fullscreen" content="true"><!--QQ强制全屏-->
+    <meta name="x5-page-mode" content="app"><!--QQ应用模式-->
+    <meta name="version" content="<%= htmlWebpackPlugin.options.version %>"/>
+    <meta name="buildTime" content="<%= htmlWebpackPlugin.options.buildTime %>"/>
+    <title>zero-reader</title>
+    <% if (htmlWebpackPlugin.options.config){%>
+    <%= htmlWebpackPlugin.options.config %>
+    <%}%>
+</head>
+<body>
+    <div id="app"></div>
+    <% if (htmlWebpackPlugin.options.isCordova){%>
+    <script type="text/javascript" src="cordova.js"></script>
+    <%}%>
+    <% if (!htmlWebpackPlugin.options.isProd){%>
+    <script>
+        ;(function () {
+            var src = 'https://cdn.jsdelivr.net/npm/eruda';
+            if (!/console=true/.test(window.location) && localStorage.getItem('active-eruda') != 'true'){
+                return;
+            }
+            if ('eruda' in window) {
+                eruda.init();
+            } else {
+                var script = document.createElement('script');
+                script.setAttribute('src', src);
+                script.onload = function() {
+                    eruda.init();
+                }
+                document.head.appendChild(script);
+            }
+        })();
+    </script>
+    <%}%>
+</body>
+</html>

@@ -14,15 +14,13 @@
       "types": [
         "lodash"
       ],
-      "baseUrl": "src",
+      "baseUrl": "web",
       "paths": {
         "~/*": ["*"]
       }
     },
     "files": [
-       "src/types.d.ts",
-      //  "node_modules/preact/src/preact.d.ts"
-       "node_modules/zreact/types/zreact.d.ts",
-       "src/main.tsx"
+       "web/types.d.ts",
+       "web/main.tsx"
     ]
 }

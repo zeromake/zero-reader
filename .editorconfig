@@ -1,13 +1,16 @@
 root = true
 [*]
+indent_style = space
 end_of_line = lf
 insert_final_newline = true
 charset = utf-8
 
 [*.{ts,js,ts.d,py}]
-indent_style = space
 indent_size = 4
 
 [*.{html,xml,json,yaml,yal}]
-indent_style = space
 indent_size = 2
+
+[*.go]
+indent_size = 4
+indent_style = tab
