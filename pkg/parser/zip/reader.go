@@ -40,15 +40,23 @@ func Join(elem ...string) string {
 	return ""
 }
 
-// Open open zip file
-func (r *Reader) Open(name string) (io.ReadCloser, error) {
+func (r *Reader) Find(name string) (*zip.File, error) {
 	for _, f := range r.r.File {
 		if strings.EqualFold(f.Name, name) {
-			file, err := f.Open()
-			return file, errors.WithStack(err)
+			return f, nil
 		}
 	}
-	return nil, errors.New("not find file")
+	return nil, errors.WithStack(os.ErrNotExist)
+}
+
+// Open open zip file
+func (r *Reader) Open(name string) (io.ReadCloser, error) {
+	file, err := r.Find(name)
+	if err != nil  {
+		return nil, errors.WithStack(err)
+	}
+	f, err := file.Open()
+	return f, errors.WithStack(err)
 }
 
 func (r *Reader) Close() error {
