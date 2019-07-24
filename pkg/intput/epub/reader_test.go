@@ -1,6 +1,7 @@
 package epub
 
 import (
+	"fmt"
 	"log"
 	"testing"
 )
@@ -14,6 +15,6 @@ func TestReader_ParseReferences(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	references, err := reader.ParseReferences()
-	log.Fatal(references, err)
+	reader.Parse()
+	fmt.Printf("%+v", reader)
 }

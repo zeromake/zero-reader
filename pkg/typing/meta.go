@@ -6,14 +6,18 @@ import "time"
 type Toc struct {
 	// 目录标题
 	Name string
+	// id
+	ID string
 	// 资源页
 	Src string
 	// 目录深度
-	Level uint
+	Level uint64
 	// 锚点
 	Anchor string
+	// 排序
+	Order uint64
 	// 子目录
-	Children []Toc
+	Children []*Toc
 }
 
 // Rating 评分
@@ -81,7 +85,7 @@ type Meta struct {
 	// 书籍价格
 	Price float32 `json:"price"`
 	// 书籍页数
-	Pages uint64 `json:"pages"`
+	Pages    uint64 `json:"pages"`
 	Language string
 }
 
