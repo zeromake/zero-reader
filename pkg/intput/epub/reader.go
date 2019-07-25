@@ -218,14 +218,14 @@ func (reader *Reader) CheckProgress(start Progress) error {
 
 func (reader *Reader) parseContent() error {
 	var (
-		file *z.File
+		f    *z.File
 		err  error
 		read io.ReadCloser
 	)
 	for _, name := range ContainerPaths {
-		if file, err = reader.r.Find(name); err == nil {
+		if f, err = reader.r.Find(name); err == nil {
 			d := etree.NewDocument()
-			r, err := file.Open()
+			r, err := f.Open()
 			if err != nil {
 				return errors.WithStack(err)
 			}
@@ -237,23 +237,26 @@ func (reader *Reader) parseContent() error {
 				return errors.WithStack(err)
 			}
 			e := d.FindElement(RootFileXPath)
-			file, err = reader.r.Find(e.SelectAttrValue("full-path", ""))
+			f, err = reader.r.Find(e.SelectAttrValue("full-path", ""))
 			if err != nil {
 				break
 			}
 		}
 	}
-	if file == nil {
+	if f == nil {
 		for _, name := range PresumptiveContainerPaths {
-			if file, err = reader.r.Find(name); err == nil {
+			if f, err = reader.r.Find(name); err == nil {
 				break
 			}
 		}
 	}
-	if read, err = file.Open(); err != nil {
+	if f == nil {
+		return errors.WithStack(os.ErrNotExist)
+	}
+	if read, err = f.Open(); err != nil {
 		return errors.WithStack(err)
 	}
-	opfName := file.Name
+	opfName := f.Name
 	document := etree.NewDocument()
 
 	if _, err = document.ReadFrom(read); err != nil {
@@ -374,9 +377,10 @@ func (reader *Reader) deepToc(point *etree.Element, toc []*typing.Toc) ([]*typin
 	var (
 		text    *etree.Element
 		content *etree.Element
-		points  = []*etree.Element{}
+		points []*etree.Element
 		err     error
 	)
+	points  = []*etree.Element{}
 	for _, child := range point.ChildElements() {
 		switch child.Tag {
 		case "navLabel":
@@ -386,6 +390,9 @@ func (reader *Reader) deepToc(point *etree.Element, toc []*typing.Toc) ([]*typin
 		case "navPoint":
 			points = append(points, child)
 		}
+	}
+	if content == nil || text == nil || len(points) == 0 {
+		return nil, errors.Errorf("content|text|points is empty")
 	}
 	src, anchor := SplitAnchor(content.SelectAttrValue("src", ""))
 	if src != "" {
@@ -408,6 +415,9 @@ func (reader *Reader) deepToc(point *etree.Element, toc []*typing.Toc) ([]*typin
 }
 
 func (reader *Reader) parseToc() error {
+	var (
+		toc []*typing.Toc
+	)
 	manifest := reader.Find(reader.spine.Toc)
 	tocFile, err := reader.r.Find(manifest.Href)
 	if err != nil {
@@ -425,7 +435,7 @@ func (reader *Reader) parseToc() error {
 	if tocElement == nil {
 		return nil
 	}
-	toc := []*typing.Toc{}
+	toc = []*typing.Toc{}
 	for _, point := range tocElement.ChildElements() {
 		if toc, err = reader.deepToc(point, toc); err != nil {
 			return errors.WithStack(err)
