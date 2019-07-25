@@ -2,7 +2,6 @@ package epub
 
 import (
 	"fmt"
-	"log"
 	"testing"
 )
 
@@ -13,8 +12,21 @@ const (
 func TestReader_ParseReferences(t *testing.T) {
 	reader, err := NewReader(fileName)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("%+v\n", err)
+		return
 	}
-	reader.Parse()
-	fmt.Printf("%+v", reader)
+	err = reader.Parse()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		return
+	}
+	defer reader.Close()
+	writer := &DefaultWriter{
+		Out: "./out",
+	}
+	err = reader.WriteAll(writer)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		return
+	}
 }

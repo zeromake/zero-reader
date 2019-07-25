@@ -1,16 +1,16 @@
 root = true
 [*]
 indent_style = space
+indent_size = 4
 end_of_line = lf
 insert_final_newline = true
 charset = utf-8
-
-[*.{ts,js,ts.d,py}]
-indent_size = 4
+max_line_length = 100
+tab_width = 4
+trim_trailing_whitespace = true
 
 [*.{html,xml,json,yaml,yal}]
 indent_size = 2
 
 [*.go]
-indent_size = 4
 indent_style = tab

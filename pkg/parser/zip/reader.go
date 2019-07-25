@@ -46,7 +46,7 @@ func (r *Reader) Find(name string) (*zip.File, error) {
 			return f, nil
 		}
 	}
-	return nil, errors.WithStack(os.ErrNotExist)
+	return nil, errors.WithMessagef(os.ErrNotExist, ": `%s`", name)
 }
 
 // Open open zip file

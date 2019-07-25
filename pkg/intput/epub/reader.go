@@ -1,13 +1,15 @@
 package epub
 
 import (
-	gozip "archive/zip"
+	z "archive/zip"
 	"github.com/beevik/etree"
 	"github.com/pkg/errors"
 	"github.com/zeromake/zero-reader/pkg/parser/zip"
 	"github.com/zeromake/zero-reader/pkg/typing"
 	"io"
+	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -24,7 +26,6 @@ const (
 	SPINE
 	COVER
 	TOCS
-	PAGES
 	OFFLINE
 
 	RootFileXPath = "//container/rootfiles/rootfile"
@@ -51,6 +52,50 @@ var (
 		"container.xml",
 	}
 )
+
+type OutWriter interface {
+	Write(f *z.File, r *Reader) (int64, error)
+}
+
+type DefaultWriter struct {
+	Out string
+}
+
+func (w *DefaultWriter) Write(f *z.File, reader *Reader) (int64, error) {
+	var (
+		err error
+	)
+	src, err := f.Open()
+	if err != nil {
+		return 0, errors.WithStack(err)
+	}
+	defer func() {
+		_ = src.Close()
+	}()
+	filename := filepath.Join(w.Out, f.Name)
+	dir := filepath.Dir(filename)
+	if _, err = os.Stat(dir); err != nil {
+		if !os.IsNotExist(err) {
+			return 0, errors.WithStack(err)
+		}
+		err = os.MkdirAll(dir, 0755)
+		if err != nil {
+			return 0, errors.WithStack(err)
+		}
+	}
+	dst, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		return 0, errors.WithStack(err)
+	}
+	defer func() {
+		_ = dst.Close()
+	}()
+	count, err := io.Copy(dst, src)
+	if err != nil {
+		return 0, errors.WithStack(err)
+	}
+	return count, err
+}
 
 type Reader struct {
 	r        *zip.Reader
@@ -80,6 +125,43 @@ func NewReader(name string) (*Reader, error) {
 func (reader *Reader) Parse() error {
 	err := reader.Progress(OFFLINE)
 	return errors.WithStack(err)
+}
+
+func (reader *Reader) WritePages(writer OutWriter) error {
+	err := reader.CheckProgress(SPINE)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	for _, ref := range reader.spine.Refs {
+		m := reader.Find(ref)
+		f, err := reader.r.Find(m.Href)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		_, err = writer.Write(f, reader)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	}
+	return nil
+}
+
+func (reader *Reader) WriteAll(writer OutWriter) error {
+	err := reader.CheckProgress(MANIFEST)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	for _, m := range reader.manifest {
+		f, err := reader.r.Find(m.Href)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		_, err = writer.Write(f, reader)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	}
+	return nil
 }
 
 func (reader *Reader) Join(elem string) string {
@@ -136,7 +218,7 @@ func (reader *Reader) CheckProgress(start Progress) error {
 
 func (reader *Reader) parseContent() error {
 	var (
-		file *gozip.File
+		file *z.File
 		err  error
 		read io.ReadCloser
 	)
